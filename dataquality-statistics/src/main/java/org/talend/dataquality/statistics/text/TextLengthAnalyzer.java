@@ -14,8 +14,8 @@ package org.talend.dataquality.statistics.text;
 
 import java.util.List;
 
-import org.talend.datascience.common.inference.Analyzer;
-import org.talend.datascience.common.inference.ResizableList;
+import org.talend.dataquality.common.inference.Analyzer;
+import org.talend.dataquality.common.inference.ResizableList;
 
 /**
  * Text length analyzer compute the length of min,max and average length of the record sets.<br>

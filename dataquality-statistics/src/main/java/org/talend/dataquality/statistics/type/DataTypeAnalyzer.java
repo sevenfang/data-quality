@@ -18,8 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.datascience.common.inference.Analyzer;
-import org.talend.datascience.common.inference.ResizableList;
+import org.talend.dataquality.common.inference.Analyzer;
+import org.talend.dataquality.common.inference.ResizableList;
 
 /**
  * Type inference executor which provide several methods computing the types.<br>
@@ -49,6 +49,7 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
 
     /**
      * Create a DataTypeAnalyzer with the given custom date patterns.
+     * 
      * @param customDateTimePatterns the patterns to use.
      */
     public DataTypeAnalyzer(List<String> customDateTimePatterns) {

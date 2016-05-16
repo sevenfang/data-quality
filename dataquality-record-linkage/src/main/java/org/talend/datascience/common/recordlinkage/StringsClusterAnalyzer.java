@@ -34,7 +34,7 @@ import org.talend.dataquality.record.linkage.genkey.BlockingKeyHandler;
 import org.talend.dataquality.record.linkage.utils.BlockingKeyAlgorithmEnum;
 import org.talend.dataquality.record.linkage.utils.MatchAnalysisConstant;
 import org.talend.dataquality.record.linkage.utils.SurvivorShipAlgorithmEnum;
-import org.talend.datascience.common.inference.Analyzer;
+import org.talend.dataquality.common.inference.Analyzer;
 
 /**
  * String clustering analyzer.
