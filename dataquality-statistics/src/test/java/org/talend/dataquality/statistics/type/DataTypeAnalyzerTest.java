@@ -217,8 +217,8 @@ public class DataTypeAnalyzerTest extends DataTypeStatiticsTestBase {
     @Test
     public void testInferTypesColumnIndexOrder() {
         DataTypeAnalyzer analyzer = createDataTypeanalyzer();
-        final List<String[]> records = getRecords(DataTypeStatiticsTestBase.class
-                .getResourceAsStream("customers_100_bug_TDQ10380.csv"));
+        final List<String[]> records = getRecords(
+                DataTypeStatiticsTestBase.class.getResourceAsStream("customers_100_bug_TDQ10380.csv"));
         for (String[] record : records) {
             analyzer.analyze(record);
         }

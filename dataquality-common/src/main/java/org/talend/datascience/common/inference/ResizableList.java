@@ -134,7 +134,6 @@ public class ResizableList<T> implements List<T>, Serializable {
         return innerList.retainAll(collection);
     }
 
-
     public void clear() {
         innerList.clear();
     }

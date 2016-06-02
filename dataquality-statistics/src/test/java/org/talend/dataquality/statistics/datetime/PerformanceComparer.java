@@ -27,7 +27,7 @@ public class PerformanceComparer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceComparer.class);
 
-    private static final List<String> CUSTOM_PATTERN_LIST = Arrays.asList(new String[] {//
+    private static final List<String> CUSTOM_PATTERN_LIST = Arrays.asList(new String[] { //
             "yyyy/MMM/d", "yyyy/MMM/dd", "yyyy/MMMM/dd" });
 
     private List<String> LINES = new ArrayList<>();

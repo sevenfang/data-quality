@@ -349,9 +349,9 @@ public class DataTypeQualityAnalyzerTest {
 
     @Test
     public void testInvalidCount() {// for issue TDQ_10380
-        DataTypeQualityAnalyzer qualityAnalyzer = new DataTypeQualityAnalyzer(new DataTypeEnum[] { DataTypeEnum.INTEGER,
-                DataTypeEnum.STRING, DataTypeEnum.STRING, DataTypeEnum.STRING, DataTypeEnum.DATE, DataTypeEnum.STRING,
-                DataTypeEnum.DATE, DataTypeEnum.INTEGER, DataTypeEnum.DOUBLE });
+        DataTypeQualityAnalyzer qualityAnalyzer = new DataTypeQualityAnalyzer(
+                new DataTypeEnum[] { DataTypeEnum.INTEGER, DataTypeEnum.STRING, DataTypeEnum.STRING, DataTypeEnum.STRING,
+                        DataTypeEnum.DATE, DataTypeEnum.STRING, DataTypeEnum.DATE, DataTypeEnum.INTEGER, DataTypeEnum.DOUBLE });
 
         final List<String[]> records = getRecords(this.getClass().getResourceAsStream("../data/customers_100.csv"));
 

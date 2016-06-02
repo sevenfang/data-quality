@@ -256,8 +256,8 @@ public class TypeInferenceUtilsTest {
         String lStart = StringUtils.substringAfterLast(timeStart, ".");
         double endTimeInSecond = Double
                 .valueOf(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(timeEnd, "."), ":") + "." + lEnd);
-        double startTimeInSecond = Double.valueOf(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(timeStart, "."),
-                ":") + "." + lStart);
+        double startTimeInSecond = Double
+                .valueOf(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(timeStart, "."), ":") + "." + lStart);
         double difference = 0;
         difference = endTimeInSecond - startTimeInSecond;
         return difference + (Integer.valueOf(endMin) - Integer.valueOf(startMin)) * 60;

@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.datascience.common.inference;
 
-
 public abstract class QualityAnalyzer<T, QT> implements Analyzer<T> {
 
     private static final long serialVersionUID = 6214486020243062215L;
@@ -29,7 +28,6 @@ public abstract class QualityAnalyzer<T, QT> implements Analyzer<T> {
     public void setStoreInvalidValues(boolean isStoreInvalidValues) {
         this.isStoreInvalidValues = isStoreInvalidValues;
     }
-
 
     public QT getTypes() {
         return types;

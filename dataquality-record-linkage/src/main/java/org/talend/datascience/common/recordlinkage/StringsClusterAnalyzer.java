@@ -116,7 +116,6 @@ public class StringsClusterAnalyzer implements Analyzer<StringClusters> {
         currentBlockIndex = 0;
     }
 
-
     public boolean analyze(String... record) {
         if (record == null || record.length != 1) {
             return false;
@@ -230,8 +229,9 @@ public class StringsClusterAnalyzer implements Analyzer<StringClusters> {
             throw new UnsupportedOperationException("remove");
         }
     }
+
     @Override
     public void close() throws Exception {
-        
+
     }
 }

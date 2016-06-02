@@ -81,8 +81,9 @@ public class ValueQualityAnalyzerTest {
     @Test
     public void testValueQualityAnalyzerWithoutSemanticQuality() throws URISyntaxException {
 
-        DataTypeQualityAnalyzer dataTypeQualityAnalyzer = new DataTypeQualityAnalyzer(new DataTypeEnum[] { DataTypeEnum.INTEGER,
-                DataTypeEnum.STRING, DataTypeEnum.STRING, DataTypeEnum.STRING, DataTypeEnum.DATE, DataTypeEnum.STRING, DataTypeEnum.DATE, DataTypeEnum.INTEGER, DataTypeEnum.DOUBLE });
+        DataTypeQualityAnalyzer dataTypeQualityAnalyzer = new DataTypeQualityAnalyzer(
+                new DataTypeEnum[] { DataTypeEnum.INTEGER, DataTypeEnum.STRING, DataTypeEnum.STRING, DataTypeEnum.STRING,
+                        DataTypeEnum.DATE, DataTypeEnum.STRING, DataTypeEnum.DATE, DataTypeEnum.INTEGER, DataTypeEnum.DOUBLE });
         String[] semanticTypes = new String[] { SemanticCategoryEnum.UNKNOWN.name(), SemanticCategoryEnum.UNKNOWN.name(),
                 SemanticCategoryEnum.UNKNOWN.name(), SemanticCategoryEnum.UNKNOWN.name(), SemanticCategoryEnum.UNKNOWN.name(),
                 SemanticCategoryEnum.UNKNOWN.name(), SemanticCategoryEnum.UNKNOWN.name(), SemanticCategoryEnum.UNKNOWN.name(),
@@ -178,8 +179,8 @@ public class ValueQualityAnalyzerTest {
             }
         };
 
-        DataTypeQualityAnalyzer dataTypeQualityAnalyzer = new DataTypeQualityAnalyzer(new DataTypeEnum[] { DataTypeEnum.INTEGER,
-                DataTypeEnum.STRING, DataTypeEnum.STRING });
+        DataTypeQualityAnalyzer dataTypeQualityAnalyzer = new DataTypeQualityAnalyzer(
+                new DataTypeEnum[] { DataTypeEnum.INTEGER, DataTypeEnum.STRING, DataTypeEnum.STRING });
         SemanticQualityAnalyzer semanticQualityAnalyzer = new SemanticQualityAnalyzer(createCategoryRecognizerBuilder(),
                 new String[] { SemanticCategoryEnum.UNKNOWN.name(), SemanticCategoryEnum.US_STATE_CODE.name(),
                         SemanticCategoryEnum.CITY.name() });

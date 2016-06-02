@@ -40,6 +40,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
         // #2: Pool is expected to be thread safe.
         final KeyedObjectPool<Thread, Analyzer<T>> pool = new GenericKeyedObjectPool<>(new Factory<>(supplier), config);
         this.threadLocal = new ThreadLocal<Analyzer<T>>() {
+
             @Override
             protected Analyzer<T> initialValue() {
                 try {

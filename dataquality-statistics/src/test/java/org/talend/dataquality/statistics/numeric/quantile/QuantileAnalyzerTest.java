@@ -146,8 +146,8 @@ public class QuantileAnalyzerTest {
 
     @Test
     public void testQuantileOfFile() throws IOException {// test for double data, TDQ-10789, TDP-394
-        final List<String[]> records = ValueQualityAnalyzerTest.getRecords(
-                this.getClass().getResourceAsStream("../../data/t-shirt_100.csv"), ",");
+        final List<String[]> records = ValueQualityAnalyzerTest
+                .getRecords(this.getClass().getResourceAsStream("../../data/t-shirt_100.csv"), ",");
         QuantileAnalyzer analyzer = new QuantileAnalyzer(new DataTypeEnum[] { DataTypeEnum.DOUBLE });
         TDigestAnalyzer tanalyzer = new TDigestAnalyzer(new DataTypeEnum[] { DataTypeEnum.DOUBLE });
         SummaryAnalyzer summaryAnalyzer = new SummaryAnalyzer(new DataTypeEnum[] { DataTypeEnum.DOUBLE });

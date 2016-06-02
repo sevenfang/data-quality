@@ -41,8 +41,8 @@ public class HiraganaSmallTest {
     @Test
     public void testHandleRequestCase2() {
         HiraganaSmall hiraganaSmall = new HiraganaSmall();
-        String handleRequest = hiraganaSmall
-                .handleRequest("........ぁ,...... ぃ ,.... ぅ ,.....ぇ,..... ぉ,.... っ,.... ゃ ,..... ゅ,.... ょ,.... ゎ ,..... ゕ ,..... ゖ"); //$NON-NLS-1$
+        String handleRequest = hiraganaSmall.handleRequest(
+                "........ぁ,...... ぃ ,.... ぅ ,.....ぇ,..... ぉ,.... っ,.... ゃ ,..... ゅ,.... ょ,.... ゎ ,..... ゕ ,..... ゖ"); //$NON-NLS-1$
         Assert.assertEquals("........h,...... h ,.... h ,.....h,..... h,.... h,.... h ,..... h,.... h,.... h ,..... h ,..... h", //$NON-NLS-1$
                 handleRequest);
     }

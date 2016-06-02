@@ -81,8 +81,8 @@ public class TextLengthAnalyzer implements Analyzer<TextLengthStatistics> {
                     anotherStats.getMaxTextLengthIgnoreBlank(), false));
             // Merge sum
             mergedStats.setSumTextLength(mergeSumStats(stats.getSumTextLength(), anotherStats.getSumTextLength()));
-            mergedStats.setSumTextLengthIgnoreBlank(mergeSumStats(stats.getSumTextLengthIgnoreBlank(),
-                    anotherStats.getSumTextLengthIgnoreBlank()));
+            mergedStats.setSumTextLengthIgnoreBlank(
+                    mergeSumStats(stats.getSumTextLengthIgnoreBlank(), anotherStats.getSumTextLengthIgnoreBlank()));
 
             idx++;
         }

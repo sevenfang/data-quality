@@ -133,15 +133,15 @@ public class TextLengthAnalyzerTest {
         Assert.assertEquals(4.5, stats.getAvgTextLengthIgnoreBlank(), 0);
 
     }
-    
+
     @Test
-    public void testMoreAnalyzersMerge(){
+    public void testMoreAnalyzersMerge() {
         Analyzer<TextLengthStatistics> analyzer1 = new TextLengthAnalyzer();
         Analyzer<TextLengthStatistics> analyzer2 = new TextLengthAnalyzer();
         Analyzer<TextLengthStatistics> analyzer3 = new TextLengthAnalyzer();
-        
+
         //Data set 1 with length 6
-        String[] data1 = new String[] { " ","France" ,"Asia", "A long string", "", null };        
+        String[] data1 = new String[] { " ", "France", "Asia", "A long string", "", null };
         Runnable r1 = new Runnable() {
 
             @Override
@@ -158,11 +158,11 @@ public class TextLengthAnalyzerTest {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        
+
         //Data set 2 with length 3
-        String[] data2 = new String[] { "A" ,"AB", "ABC"};        
+        String[] data2 = new String[] { "A", "AB", "ABC" };
         Runnable r2 = new Runnable() {
-            
+
             @Override
             public void run() {
                 analyzer2.init();
@@ -177,12 +177,11 @@ public class TextLengthAnalyzerTest {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        
-        
+
         //Data set 3 with length 4
-        String[] data3 = new String[] { "computer" ,"machine", "PC","laptop"};        
+        String[] data3 = new String[] { "computer", "machine", "PC", "laptop" };
         Runnable r3 = new Runnable() {
-            
+
             @Override
             public void run() {
                 analyzer3.init();
@@ -197,9 +196,9 @@ public class TextLengthAnalyzerTest {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        
+
         //Running the analyzers in parallel.
-        
+
         List<Thread> workers = new ArrayList<>();
         workers.add(new Thread(r1));
         workers.add(new Thread(r2));

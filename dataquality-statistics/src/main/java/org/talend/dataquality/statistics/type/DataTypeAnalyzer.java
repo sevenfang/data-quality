@@ -44,7 +44,7 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
      * Default empty constructor.
      */
     public DataTypeAnalyzer() {
-        this(Collections.<String>emptyList());
+        this(Collections.<String> emptyList());
     }
 
     /**
@@ -116,11 +116,11 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
                     DataTypeEnum anotherDT = anotherDTIt.next();
                     // Update the current map
                     if (typeFreqTable.containsKey(anotherDT)) {
-                        mergedAnalyzer.getResult().get(idx).getTypeFrequencies()
-                                .put(anotherDT, typeFreqTable.get(anotherDT) + anotherTypeFreqTable.get(anotherDT));
+                        mergedAnalyzer.getResult().get(idx).getTypeFrequencies().put(anotherDT,
+                                typeFreqTable.get(anotherDT) + anotherTypeFreqTable.get(anotherDT));
                     } else {
-                        mergedAnalyzer.getResult().get(idx).getTypeFrequencies()
-                                .put(anotherDT, anotherTypeFreqTable.get(anotherDT));
+                        mergedAnalyzer.getResult().get(idx).getTypeFrequencies().put(anotherDT,
+                                anotherTypeFreqTable.get(anotherDT));
                     }
                 }
             }

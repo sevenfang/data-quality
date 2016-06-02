@@ -90,8 +90,8 @@ public final class AttributeMatcherFactory {
      * @throws IllegalAccessException
      * @throws ClassNotFoundException
      */
-    public static IAttributeMatcher createMatcher(AttributeMatcherType type, String className) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException {
+    public static IAttributeMatcher createMatcher(AttributeMatcherType type, String className)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         return createMatcher(type, className, AttributeMatcherFactory.class.getClassLoader());
     }
 

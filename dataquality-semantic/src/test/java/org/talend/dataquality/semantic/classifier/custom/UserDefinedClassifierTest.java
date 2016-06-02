@@ -328,13 +328,15 @@ public class UserDefinedClassifierTest {
         sizeAfter = userDefinedClassifier.getClassifiers().size();
         assertEquals(
                 "Expect to have a different size because we add a category that does not exist in the list of categories. Size=" //$NON-NLS-1$
-                        + userDefinedClassifier.getClassifiers().size(), sizeBefore + 1, sizeAfter);
+                        + userDefinedClassifier.getClassifiers().size(),
+                sizeBefore + 1, sizeAfter);
 
         userDefinedClassifier.addSubCategory(cat);
         sizeAfter = userDefinedClassifier.getClassifiers().size();
         assertEquals(
                 "Expect to have only one more element than the original size because the category now exists in the list of categories. Size=" //$NON-NLS-1$
-                        + userDefinedClassifier.getClassifiers().size(), sizeBefore + 1, sizeAfter);
+                        + userDefinedClassifier.getClassifiers().size(),
+                sizeBefore + 1, sizeAfter);
 
         userDefinedClassifier.removeSubCategory(cat);
         sizeAfter = userDefinedClassifier.getClassifiers().size();
@@ -351,13 +353,15 @@ public class UserDefinedClassifierTest {
         sizeAfter = userDefinedClassifier.getClassifiers().size();
         assertEquals(
                 "Expect to have a different size because we add a category that does not exist in the list of categories. Size=" //$NON-NLS-1$
-                        + userDefinedClassifier.getClassifiers().size(), sizeBefore + 1, sizeAfter);
+                        + userDefinedClassifier.getClassifiers().size(),
+                sizeBefore + 1, sizeAfter);
 
         assertFalse(userDefinedClassifier.addSubCategory(cat));
         sizeAfter = userDefinedClassifier.getClassifiers().size();
         assertEquals(
                 "Expect to have a still have the same size because we add a category that already exists in the list of categories. Size=" //$NON-NLS-1$
-                        + userDefinedClassifier.getClassifiers().size(), sizeBefore + 1, sizeAfter);
+                        + userDefinedClassifier.getClassifiers().size(),
+                sizeBefore + 1, sizeAfter);
 
         UserDefinedCategory cat2 = new UserDefinedCategory(id);
         cat2.setName("my name"); //$NON-NLS-1$
@@ -365,7 +369,8 @@ public class UserDefinedClassifierTest {
         sizeAfter = userDefinedClassifier.getClassifiers().size();
         assertEquals(
                 "Expect to have a still have the same size because we add a category that already exists in the list of categories. Size=" //$NON-NLS-1$
-                        + userDefinedClassifier.getClassifiers().size(), sizeBefore + 1, sizeAfter);
+                        + userDefinedClassifier.getClassifiers().size(),
+                sizeBefore + 1, sizeAfter);
 
     }
 }

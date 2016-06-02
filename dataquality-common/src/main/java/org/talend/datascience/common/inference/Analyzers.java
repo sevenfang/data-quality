@@ -120,5 +120,5 @@ public class Analyzers implements Analyzer<Analyzers.Result> {
             }
         }
     }
-    
+
 }

@@ -99,12 +99,12 @@ public class MinMaxValueAnalyzerTest {
 
         final String[][] testers = new String[][] {
                 //
-                { "1,1", "3.333,33", "5,555", "1E308" },//
+                { "1,1", "3.333,33", "5,555", "1E308" }, //
                 { "2.2", "4,444.44", "6.666", "1E309" },//
         };
 
-        SummaryAnalyzer analyzer = new SummaryAnalyzer(new DataTypeEnum[] { DataTypeEnum.DOUBLE, DataTypeEnum.DOUBLE,
-                DataTypeEnum.DOUBLE, DataTypeEnum.DOUBLE, });
+        SummaryAnalyzer analyzer = new SummaryAnalyzer(
+                new DataTypeEnum[] { DataTypeEnum.DOUBLE, DataTypeEnum.DOUBLE, DataTypeEnum.DOUBLE, DataTypeEnum.DOUBLE, });
 
         for (String[] values : testers) {
             analyzer.analyze(values);
