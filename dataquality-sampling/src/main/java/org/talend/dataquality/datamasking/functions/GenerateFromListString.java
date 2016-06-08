@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
-import org.talend.dataquality.duplicating.RandomWrapper;
-
 /**
  * created by jgonzalez on 24 juin 2015. See GenerateFromList.
  *
@@ -23,17 +21,14 @@ public class GenerateFromListString extends GenerateFromList<String> {
     private static final long serialVersionUID = 5737608518316422798L;
 
     @Override
-    public void parse(String extraParameter, boolean keepNullValues, RandomWrapper rand) {
-        super.parse(extraParameter, keepNullValues, rand);
-        super.init();
+    protected void init() {
+        for (String tmp : parameters) {
+            genericTokens.add(tmp.trim());
+        }
     }
 
     @Override
-    protected String doGenerateMaskedField(String str) {
-        if (StringTokens.size() > 0) {
-            return StringTokens.get(rnd.nextInt(StringTokens.size()));
-        } else {
-            return EMPTY_STRING;
-        }
+    protected String getDefaultOutput() {
+        return EMPTY_STRING;
     }
 }

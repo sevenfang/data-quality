@@ -15,22 +15,35 @@ package org.talend.dataquality.datamasking.functions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.dataquality.duplicating.RandomWrapper;
+
 /**
  * created by jgonzalez on 24 juin 2015. This function will modify the input by randomly selecting one of the values
  * given as parameter.
  *
  */
-public abstract class GenerateFromList<T2> extends Function<T2> {
+public abstract class GenerateFromList<T> extends Function<T> {
 
     private static final long serialVersionUID = 8936060786451303843L;
 
-    protected List<String> StringTokens = new ArrayList<>();
+    protected List<T> genericTokens = new ArrayList<T>();
 
-    protected void init() {
-        StringTokens.clear();
-        for (String tmp : parameters) {
-            StringTokens.add(tmp.trim());
+    protected abstract void init();
+
+    protected abstract T getDefaultOutput();
+
+    @Override
+    protected T doGenerateMaskedField(T i) {
+        if (genericTokens.size() > 0) {
+            return genericTokens.get(rnd.nextInt(genericTokens.size()));
+        } else {
+            return getDefaultOutput();
         }
     }
 
+    @Override
+    public void parse(String extraParameter, boolean keepNullValues, RandomWrapper rand) {
+        super.parse(extraParameter, keepNullValues, rand);
+        this.init();
+    }
 }

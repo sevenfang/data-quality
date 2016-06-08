@@ -12,6 +12,10 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -20,13 +24,41 @@ import org.talend.dataquality.duplicating.RandomWrapper;
  * modulo according to the number of elements in the list.
  *
  */
-public abstract class GenerateFromFileHash<T2> extends GenerateFromFile<T2> {
+public abstract class GenerateFromFileHash<T> extends Function<T> {
 
     private static final long serialVersionUID = -4616169672287269594L;
+
+    protected List<String> StringTokens = new ArrayList<>();
+
+    protected List<T> genericTokens = new ArrayList<T>();
+
+    protected void init() {
+        try {
+            StringTokens = KeysLoader.loadKeys(parameters[0]);
+        } catch (IOException | NullPointerException e) {
+            // We do nothing here because in is already set.
+        }
+    }
 
     @Override
     public void parse(String extraParameter, boolean keepNullValues, RandomWrapper rand) {
         super.parse(extraParameter, keepNullValues, rand);
-        super.init();
+        this.init();
     }
+
+    @Override
+    protected T doGenerateMaskedField(T t) {
+        if (genericTokens.size() > 0) {
+            if (t == null) {
+                return genericTokens.get(rnd.nextInt(genericTokens.size()));
+            } else {
+                return genericTokens.get(Math.abs(t.hashCode() % genericTokens.size()));
+            }
+        } else {
+            return getDefaultOutput();
+        }
+    }
+
+    protected abstract T getDefaultOutput();
+
 }

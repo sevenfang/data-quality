@@ -67,4 +67,9 @@ public class MaskEmail extends GenerateFromFile<String> {
             return EMPTY_STRING;
         }
     }
+
+    @Override
+    protected String getDefaultOutput() {
+        return EMPTY_STRING;
+    }
 }
