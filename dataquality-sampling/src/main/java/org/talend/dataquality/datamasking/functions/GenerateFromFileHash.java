@@ -13,6 +13,7 @@
 package org.talend.dataquality.datamasking.functions;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import org.talend.dataquality.duplicating.RandomWrapper;
  * modulo according to the number of elements in the list.
  *
  */
-public abstract class GenerateFromFileHash<T> extends Function<T> {
+public abstract class GenerateFromFileHash<T> extends Function<T> implements Serializable {
 
     private static final long serialVersionUID = -4616169672287269594L;
 

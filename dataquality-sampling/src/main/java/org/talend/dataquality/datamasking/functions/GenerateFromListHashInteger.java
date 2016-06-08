@@ -12,11 +12,13 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import java.io.Serializable;
+
 /**
  * created by jgonzalez on 24 juin 2015. See GenerateFromListHash.
  *
  */
-public class GenerateFromListHashInteger extends GenerateFromListHash<Integer> {
+public class GenerateFromListHashInteger extends GenerateFromListHash<Integer> implements Serializable {
 
     private static final long serialVersionUID = 196366420689702606L;
 
