@@ -295,7 +295,7 @@ public class UserDefinedClassifierTest {
         UserDefinedClassifier userDefinedClassifier = new UserDefinedClassifier();
         addAndRemoveCategories(userDefinedClassifier);
 
-        userDefinedClassifier = new UDCategorySerDeser().readJsonFile();
+        userDefinedClassifier = UDCategorySerDeser.readJsonFile();
         addAndRemoveCategories(userDefinedClassifier);
     }
 

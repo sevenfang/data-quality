@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.dataquality.semantic.statistics;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -60,8 +59,10 @@ public class SemanticQualityAnalyzer extends QualityAnalyzer<ValueQualityStatist
 
     @Override
     public void init() {
-        try {
-            regexClassifier = new UDCategorySerDeser().readJsonFile();
+        if (regexClassifier == null) {
+            regexClassifier = UDCategorySerDeser.getRegexClassifier();
+        }
+        if (dataDictClassifier == null) {
             if (Mode.LUCENE.equals(builder.getMode())) {
                 LuceneIndex dict = new LuceneIndex(builder.getDDPath(),
                         SynonymIndexSearcher.SynonymSearchMode.MATCH_SEMANTIC_DICTIONARY);
@@ -69,9 +70,8 @@ public class SemanticQualityAnalyzer extends QualityAnalyzer<ValueQualityStatist
                         SynonymIndexSearcher.SynonymSearchMode.MATCH_SEMANTIC_KEYWORD);
                 dataDictClassifier = new DataDictFieldClassifier(dict, keyword);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        results.clear();
     }
 
     @Override
