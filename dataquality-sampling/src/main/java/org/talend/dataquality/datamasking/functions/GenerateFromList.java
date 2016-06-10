@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import org.talend.dataquality.duplicating.RandomWrapper;
  * given as parameter.
  *
  */
-public abstract class GenerateFromList<T> extends Function<T> implements Serializable {
+public abstract class GenerateFromList<T> extends Function<T> {
 
     private static final long serialVersionUID = 8936060786451303843L;
 

@@ -13,7 +13,6 @@
 package org.talend.dataquality.datamasking.functions;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ import org.talend.dataquality.duplicating.RandomWrapper;
  * is now a String holding the path to a file in the user’s computer.
  *
  */
-public abstract class GenerateFromFile<T> extends Function<T> implements Serializable {
+public abstract class GenerateFromFile<T> extends Function<T> {
 
     private static final long serialVersionUID = 1556057898878709265L;
 
