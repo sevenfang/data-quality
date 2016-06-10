@@ -46,7 +46,7 @@ public class MaskAddress extends GenerateFromFile<String> {
     private void addKeys(String[] para) {
         if (para.length > 0) {
             try {
-                keys = KeysLoader.loadKeys(para[0]);
+                keys.addAll(KeysLoader.loadKeys(para[0]));
             } catch (IOException | NullPointerException e) {
                 for (String element : para) {
                     keys.add(element);
