@@ -1,3 +1,10 @@
+V2.2.2 (in development) (for Studio 6.2.1)
+    - TDQ-11437 fix FR_PHONE generation function of data masking
+    - TDQ-11293 rename Function package to lowercase
+    - TDQ-11437 avoid generating 0 as street number
+    - TDQ-12030 allow the hyphen character in domain part of email regex
+    - TDQ-12156 In tDataMasking component, fix the "Replace by (consistent)  items from input list/file properties
+
 V2.2.1 2016-05-04 (for studio 6.2.0)
     - TDQ-11339 fix a "String index out of range: -1" exception for datamasking
 

@@ -1,4 +1,7 @@
-V1.0.2 2015-12-30
+V1.0.3 (in development) (for Studio 6.2.1)
+	(no change in this version)
+
+V1.0.2 2015-12-30 (for Studio 6.2.0)
     - move to data-quality repository, change parent pom
 
 V1.0.1 2015-12-11

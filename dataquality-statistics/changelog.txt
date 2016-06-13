@@ -1,4 +1,7 @@
-V1.4.4 2016-04-27
+V1.4.5 (in developement) (for Studio 6.2.1)
+	- TDQ-12047 optimize category suggestion by prioritizing with ordinal information
+
+V1.4.4 2016-04-27 (for Studio 6.2.0)
 	- TDQ-11763 support numbers with non-breaking spaces
 	- TDQ-11833 support more date patterns
 
