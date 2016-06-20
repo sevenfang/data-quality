@@ -14,9 +14,8 @@
 	<description>Parent pom aggregating other library projects, devops tools</description>
 
 	<properties>
-		<org.talend.utils.version>6.2.0-SNAPSHOT</org.talend.utils.version>
-
-		<org.talend.daikon.version>0.8.2</org.talend.daikon.version>
+		<org.talend.utils.version>6.2.1-SNAPSHOT</org.talend.utils.version>
+		<org.talend.daikon.version>0.12.0-SNAPSHOT</org.talend.daikon.version>
 
 		<dataquality.libraries.snapshot.version>1.4.5-SNAPSHOT</dataquality.libraries.snapshot.version>
 		<dataquality.libraries.released.version>1.4.4</dataquality.libraries.released.version>
