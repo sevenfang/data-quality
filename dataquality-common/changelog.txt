@@ -1,4 +1,4 @@
-V1.4.5 (in developement) (for Studio 6.2.1)
+V1.4.5 2016-06-27 (for Studio 6.2.1)
 	- TDQ-12038 rename datascience.common package to dataquality.common
 
 V1.4.4 2016-04-27 (for Studio 6.2.0)

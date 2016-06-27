@@ -1,4 +1,4 @@
-V2.2.2 (in development) (for Studio 6.2.1)
+V2.2.2 2016-06-27 (for Studio 6.2.1)
     - TDQ-11437 fix FR_PHONE generation function of data masking
     - TDQ-11293 rename Function package to lowercase
     - TDQ-11437 avoid generating 0 as street number

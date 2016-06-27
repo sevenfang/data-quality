@@ -1,4 +1,4 @@
-V1.0.3 (in development) (for Studio 6.2.1)
+V1.0.3 2016-06-27 (for Studio 6.2.1)
 	(no change in this version)
 
 V1.0.2 2015-12-30 (for Studio 6.2.0)

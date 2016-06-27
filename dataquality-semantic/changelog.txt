@@ -1,4 +1,4 @@
-V1.4.5 (in developement) (for Studio 6.2.1)
+V1.4.5 2016-06-27 (for Studio 6.2.1)
 	- TDQ-11437 fix the regex for FR_PHONE recognition
 	- TDQ-12055 correctly pick category in semantic discovery analysis 
 	- TDQ-11962 add LAST_NAME index
