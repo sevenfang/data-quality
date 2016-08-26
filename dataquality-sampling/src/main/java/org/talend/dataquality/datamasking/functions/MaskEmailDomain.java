@@ -153,9 +153,12 @@ public abstract class MaskEmailDomain extends GenerateFromFile<String> {
      */
     protected int chooseAppropriateDomainIndex(String originalDomain) {
         int domainIndex = 0;
+        // This i allows to avoid infinite loop if the variable parameters contain only str substring
+        // Arbitrarily, we choose 50 iterations
+        int i = 0;
         do {
             domainIndex = rnd.nextInt(replacements.size());
-        } while (originalDomain.equals(replacements.get(domainIndex)));
+        } while (originalDomain.equals(replacements.get(domainIndex)) && i++ < 50);
         return domainIndex;
     }
 
