@@ -18,10 +18,7 @@ import java.net.URI;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -30,6 +27,12 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
     private static final Logger LOGGER = Logger.getLogger(DictionarySearcher.class);
 
     private SearcherManager mgr;
+
+    // private static final CachingWrapperFilter cache = new FieldCacheTermsFilter(F_WORD,"LAST_NAME");
+    // private static final CachingWrapperFilter cache = new CachingWrapperFilter(new QueryWrapperFilter(new TermQuery(new
+    // Term(F_WORD,"LAST_NAME"))));
+
+    private static final CachingWrapperFilter cache = new CachingWrapperFilter(new FieldCacheTermsFilter(F_WORD, "CITY"));
 
     /**
      * SynonymIndexSearcher constructor creates this searcher and initializes the index.
@@ -90,7 +93,7 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
             break;
         }
         final IndexSearcher searcher = mgr.acquire();
-        topDocs = searcher.search(query, topDocLimit);
+        topDocs = searcher.search(query, cache, topDocLimit);
         mgr.release(searcher);
         return topDocs;
     }
