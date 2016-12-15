@@ -28,6 +28,8 @@ import org.talend.dataquality.semantic.validator.ISemanticValidator;
  */
 public class UserDefinedClassifier extends AbstractSubCategoryClassifier {
 
+    private static final long serialVersionUID = 6641017802505586690L;
+
     /**
      * Method "addSubCategory" adds a subcategory if it does not already exists.
      * 

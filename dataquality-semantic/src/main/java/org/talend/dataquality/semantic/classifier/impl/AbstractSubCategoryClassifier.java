@@ -25,6 +25,8 @@ import org.talend.dataquality.semantic.validator.ISemanticValidator;
  */
 public abstract class AbstractSubCategoryClassifier implements ISubCategoryClassifier {
 
+    private static final long serialVersionUID = -5396224246178196818L;
+
     protected Set<ISubCategory> potentialSubCategories = new HashSet<>();
 
     /*

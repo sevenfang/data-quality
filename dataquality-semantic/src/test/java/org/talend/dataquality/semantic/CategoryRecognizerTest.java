@@ -236,7 +236,8 @@ public class CategoryRecognizerTest {
         // catRecognizer = b.es().host("localhost").port(9300).cluster("elasticsearch").build();
         final URI ddPath = CategoryRecognizerTest.class.getResource(CategoryRecognizerBuilder.DEFAULT_DD_PATH).toURI();
         final URI kwPath = CategoryRecognizerTest.class.getResource(CategoryRecognizerBuilder.DEFAULT_KW_PATH).toURI();
-        catRecognizer = b.lucene().ddPath(ddPath).kwPath(kwPath).build();
+        final URI rePath = CategoryRecognizerTest.class.getResource(CategoryRecognizerBuilder.DEFAULT_RE_PATH).toURI();
+        catRecognizer = b.lucene().ddPath(ddPath).kwPath(kwPath).regexPath(rePath).build();
     }
 
     @Before

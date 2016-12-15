@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
+import org.talend.dataquality.semantic.classifier.custom.UDCategorySerDeser;
+import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.index.DictionarySearchMode;
 import org.talend.dataquality.semantic.index.LuceneIndex;
 
@@ -35,11 +37,15 @@ public class CategoryRecognizerBuilder {
 
     public static final String DEFAULT_KW_PATH = "/index/keyword/";
 
+    public static final String DEFAULT_RE_PATH = "/org/talend/dataquality/semantic/recognizer/categorizer.json";
+
     private Mode mode;
 
     private URI ddPath;
 
     private URI kwPath;
+
+    private URI regexPath;
 
     private LuceneIndex dataDictIndex;
 
@@ -48,6 +54,8 @@ public class CategoryRecognizerBuilder {
     private Directory ddDirectory;
 
     private Directory kwDirectory;
+
+    private UserDefinedClassifier regexClassifier;
 
     public static CategoryRecognizerBuilder newBuilder() {
         if (INSTANCE == null) {
@@ -76,6 +84,16 @@ public class CategoryRecognizerBuilder {
         return this;
     }
 
+    public CategoryRecognizerBuilder regexPath(URI regexPath) {
+        this.regexPath = regexPath;
+        return this;
+    }
+
+    public CategoryRecognizerBuilder regexClassifier(UserDefinedClassifier regexClassifier) {
+        this.regexClassifier = regexClassifier;
+        return this;
+    }
+
     public CategoryRecognizerBuilder lucene() {
         this.mode = Mode.LUCENE;
         return this;
@@ -87,7 +105,8 @@ public class CategoryRecognizerBuilder {
         case LUCENE:
             LuceneIndex dict = getDataDictIndex();
             LuceneIndex keyword = getKeywordIndex();
-            return new DefaultCategoryRecognizer(dict, keyword);
+            UserDefinedClassifier regex = getRegexClassifier();
+            return new DefaultCategoryRecognizer(dict, keyword, regex);
         case ELASTIC_SEARCH:
             throw new IllegalArgumentException("Elasticsearch mode is not supported any more");
         default:
@@ -138,6 +157,25 @@ public class CategoryRecognizerBuilder {
             }
         }
         return keywordIndex;
+    }
+
+    private UserDefinedClassifier getRegexClassifier() {
+        if (regexClassifier == null) {
+            if (regexPath == null) {
+                try {
+                    regexClassifier = UDCategorySerDeser.getRegexClassifier();
+                } catch (IOException e) {
+                    LOGGER.error("Failed to load provided regex classifiers", e);
+                }
+            } else {
+                try {
+                    regexClassifier = UDCategorySerDeser.readJsonFile(regexPath);
+                } catch (IOException e) {
+                    LOGGER.error("Failed to load regex classifiers from URI: " + regexPath, e);
+                }
+            }
+        }
+        return regexClassifier;
     }
 
     public enum Mode {
