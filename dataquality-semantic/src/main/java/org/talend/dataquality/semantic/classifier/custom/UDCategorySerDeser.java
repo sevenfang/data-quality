@@ -15,9 +15,14 @@ package org.talend.dataquality.semantic.classifier.custom;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -75,12 +80,32 @@ public class UDCategorySerDeser {
         }
     }
 
-    public static UserDefinedClassifier readJsonFile(String content) throws IOException {
+    static UserDefinedClassifier readJsonFile(String content) throws IOException {
         try {
             return new ObjectMapper().readValue(content, UserDefinedClassifier.class);
         } catch (JsonProcessingException e) {
             LOGGER.error(e.getMessage(), e);
             return null;
+        }
+    }
+
+    /**
+     * In local registry, the json file is composed by an array of regex classifiers without the "classifiers" json object node.
+     * 
+     * @throws IOException
+     */
+    public static UserDefinedClassifier readJsonFile(URI uri) throws IOException {
+        InputStream ins = uri.toURL().openStream();
+        final String content = IOUtils.toString(ins);
+        IOUtils.closeQuietly(ins);
+        try {
+            JSONArray array = new JSONArray(content);
+            JSONObject obj = new JSONObject();
+            obj.put("classifiers", array);
+            return readJsonFile(obj.toString());
+        } catch (JSONException e) {
+            // try another format with "classifier" node.
+            return readJsonFile(content);
         }
     }
 

@@ -24,6 +24,8 @@ import org.talend.dataquality.semantic.index.Index;
  */
 public class DataDictFieldClassifier implements ISubCategoryClassifier {
 
+    private static final long serialVersionUID = 6174669848299972111L;
+
     private Index dictionary;
 
     private Index keyword;

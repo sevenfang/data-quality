@@ -31,6 +31,8 @@ import org.talend.dataquality.semantic.validator.ISemanticValidator;
  */
 public class UserDefinedRegexValidator extends AbstractRegexSemanticValidator {
 
+    private static final long serialVersionUID = -7832927422566889796L;
+
     private final static Logger LOG = Logger.getLogger(UserDefinedRegexValidator.class);
 
     private String patternString;

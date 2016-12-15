@@ -19,6 +19,8 @@ import org.talend.dataquality.semantic.filter.ISemanticFilter;
  */
 public class CharSequenceFilter implements ISemanticFilter {
 
+    private static final long serialVersionUID = 721733127885462464L;
+
     private CharSequenceFilterType filterType;
 
     private String filterParam;

@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.CRC32;
@@ -373,11 +372,7 @@ public class CategoryRegistryManager {
                     fos.close();
                 }
 
-                final String content = new String(Files.readAllBytes(regexRegistryFile.toPath()));
-                JSONArray array = new JSONArray(content);
-                JSONObject obj = new JSONObject();
-                obj.put("classifiers", array);
-                udc = UDCategorySerDeser.readJsonFile(obj.toString());
+                udc = UDCategorySerDeser.readJsonFile(regexRegistryFile.toURI());
             }
         }
         return udc;
@@ -391,6 +386,17 @@ public class CategoryRegistryManager {
             return Paths.get(localRegistryPath, DICTIONARY_SUBFOLDER_NAME, contextName).toUri();
         } else {
             return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_DD_PATH).toURI();
+        }
+    }
+
+    /**
+     * get URI of local regexes
+     */
+    public URI getRegexURI() throws URISyntaxException {
+        if (usingLocalCategoryRegistry) {
+            return Paths.get(localRegistryPath, REGEX_SUBFOLDER_NAME, contextName, REGEX_CATEGRIZER_FILE_NAME).toUri();
+        } else {
+            return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_RE_PATH).toURI();
         }
     }
 }

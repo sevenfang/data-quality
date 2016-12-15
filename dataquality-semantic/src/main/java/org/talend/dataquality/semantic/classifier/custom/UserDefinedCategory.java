@@ -27,6 +27,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class UserDefinedCategory implements ISubCategory {
 
+    private static final long serialVersionUID = 8905048019099749771L;
+
     private String id;
 
     private String name;
