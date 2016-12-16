@@ -28,15 +28,15 @@ import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 
 public class SemanticDictionaryGenerator {
 
-    protected static final String DD_PATH = "src/main/resources" + CategoryRecognizerBuilder.DEFAULT_DD_PATH;
+    private static final String DD_PATH = "src/main/resources" + CategoryRecognizerBuilder.DEFAULT_DD_PATH;
 
-    protected static final String KW_PATH = "src/main/resources" + CategoryRecognizerBuilder.DEFAULT_KW_PATH;
+    private static final String KW_PATH = "src/main/resources" + CategoryRecognizerBuilder.DEFAULT_KW_PATH;
 
-    protected static Pattern SPLITTER = Pattern.compile("\\|");
+    private static Pattern SPLITTER = Pattern.compile("\\|");
 
-    protected Analyzer analyzer = new StandardAnalyzer(CharArraySet.EMPTY_SET);
+    private Analyzer analyzer = new StandardAnalyzer(CharArraySet.EMPTY_SET);
 
-    protected static Set<String> STOP_WORDS = new HashSet<String>(
+    private static Set<String> STOP_WORDS = new HashSet<String>(
             Arrays.asList("yes", "no", "y", "o", "n", "oui", "non", "true", "false", "vrai", "faux", "null"));
 
     private void generateDictionaryForSpec(DictionaryGenerationSpec spec, IndexWriter writer) throws IOException {
@@ -51,7 +51,7 @@ public class SemanticDictionaryGenerator {
 
         // collect values
         Iterable<CSVRecord> records = csvFormat.parse(reader);
-        List<Set<String>> valueSetList = getDictionaryForCategory(records, spec);
+        List<Set<String>> valueSetList = getDictinaryForCategory(records, spec);
 
         int countCategory = 0;
         for (Set<String> valueSet : valueSetList) {
@@ -69,7 +69,7 @@ public class SemanticDictionaryGenerator {
         reader.close();
     }
 
-    protected List<Set<String>> getDictionaryForCategory(Iterable<CSVRecord> records, DictionaryGenerationSpec spec) {
+    private List<Set<String>> getDictinaryForCategory(Iterable<CSVRecord> records, DictionaryGenerationSpec spec) {
         List<Set<String>> results = new ArrayList<Set<String>>();
         final int[] columnsToIndex = spec.getColumnsToIndex();
         final CategoryOptimizer optimizer = spec.getOptimizer();
@@ -146,29 +146,6 @@ public class SemanticDictionaryGenerator {
 
         Field wordTermField = new StringField(DictionarySearcher.F_WORD, tempWord, Field.Store.YES);
         doc.add(wordTermField);
-        for (String value : filterValues(word, values)) {
-            List<String> tokens = DictionarySearcher.getTokensFromAnalyzer(value);
-            doc.add(new StringField(DictionarySearcher.F_SYNTERM, StringUtils.join(tokens, ' '), Field.Store.NO));
-            doc.add(new Field(DictionarySearcher.F_RAW, value, DictionaryUtils.FIELD_TYPE_RAW_VALUE));
-            if (tokens.size() > 1) {
-                doc.add(new Field(DictionarySearcher.F_SYN, value, DictionaryUtils.FIELD_TYPE_SYN));
-
-            }
-        }
-        return doc;
-    }
-
-    /**
-     * generate a document.
-     *
-     * @param word
-     * @param values
-     * @return
-     */
-    Set<String> filterValues(String word, Set<String> values) {
-        String tempWord = word.trim();
-        Set<String> list = new HashSet<>();
-
         for (String value : values) {
             if (value != null) {
                 value = value.trim();
@@ -179,12 +156,18 @@ public class SemanticDictionaryGenerator {
                         continue;
                     }
                 }
+
                 if (value.length() > 0 && !value.equals(tempWord)) {
-                    list.add(value);
+                    List<String> tokens = DictionarySearcher.getTokensFromAnalyzer(value);
+                    doc.add(new StringField(DictionarySearcher.F_SYNTERM, StringUtils.join(tokens, ' '), Field.Store.NO));
+                    doc.add(new Field(DictionarySearcher.F_RAW, value, DictionaryUtils.FIELD_TYPE_RAW_VALUE));
+                    if (tokens.size() > 1) {
+                        doc.add(new Field(DictionarySearcher.F_SYN, value, DictionaryUtils.FIELD_TYPE_SYN));
+                    }
                 }
             }
         }
-        return list;
+        return doc;
     }
 
     private void generate(GenerationType type, String path) {
