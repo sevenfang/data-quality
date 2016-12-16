@@ -14,26 +14,37 @@
 package org.talend.dataquality.semantic;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.search.BitsFilteredDocIdSet;
-import org.apache.lucene.search.DocIdSet;
-import org.apache.lucene.search.FieldCacheRangeFilter;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
+import org.talend.dataquality.semantic.index.DictionarySearcher;
 import org.talend.dataquality.semantic.index.LuceneIndex;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 import org.talend.dataquality.standardization.index.SynonymIndexSearcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static org.apache.lucene.analysis.wikipedia.WikipediaTokenizer.CATEGORY;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -85,22 +96,49 @@ public class MyPerfClass {
     @Test
     public void testSin5gl632S1Column() throws URISyntaxException {
 
-        catRecognizer.prepare();
-        long start_time;
-        for (int j = 1000; j < 100001; j *= 10) {
-            start_time = System.currentTimeMillis();
-            for (int i = 0; i < j; i++)
-                for (String data : EXPECTED_CAT_ID.keySet()) {
-                    List<String> catNames = Arrays.asList(catRecognizer.process(data));
-                    // System.out.println(data + " data: " + Arrays.asList(catNames));
-                    // System.out.println(data + " expected category id: " + Arrays.asList(EXPECTED_CAT_ID.get(data)));
-                    // for (String catName : catNames) {
-                    // System.out.println(Arrays.asList(EXPECTED_DISPLAYNAME.get(data)) + catName.toString());
-                    // assertTrue("Category ID <" + catNames + "> is not recognized for data <" + data + ">" + " et "
-                    // + EXPECTED_CAT_ID.get(data), catNames.contains(EXPECTED_CAT_ID.get(data)));
-                    // }
-                }
-            System.out.println("time for " + j + " iterations = " + (System.currentTimeMillis() - start_time));
+        // catRecognizer.prepare();
+        // long start_time;
+        // for (int j = 1000; j < 100001; j *= 10) {
+        // start_time = System.currentTimeMillis();
+        // for (int i = 0; i < j; i++)
+        // for (String data : EXPECTED_CAT_ID.keySet()) {
+        // List<String> catNames = Arrays.asList(catRecognizer.process(data));
+        // // System.out.println(data + " data: " + Arrays.asList(catNames));
+        // // System.out.println(data + " expected category id: " + Arrays.asList(EXPECTED_CAT_ID.get(data)));
+        // // for (String catName : catNames) {
+        // // System.out.println(Arrays.asList(EXPECTED_DISPLAYNAME.get(data)) + catName.toString());
+        // // assertTrue("Category ID <" + catNames + "> is not recognized for data <" + data + ">" + " et "
+        // // + EXPECTED_CAT_ID.get(data), catNames.contains(EXPECTED_CAT_ID.get(data)));
+        // // }
+        // }
+        // System.out.println("time for " + j + " iterations = " + (System.currentTimeMillis() - start_time));
+        // }
+
+        IndexWriter luceneWriter;
+
+        final URI ddPath = this.getClass().getResource("/luceneIdx/dictionary").toURI();
+        final DictionarySearcher searcher = new DictionarySearcher(ddPath);
+        Analyzer analyzer = new StandardAnalyzer(CharArraySet.EMPTY_SET);
+        IndexWriter writer = null;
+        try {
+            FSDirectory outputDir = FSDirectory.open(new File(
+                    "/home/jdenantes/talend/src/data-quality_COPY/data-quality/dataquality-semantic/src/main/resources/luceneIdx/dictionary"));
+            IndexWriterConfig writerConfig = new IndexWriterConfig(Version.LATEST, analyzer);
+            writer = new IndexWriter(outputDir, writerConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Document doc = searcher.getDocument(0);
+
+        doc.add(new TextField("_id", "gaston", Field.Store.YES));
+        final Term term = new Term("word", "CITY");
+
+        try {
+            writer.updateDocument(term, doc);
+            writer.commit();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }

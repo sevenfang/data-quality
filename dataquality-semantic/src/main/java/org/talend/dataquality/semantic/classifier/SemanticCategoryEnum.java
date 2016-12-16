@@ -170,7 +170,7 @@ public enum SemanticCategoryEnum {
 
     /**
      * SemanticCategoryEnum constructor.
-     * 
+     *
      * @param displayName the category shown in Semantic Discovery wizard
      * @param description the description of the category
      */

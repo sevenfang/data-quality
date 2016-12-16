@@ -56,6 +56,11 @@ public enum DictionaryGenerationSpec {
             new CsvReaderConfig(CsvConstants.COMMA, false),
             new int[] {}),
 
+    // LARGER_CITY(
+    // GenerationType.DICTIONARY,
+    // "all_city_cleaned.csv",
+    // new CsvReaderConfig(CsvConstants.SEMICOLON, false),
+    // new int[] { 0 }),
     // CITY_COMPLEMENTED("city_complemented.csv", new CsvReaderConfig(CsvConstants.SEMICOLON, false), new int[] { 2 }, null,
     // "CITY"),
 
