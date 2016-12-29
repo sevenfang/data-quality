@@ -32,6 +32,7 @@ import org.talend.dataquality.record.linkage.record.CombinedRecordMatcherTest;
 import org.talend.dataquality.record.linkage.record.SimpleVSRRecordMatcherTest;
 import org.talend.dataquality.record.linkage.utils.AlgorithmSwitchTest;
 import org.talend.dataquality.record.linkage.utils.QGramTokenizerTest;
+import org.talend.dataquality.record.linkage.utils.SurvivorshipUtilsTest;
 import org.talend.windowkey.AlgoBoxTest;
 import org.talend.windowkey.FingerprintKeyerTest;
 import org.talend.windowkey.NGramFingerprintKeyerTest;
@@ -45,7 +46,7 @@ import org.talend.windowkey.NGramFingerprintKeyerTest;
         AbstractRecordGroupingTest.class, CombinedRecordMatcherTest.class, SimpleVSRRecordMatcherTest.class,
         AlgorithmSwitchTest.class, QGramTokenizerTest.class, AlgoBoxTest.class, FingerprintKeyerTest.class,
         NGramFingerprintKeyerTest.class, SwooshRecordGroupingTest.class, MFBRecordMatcherTest.class,
-        AnalysisSwooshMatchRecordGroupingTest.class, TSwooshGroupingTest.class })
+        AnalysisSwooshMatchRecordGroupingTest.class, TSwooshGroupingTest.class, SurvivorshipUtilsTest.class })
 public class AllRecordLinkageTests {
 
 }
