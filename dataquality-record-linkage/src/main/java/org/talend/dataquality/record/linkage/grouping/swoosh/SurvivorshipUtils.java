@@ -44,6 +44,17 @@ public class SurvivorshipUtils {
 
     private static final String DATA_TYPE = "DATA_TYPE"; //$NON-NLS-1$
 
+    /**
+     * 
+     * zshen Comment method "createSurvivorShipAlgorithmParams".
+     * Same with {@link AnalysisRecordGroupingUtils#createSurvivorShipAlgorithmParams} so
+     * that any modify need to synchronization them with same time
+     * 
+     * @param analysisMatchRecordGrouping
+     * @param recordMatchingIndicator
+     * @param columnMap
+     * @return
+     */
     public static SurvivorShipAlgorithmParams createSurvivorShipAlgorithmParams(
             AnalysisMatchRecordGrouping analysisMatchRecordGrouping, List<List<Map<String, String>>> joinKeyRules,
             List<Map<String, String>> defaultSurvivorshipRules, Map<String, String> columnWithType,
@@ -51,7 +62,7 @@ public class SurvivorshipUtils {
         SurvivorShipAlgorithmParams survivorShipAlgorithmParams = new SurvivorShipAlgorithmParams();
 
         // Survivorship functions.
-        List<SurvivorshipFunction> survFunctions = new ArrayList<SurvivorshipFunction>();
+        List<SurvivorshipFunction> survFunctions = new ArrayList<>();
         for (List<Map<String, String>> survivorshipKeyDefs : joinKeyRules) {
             for (Map<String, String> survDef : survivorshipKeyDefs) {
                 SurvivorshipFunction func = createSurvivorshipFunction(survivorShipAlgorithmParams, survDef);
@@ -62,8 +73,7 @@ public class SurvivorshipUtils {
         survivorShipAlgorithmParams.setSurviorShipAlgos(survFunctions.toArray(new SurvivorshipFunction[survFunctions.size()]));
 
         // Set default survivorship functions.
-        List<Map<String, String>> defSurvDefs = null;
-        Map<Integer, SurvivorshipFunction> defaultSurvRules = new HashMap<Integer, SurvivorshipFunction>();
+        Map<Integer, SurvivorshipFunction> defaultSurvRules = new HashMap<>();
 
         for (String columnName : columnWithType.keySet()) {
             String dataTypeName = columnWithType.get(columnName);
@@ -71,13 +81,9 @@ public class SurvivorshipUtils {
             for (Map<String, String> defSurvDef : defaultSurvivorshipRules) {
                 // the column's data type start with id_, so need to add id_ ahead of the default survivorship's data
                 // type before judging if they are equal
-                if (StringUtils.equalsIgnoreCase(dataTypeName, NUMBER_ID + defSurvDef.get(DATA_TYPE))) {
-                    putNewSurvFunc(survivorShipAlgorithmParams, defaultSurvRules,
-                            Integer.parseInt(columnWithIndex.get(columnName)), columnName, defSurvDef.get(PARAMETER),
-                            defSurvDef.get(SURVIVORSHIP_FUNCTION));
-                    break;
-                } else if (StringUtils.equalsIgnoreCase(defSurvDef.get(DATA_TYPE), "Number") //$NON-NLS-1$ 
-                        && ArrayUtils.contains(NUMBERS, dataTypeName)) {
+                if (StringUtils.equalsIgnoreCase(dataTypeName, NUMBER_ID + defSurvDef.get(DATA_TYPE))
+                        || StringUtils.equalsIgnoreCase(defSurvDef.get(DATA_TYPE), "Number") //$NON-NLS-1$ 
+                                && ArrayUtils.contains(NUMBERS, dataTypeName)) {
                     putNewSurvFunc(survivorShipAlgorithmParams, defaultSurvRules,
                             Integer.parseInt(columnWithIndex.get(columnName)), columnName, defSurvDef.get(PARAMETER),
                             defSurvDef.get(SURVIVORSHIP_FUNCTION));
@@ -92,8 +98,7 @@ public class SurvivorshipUtils {
         // Set the record matcher
         CombinedRecordMatcher combinedRecordMatcher = analysisMatchRecordGrouping.getCombinedRecordMatcher();
         survivorShipAlgorithmParams.setRecordMatcher(combinedRecordMatcher);
-        Map<IRecordMatcher, SurvivorshipFunction[]> survAlgos = new HashMap<IRecordMatcher, SurvivorshipFunction[]>();
-        SurvivorshipFunction[] survFuncs = survivorShipAlgorithmParams.getSurviorShipAlgos();
+        Map<IRecordMatcher, SurvivorshipFunction[]> survAlgos = new HashMap<>();
         Map<Integer, SurvivorshipFunction> colIdx2DefaultSurvFunc = survivorShipAlgorithmParams.getDefaultSurviorshipRules();
         int matchRuleIdx = -1;
         for (List<Map<String, String>> matchrule : joinKeyRules) {
@@ -106,7 +111,7 @@ public class SurvivorshipUtils {
             int idx = 0;
             for (Map<String, String> mkDef : matchrule) {
                 String matcherType = mkDef.get(IRecordGrouping.MATCHING_TYPE);
-                if (AttributeMatcherType.DUMMY.name().equals(matcherType)) {
+                if (AttributeMatcherType.DUMMY.name().equalsIgnoreCase(matcherType)) {
                     // Find the func from default survivorship rule.
                     surFuncsInMatcher[idx] = colIdx2DefaultSurvFunc.get(Integer.valueOf(mkDef.get(IRecordGrouping.COLUMN_IDX)));
                     if (surFuncsInMatcher[idx] == null) {
