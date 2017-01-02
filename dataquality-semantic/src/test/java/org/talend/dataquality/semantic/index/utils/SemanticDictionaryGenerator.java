@@ -170,17 +170,6 @@ public class SemanticDictionaryGenerator {
 
         for (String value : values) {
             if (value != null) {
-                boolean containsControlChars = false;
-                for (char c : value.toCharArray()) {
-                    if (Character.isISOControl(c)) {
-                        containsControlChars = true;
-                    }
-                }
-                if (containsControlChars) {
-                    System.out.println("The value [" + value
-                            + "] contains at least one ISO control character and is not added to the index of " + word + ".");
-                    break;
-                }
                 value = value.trim();
                 if ("CITY".equals(tempWord)) { // ignore city abbreviations
                     if (value.length() == 3 && value.charAt(0) >= 'A' && value.charAt(0) <= 'Z'//
