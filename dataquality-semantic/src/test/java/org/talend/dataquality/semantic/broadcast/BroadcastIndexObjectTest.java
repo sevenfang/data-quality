@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -19,6 +20,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.DictionaryUtils;
 import org.talend.dataquality.semantic.index.ClassPathDirectory;
 import org.talend.dataquality.semantic.index.DictionarySearcher;
@@ -92,7 +94,7 @@ public class BroadcastIndexObjectTest {
 
         // create the broadcast object from local index
         final Directory cpDir = ClassPathDirectory.open(testFolder.toURI());
-        final BroadcastIndexObject bio = new BroadcastIndexObject(cpDir);
+        final BroadcastIndexObject bio = new BroadcastIndexObject(cpDir, true);
         // get the RamDirectory from BroadcastIndexObject
         final Directory ramDir = bio.get();
 
@@ -114,4 +116,21 @@ public class BroadcastIndexObjectTest {
         }
 
     }
+
+    @Test
+    public void testCreateWithOpenCategories() throws URISyntaxException {
+        URI uri = CategoryRegistryManager.getInstance().getDictionaryURI();
+        final Directory cpDir = ClassPathDirectory.open(uri);
+        final BroadcastIndexObject bio = new BroadcastIndexObject(cpDir, true);
+        assertEquals("Unexpected Document Size!", 250078, bio.getDocumentList().size());
+    }
+
+    @Test
+    public void testCreateWithoutOpenCategories() throws URISyntaxException {
+        URI uri = CategoryRegistryManager.getInstance().getDictionaryURI();
+        final Directory cpDir = ClassPathDirectory.open(uri);
+        final BroadcastIndexObject bio = new BroadcastIndexObject(cpDir, false);
+        assertEquals("Unexpected Document Size!", 45698, bio.getDocumentList().size());
+    }
+
 }

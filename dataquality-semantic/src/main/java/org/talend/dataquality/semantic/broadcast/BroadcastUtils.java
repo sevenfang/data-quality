@@ -63,6 +63,31 @@ class BroadcastUtils {
     }
 
     /**
+     * initialize a list of serializable BroadcastDocumentObject from existing lucene Directory
+     */
+    static List<BroadcastDocumentObject> readDocumentsFromIndex(Directory indexDir, Set<String> catNames) throws IOException {
+        List<BroadcastDocumentObject> dictionaryObject = new ArrayList<>();
+        DirectoryReader reader = DirectoryReader.open(indexDir);
+        Bits liveDocs = MultiFields.getLiveDocs(reader);
+        for (int i = 0; i < reader.maxDoc(); i++) {
+            if (liveDocs != null && !liveDocs.get(i)) {
+                continue;
+            }
+            Document doc = reader.document(i);
+            String category = doc.getField(DictionarySearcher.F_WORD).stringValue();
+            if (catNames.contains(category)) {
+                Set<String> valueSet = new HashSet<String>();
+                // original values must be read from the F_RAW field
+                for (IndexableField syntermField : doc.getFields(DictionarySearcher.F_RAW)) {
+                    valueSet.add(syntermField.stringValue());
+                }
+                dictionaryObject.add(new BroadcastDocumentObject(category, valueSet));
+            }
+        }
+        return dictionaryObject;
+    }
+
+    /**
      * create a lucene RAMDirectory from a list of BroadcastDocumentObject
      */
     static Directory createRamDirectoryFromDocuments(List<BroadcastDocumentObject> dictionaryObject) throws IOException {

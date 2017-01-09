@@ -279,6 +279,26 @@ public class CategoryRegistryManager {
     }
 
     /**
+     * List all categories.
+     * 
+     * @param includeOpenCategories whether include incomplete categories
+     * @return collection of category objects
+     */
+    public Collection<DQCategory> listCategories(boolean includeOpenCategories) {
+        if (includeOpenCategories) {
+            return dqCategories.values();
+        } else {
+            List<DQCategory> catList = new ArrayList<DQCategory>();
+            for (DQCategory dqCat : dqCategories.values()) {
+                if (dqCat.getCompleteness()) {
+                    catList.add(dqCat);
+                }
+            }
+            return catList;
+        }
+    }
+
+    /**
      * List all categories of a given {@link CategoryType}.
      * 
      * @param type the given category type
