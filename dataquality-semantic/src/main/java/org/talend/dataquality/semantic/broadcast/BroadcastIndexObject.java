@@ -14,11 +14,13 @@ package org.talend.dataquality.semantic.broadcast;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.model.CategoryType;
+import org.talend.dataquality.semantic.model.DQCategory;
 
 /**
  * Created by jteuladedenantes on 20/10/16.
@@ -40,6 +42,7 @@ public class BroadcastIndexObject implements Serializable {
 
     /**
      * Build an index based on a list of {@link BroadcastDocumentObject}.
+     * 
      * @param documentList The {@link BroadcastDocumentObject} to be used to build up the index.
      */
     public BroadcastIndexObject(List<BroadcastDocumentObject> documentList) {
@@ -52,8 +55,29 @@ public class BroadcastIndexObject implements Serializable {
      * @param inputDirectory
      */
     public BroadcastIndexObject(Directory inputDirectory) {
+        this(inputDirectory, false);
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param inputDirectory
+     * @param includeOpenCategories whether open categories should be included
+     */
+    public BroadcastIndexObject(Directory inputDirectory, boolean includeOpenCategories) {
         try {
-            documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory);
+            if (includeOpenCategories) {
+                documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory);
+            } else {
+                Collection<DQCategory> cats = CategoryRegistryManager.getInstance().listCategories(false);
+                Set<String> catNames = new HashSet<String>();
+                for (DQCategory dqCat : cats) {
+                    if (CategoryType.DICT.equals(dqCat.getType())) {
+                        catNames.add(dqCat.getName());
+                    }
+                }
+                documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory, catNames);
+            }
         } catch (IOException e) {
             documentList = Collections.emptyList();
             LOGGER.error("Unable to read synonym index.", e);
