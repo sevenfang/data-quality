@@ -1,3 +1,8 @@
+V3.2.7 2017-01-10
+	- TDQ-12919 & TDQ-13025 T-Swoosh tMatchGroup GRP_QUALITY doesn't get correct result
+	- TDQ-12976 when has two rule tabs, the matching distance can not get correct result
+	- TDQ-13060 T-Swoosh tMatchGroup use error default survivorship parameter
+
 V3.2.6 2016-12-09
     - T-Swoosh bug fixes
 

@@ -1,3 +1,8 @@
+V1.5.7 2017-01-10
+	- TDQ-13062 do not broadcast deleted dictionaries to spark cluster
+	- TDQ-13092 remove control character from CITY index
+	- TDQ-13135 make BroadcastIndexObject contain only complete dictionaries
+
 V1.5.6 2016-12-09
 	- TDQ-13009 fix update metadata issue by using Boolean object instead of native boolean type	
 
