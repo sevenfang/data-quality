@@ -21,11 +21,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
@@ -55,6 +51,8 @@ public class ReleaseVersionBumper {
     private static final String RELEASED_STRING = ".released.";
 
     private static final String BUNDLE_VERSION_STRING = "Bundle-Version: ";
+
+    private static final String MANIFEST_SNAPSHOT_SUFFIX = ".SNAPSHOT";
 
     private XPath xPath = XPathFactory.newInstance().newXPath();
 
@@ -166,8 +164,11 @@ public class ReleaseVersionBumper {
 
             for (String line : lines) {
                 if (line.startsWith(BUNDLE_VERSION_STRING)) {
-                    String currentVersion = line.substring(BUNDLE_VERSION_STRING.length());
+                    String currentVersion = line.substring(BUNDLE_VERSION_STRING.length()).replace(MANIFEST_SNAPSHOT_SUFFIX, "");
                     String modifiedVersion = currentVersion.substring(0, currentVersion.lastIndexOf('.')) + "." + microVersion;
+                    if (targetVersion.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+                        modifiedVersion += MANIFEST_SNAPSHOT_SUFFIX;
+                    }
                     IOUtils.write(BUNDLE_VERSION_STRING + modifiedVersion.replace(SNAPSHOT_VERSION_SUFFIX, "") + "\n", fos);
                 } else {
                     IOUtils.write(line + "\n", fos);
