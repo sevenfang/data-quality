@@ -56,6 +56,8 @@ public class UpdateComponentDefinition {
         }
     };
 
+    private static final boolean USE_SNAPSHOT_VERSION = false;
+
     private static void handleComponentDefinition(File f) {
         File compoDefFile = new File(f.getAbsolutePath() + "/" + f.getName() + "_java.xml");
 
@@ -80,10 +82,16 @@ public class UpdateComponentDefinition {
                     for (String line : lines) {
                         for (String depName : DEP_VERSION_MAP.keySet()) {
                             if (line.contains(depName)) {
-                                line = line.replaceAll(depName + "([-/])\\d.\\d.\\d(-SNAPSHOT)?(.jar)?\"",
-                                        depName + "$1" + DEP_VERSION_MAP.get(depName) + "$3\"");
-                                line = line.replaceAll(depName + "_\\d.\\d.\\d(-SNAPSHOT)?.jar\"",
-                                        depName + "_" + DEP_VERSION_MAP.get(depName).substring(0, 5) + ".jar\"");
+                                System.out.println(depName);
+                                // MODULE field
+                                line = line.replaceAll(depName + "-\\d.\\d.\\d(-SNAPSHOT)?(.jar)?\"", depName + "-"
+                                        + DEP_VERSION_MAP.get(depName) + (USE_SNAPSHOT_VERSION ? "-SNAPSHOT" : "") + "$2\"");
+                                // MVN field
+                                line = line.replaceAll(depName + "/\\d.\\d.\\d(-SNAPSHOT)?(.jar)?\"", depName + "/"
+                                        + DEP_VERSION_MAP.get(depName) + (USE_SNAPSHOT_VERSION ? "-SNAPSHOT" : "") + "$2\"");
+                                // UrlPath field
+                                line = line.replaceAll(depName + "_\\d.\\d.\\d(.SNAPSHOT)?.jar\"", depName + "_"
+                                        + DEP_VERSION_MAP.get(depName) + (USE_SNAPSHOT_VERSION ? ".SNAPSHOT" : "") + ".jar\"");
                             }
                         }
                         IOUtils.write(line + "\n", fos);
