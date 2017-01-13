@@ -64,19 +64,21 @@ public class SurvivorshipUtilsTest {
         columnWithIndex_tMatchGroup_1.put("name", "1"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("provinceID", "id_Integer"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithIndex_tMatchGroup_1.put("provinceID", "2"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithType_tMatchGroup_1.put("gender", "id_String"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("gender", "3"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("GID", "id_String"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("GID", "3"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("GID", "4"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("GRP_SIZE", "id_Integer"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("GRP_SIZE", "4"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("GRP_SIZE", "5"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("MASTER", "id_Boolean"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("MASTER", "5"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("MASTER", "6"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("SCORE", "id_Double"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("SCORE", "6"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("SCORE", "7"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("GRP_QUALITY", "id_Double"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("GRP_QUALITY", "7"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("GRP_QUALITY", "8"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("MATCHING_DISTANCES", //$NON-NLS-1$
                 "id_String"); //$NON-NLS-1$
-        columnWithIndex_tMatchGroup_1.put("MATCHING_DISTANCES", "8"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("MATCHING_DISTANCES", "9"); //$NON-NLS-1$ //$NON-NLS-2$
         SurvivorShipAlgorithmParams createSurvivorShipAlgorithmParams = SurvivorshipUtils.createSurvivorShipAlgorithmParams(
                 (AnalysisSwooshMatchRecordGrouping) recordGroupImp_tMatchGroup_1, matchingRulesAll_tMatchGroup_1,
                 defaultSurvivorshipRules_tMatchGroup_1, columnWithType_tMatchGroup_1, columnWithIndex_tMatchGroup_1);
@@ -95,12 +97,16 @@ public class SurvivorshipUtilsTest {
         Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions1[1].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is dummy and column type is mapping defaultFunction so that function use default
         Assert.assertEquals(SurvivorShipAlgorithmEnum.SMALLEST, survivorshipFunctions1[2].getSurvivorShipAlgoEnum());
+        // current AttributeMatcher is dummy and column type is not mapping defaultFunction so that function fixed use CONCATENATE
+        Assert.assertEquals(SurvivorShipAlgorithmEnum.MOST_COMMON, survivorshipFunctions1[3].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is not dummy and column so that function keep Original
         Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions2[0].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is dummy and column type is not mapping defaultFunction so that function fixed use CONCATENATE
-        Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions2[1].getSurvivorShipAlgoEnum());
+        Assert.assertEquals(SurvivorShipAlgorithmEnum.MOST_COMMON, survivorshipFunctions2[1].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is not dummy and column so that function keep Original
         Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions2[2].getSurvivorShipAlgoEnum());
+        // current AttributeMatcher is dummy and column type is not mapping defaultFunction so that function fixed use CONCATENATE
+        Assert.assertEquals(SurvivorShipAlgorithmEnum.MOST_COMMON, survivorshipFunctions2[3].getSurvivorShipAlgoEnum());
 
     }
 
@@ -137,19 +143,21 @@ public class SurvivorshipUtilsTest {
         columnWithIndex_tMatchGroup_1.put("name", "1"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("provinceID", "id_Integer"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithIndex_tMatchGroup_1.put("provinceID", "2"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithType_tMatchGroup_1.put("gender", "id_String"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("gender", "3"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("GID", "id_String"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("GID", "3"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("GID", "4"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("GRP_SIZE", "id_Integer"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("GRP_SIZE", "4"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("GRP_SIZE", "5"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("MASTER", "id_Boolean"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("MASTER", "5"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("MASTER", "6"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("SCORE", "id_Double"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("SCORE", "6"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("SCORE", "7"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("GRP_QUALITY", "id_Double"); //$NON-NLS-1$ //$NON-NLS-2$
-        columnWithIndex_tMatchGroup_1.put("GRP_QUALITY", "7"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("GRP_QUALITY", "8"); //$NON-NLS-1$ //$NON-NLS-2$
         columnWithType_tMatchGroup_1.put("MATCHING_DISTANCES", //$NON-NLS-1$
                 "id_String"); //$NON-NLS-1$
-        columnWithIndex_tMatchGroup_1.put("MATCHING_DISTANCES", "8"); //$NON-NLS-1$ //$NON-NLS-2$
+        columnWithIndex_tMatchGroup_1.put("MATCHING_DISTANCES", "9"); //$NON-NLS-1$ //$NON-NLS-2$
         SurvivorShipAlgorithmParams createSurvivorShipAlgorithmParams = SurvivorshipUtils.createSurvivorShipAlgorithmParams(
                 (AnalysisSwooshMatchRecordGrouping) recordGroupImp_tMatchGroup_1, matchingRulesAll_tMatchGroup_1,
                 defaultSurvivorshipRules_tMatchGroup_1, columnWithType_tMatchGroup_1, columnWithIndex_tMatchGroup_1);
@@ -168,12 +176,16 @@ public class SurvivorshipUtilsTest {
         Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions1[1].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is dummy and column type is mapping defaultFunction so that function use default
         Assert.assertEquals(SurvivorShipAlgorithmEnum.SMALLEST, survivorshipFunctions1[2].getSurvivorShipAlgoEnum());
+        // current AttributeMatcher is dummy and column type is not mapping defaultFunction so that function fixed use CONCATENATE
+        Assert.assertEquals(SurvivorShipAlgorithmEnum.MOST_COMMON, survivorshipFunctions1[3].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is not dummy and column so that function keep Original
         Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions2[0].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is dummy and column type is not mapping defaultFunction so that function fixed use CONCATENATE
-        Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions2[1].getSurvivorShipAlgoEnum());
+        Assert.assertEquals(SurvivorShipAlgorithmEnum.MOST_COMMON, survivorshipFunctions2[1].getSurvivorShipAlgoEnum());
         // current AttributeMatcher is not dummy and column so that function keep Original
         Assert.assertEquals(SurvivorShipAlgorithmEnum.CONCATENATE, survivorshipFunctions2[2].getSurvivorShipAlgoEnum());
+        // current AttributeMatcher is dummy and column type is not mapping defaultFunction so that function fixed use CONCATENATE
+        Assert.assertEquals(SurvivorShipAlgorithmEnum.MOST_COMMON, survivorshipFunctions2[3].getSurvivorShipAlgoEnum());
 
     }
 
@@ -266,6 +278,33 @@ public class SurvivorshipUtilsTest {
         tmpMap_tMatchGroup_1.put("PARAMETER", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
         matcherList_tMatchGroup_1.add(tmpMap_tMatchGroup_1);
+        tmpMap_tMatchGroup_1 = new java.util.HashMap<>();
+        tmpMap_tMatchGroup_1.put("MATCHING_TYPE", getDummyStr(uppercase)); //$NON-NLS-1$ 
+
+        tmpMap_tMatchGroup_1.put("RECORD_MATCH_THRESHOLD", 0.85 + ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("ATTRIBUTE_NAME", "gender"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("SURVIVORSHIP_FUNCTION", //$NON-NLS-1$
+                SurvivorShipAlgorithmEnum
+                        .getTypeByIndex((int) Math.round(Math.random() * (SurvivorShipAlgorithmEnum.getAllTypes().length - 1)))
+                        .getComponentValueName());
+
+        tmpMap_tMatchGroup_1.put("HANDLE_NULL", "nullMatchNull"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("ATTRIBUTE_THRESHOLD", 1.0 + ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("COLUMN_IDX", "3"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("CONFIDENCE_WEIGHT", 0 + ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("MATCHING_ALGORITHM", "TSWOOSH_MATCHER"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("TOKENIZATION_TYPE", "NO"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("PARAMETER", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        matcherList_tMatchGroup_1.add(tmpMap_tMatchGroup_1);
         matcherList_tMatchGroup_1.sort(new Comparator<java.util.Map<String, String>>() {
 
             @Override
@@ -305,8 +344,11 @@ public class SurvivorshipUtilsTest {
         tmpMap_tMatchGroup_1.put("MATCHING_TYPE", getDummyStr(uppercase)); //$NON-NLS-1$ 
 
         tmpMap_tMatchGroup_1.put("ATTRIBUTE_NAME", "name"); //$NON-NLS-1$ //$NON-NLS-2$
-
-        tmpMap_tMatchGroup_1.put("SURVIVORSHIP_FUNCTION", "Concatenate"); //$NON-NLS-1$ //$NON-NLS-2$
+        // get a random algorithm the result alaways be default one (most common)
+        tmpMap_tMatchGroup_1.put("SURVIVORSHIP_FUNCTION", //$NON-NLS-1$
+                SurvivorShipAlgorithmEnum
+                        .getTypeByIndex((int) Math.round(Math.random() * (SurvivorShipAlgorithmEnum.getAllTypes().length - 1)))
+                        .getComponentValueName());
 
         tmpMap_tMatchGroup_1.put("HANDLE_NULL", "nullMatchNull"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -337,6 +379,33 @@ public class SurvivorshipUtilsTest {
         tmpMap_tMatchGroup_1.put("COLUMN_IDX", "2"); //$NON-NLS-1$ //$NON-NLS-2$
 
         tmpMap_tMatchGroup_1.put("CONFIDENCE_WEIGHT", 1 + ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("MATCHING_ALGORITHM", "TSWOOSH_MATCHER"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("TOKENIZATION_TYPE", "NO"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("PARAMETER", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        matcherList_tMatchGroup_1.add(tmpMap_tMatchGroup_1);
+        tmpMap_tMatchGroup_1 = new java.util.HashMap<>();
+        tmpMap_tMatchGroup_1.put("MATCHING_TYPE", getDummyStr(uppercase)); //$NON-NLS-1$ 
+
+        tmpMap_tMatchGroup_1.put("RECORD_MATCH_THRESHOLD", 0.85 + ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("ATTRIBUTE_NAME", "gender"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("SURVIVORSHIP_FUNCTION", //$NON-NLS-1$
+                SurvivorShipAlgorithmEnum
+                        .getTypeByIndex((int) Math.round(Math.random() * (SurvivorShipAlgorithmEnum.getAllTypes().length - 1)))
+                        .getComponentValueName());
+
+        tmpMap_tMatchGroup_1.put("HANDLE_NULL", "nullMatchNull"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("ATTRIBUTE_THRESHOLD", 1.0 + ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("COLUMN_IDX", "3"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        tmpMap_tMatchGroup_1.put("CONFIDENCE_WEIGHT", 0 + ""); //$NON-NLS-1$ //$NON-NLS-2$
 
         tmpMap_tMatchGroup_1.put("MATCHING_ALGORITHM", "TSWOOSH_MATCHER"); //$NON-NLS-1$ //$NON-NLS-2$
 
