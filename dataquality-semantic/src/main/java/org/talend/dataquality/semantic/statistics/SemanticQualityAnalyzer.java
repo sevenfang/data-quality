@@ -202,6 +202,16 @@ public class SemanticQualityAnalyzer extends QualityAnalyzer<ValueQualityStatist
     }
 
     @Override
+    public void addQuery(String[] record) {
+
+    }
+
+    @Override
+    public void getQuery() {
+
+    }
+
+    @Override
     public void close() throws Exception {
         ((DataDictFieldClassifier) dataDictClassifier).closeIndex();
     }

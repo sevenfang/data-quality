@@ -13,6 +13,7 @@
 package org.talend.dataquality.semantic.recognizer;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 import org.talend.dataquality.semantic.classifier.ISubCategoryClassifier;
 
@@ -33,6 +34,10 @@ public interface CategoryRecognizer {
     ISubCategoryClassifier getUserDefineClassifier();
 
     Collection<CategoryFrequency> getResult();
+
+    public String[] getQueryProcess() throws InterruptedException, ExecutionException;
+
+    public void addQueryProcess(final String data);
 
     void end();
 }

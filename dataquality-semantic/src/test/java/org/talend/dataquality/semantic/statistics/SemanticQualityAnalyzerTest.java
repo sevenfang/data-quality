@@ -139,6 +139,60 @@ public class SemanticQualityAnalyzerTest {
         }
     }
 
+    public void testAsynchronousAnalysis(List<String[]> records, String[] expectedCategories, long[][] expectedValidityCount) {
+        Analyzer<Result> analyzers = Analyzers.with(//
+                new SemanticAnalyzer(builder) //
+        );
+
+        long start = System.currentTimeMillis();
+        for (String[] record : records) {
+            analyzers.addQuery(record);
+            // analyzers.analyze(record);
+        }
+        for (int i = 0; i < records.size() - 1; i++) {
+            analyzers.getQuery();
+        }
+
+        System.out.println(System.currentTimeMillis() - start + " ms");
+        final List<Analyzers.Result> result = analyzers.getResult();
+
+        assertEquals(expectedCategories.length, result.size());
+
+        // Composite result assertions (there should be a DataType and a SemanticType)
+        for (Analyzers.Result columnResult : result) {
+            assertNotNull(columnResult.get(SemanticType.class));
+            assertNotNull(columnResult.get(ValueQualityStatistics.class));
+        }
+
+        // Semantic types assertions
+        for (int i = 0; i < expectedCategories.length; i++) {
+            final SemanticType stats = result.get(i).get(SemanticType.class);
+            // System.out.println("\"" + stats.getSuggestedCategory() + "\", //");
+            assertEquals("Unexpected SemanticType on column " + i, expectedCategories[i],
+                    result.get(i).get(SemanticType.class).getSuggestedCategory());
+            for (CategoryFrequency cf : stats.getCategoryToCount().keySet()) {
+                if (expectedCategories[i].equals(cf.getCategoryId())) {
+                    SemanticCategoryEnum cat = SemanticCategoryEnum.getCategoryById(cf.getCategoryId());
+                    if (cat.getCompleteness()) {
+                        assertEquals("Unexpected SemanticType occurence on column " + i, expectedValidityCount[i][0],
+                                cf.getCount());
+                    }
+                }
+            }
+        }
+
+        // Semantic validation assertions
+        for (int i = 0; i < expectedCategories.length; i++) {
+            final ValueQualityStatistics stats = result.get(i).get(ValueQualityStatistics.class);
+            // System.out.println("new long[] {" + stats.getValidCount() + ", " + stats.getInvalidCount() + ", "
+            // + stats.getEmptyCount() + "}, //");
+            assertEquals("Unexpected valid count on column " + i, expectedValidityCount[i][0], stats.getValidCount());
+            assertEquals("Unexpected invalid count on column " + i, expectedValidityCount[i][1], stats.getInvalidCount());
+            assertEquals("Unexpected empty count on column " + i, expectedValidityCount[i][2], stats.getEmptyCount());
+            assertEquals("Unexpected unknown count on column " + i, 0, stats.getUnknownCount());
+        }
+    }
+
     private static List<String[]> getRecords(String path) {
         List<String[]> records = new ArrayList<String[]>();
         try {

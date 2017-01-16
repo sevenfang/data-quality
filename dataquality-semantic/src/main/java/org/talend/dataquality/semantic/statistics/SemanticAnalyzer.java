@@ -13,11 +13,8 @@
 package org.talend.dataquality.semantic.statistics;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.talend.dataquality.common.inference.Analyzer;
@@ -75,6 +72,37 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         columnIdxToCategoryRecognizer.clear();
         results.clear();
         builder.initIndex();
+    }
+
+    @Override
+    public void addQuery(String... record) {
+        results.resize(record.length);
+        resizeCategoryRecognizer(record);
+        if (currentCount < limit || limit <= 0) {
+            for (int i = 0; i < record.length; i++) {
+                CategoryRecognizer categoryRecognizer = columnIdxToCategoryRecognizer.get(i);
+                if (categoryRecognizer == null) {
+                    throw new RuntimeException("CategoryRecognizer is null for record and i=" + i + " " + Arrays.asList(record));
+                } else {
+                    categoryRecognizer.addQueryProcess(record[i]);
+                }
+            }
+            currentCount++;
+        }
+    }
+
+    @Override
+    public void getQuery() {
+        for (CategoryRecognizer categoryRecognizer : columnIdxToCategoryRecognizer.values()) {
+            // System.out.println(i);
+            try {
+                categoryRecognizer.getQueryProcess();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

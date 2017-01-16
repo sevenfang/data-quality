@@ -14,6 +14,7 @@ package org.talend.dataquality.semantic.recognizer;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
@@ -35,6 +36,8 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
     private final DataDictFieldClassifier dataDictFieldClassifier;
 
     private final UserDefinedClassifier userDefineClassifier;
+
+    CompletionService<Set<String>> completionService;
 
     private final LFUCache<String, Set<String>> knownCategoryCache = new LFUCache<String, Set<String>>(10, 1000, 0.01f);
 
@@ -60,6 +63,39 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
         return userDefineClassifier;
     }
 
+    @Override
+    public synchronized String[] getQueryProcess() throws InterruptedException, ExecutionException {
+        if (completionService == null) {
+            this.completionService = new ExecutorCompletionService<Set<String>>(Executors.newCachedThreadPool());
+        }
+        Set<String> categories = completionService.take().get();
+        if (categories.size() > 0) {
+            for (String catId : categories) {
+                DQCategory meta = crm.getCategoryMetadataByName(catId);
+                incrementCategory(catId, meta == null ? catId : meta.getLabel());
+            }
+        } else {
+            incrementCategory(StringUtils.EMPTY);
+        }
+        total++;
+        return categories.toArray(new String[categories.size()]);
+    }
+
+    @Override
+    public synchronized void addQueryProcess(final String data) {
+        final Callable<Set<String>> callable = new Callable<Set<String>>() {
+
+            @Override
+            public Set<String> call() throws Exception {
+                return getSubCategorySet(data);
+            }
+        };
+        if (completionService == null) {
+            this.completionService = new ExecutorCompletionService<Set<String>>(Executors.newCachedThreadPool());
+        }
+        completionService.submit(callable);
+    }
+
     /**
      * @param data the input value
      * @return the set of its semantic categories
@@ -69,6 +105,21 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
             emptyCount++;
             return new HashSet<>();
         }
+        // asynchronous cache
+        // if (knownCategoryCache.containsKey(data)) {
+        // final Set<String> knownCategory = knownCategoryCache.get(data);
+        // while (knownCategoryCache.get(data) == null) {
+        // try {
+        // Thread.sleep(50);
+        // } catch (InterruptedException e) {
+        // e.printStackTrace();
+        // }
+        // }
+        // return knownCategoryCache.get(data);
+        //
+        // } else {
+        // knownCategoryCache.put(data, null);
+        // }
         final Set<String> knownCategory = knownCategoryCache.get(data);
         if (knownCategory != null) {
             return knownCategory;
@@ -119,7 +170,7 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.talend.dataquality.semantic.recognizer.CategoryRecognizer#process(java.lang.String)
      */
     @Override

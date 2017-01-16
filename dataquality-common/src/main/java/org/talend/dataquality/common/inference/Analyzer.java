@@ -62,4 +62,7 @@ public interface Analyzer<T> extends Serializable, AutoCloseable {
      */
     Analyzer<T> merge(Analyzer<T> another);
 
+    void addQuery(String[] record);
+
+    void getQuery();
 }

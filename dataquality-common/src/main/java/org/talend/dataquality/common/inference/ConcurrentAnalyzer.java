@@ -100,6 +100,16 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
     }
 
     @Override
+    public void addQuery(String[] record) {
+
+    }
+
+    @Override
+    public void getQuery() {
+
+    }
+
+    @Override
     public void close() throws Exception {
         // Return previously borrowed instance to pool
         threadLocal.remove();

@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -263,7 +264,35 @@ public class CategoryRecognizerTest {
             }
 
         }
+    }
 
+    @Test
+    public void testAsynchronousProcess() {
+
+        catRecognizer.prepare();
+        for (String data : EXPECTED_CAT_ID.keySet()) {
+            catRecognizer.addQueryProcess(data);
+        }
+        for (String data : EXPECTED_CAT_ID.keySet()) {
+
+            System.out.println("-------------------------------");
+            String[] catNames = new String[0];
+            try {
+                catNames = catRecognizer.getQueryProcess();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            System.out.printf("%-30s  \t  %-20s\n", "[" + data + "]", Arrays.toString(catNames));
+
+            Collection<CategoryFrequency> result = catRecognizer.getResult();
+            for (CategoryFrequency frequencyTableItem : result) {
+
+                System.out.println("frequencyTableItem = " + frequencyTableItem.getCategoryId() + " / "
+                        + frequencyTableItem.getFrequency() + " %");
+            }
+        }
     }
 
     @Test
@@ -294,6 +323,42 @@ public class CategoryRecognizerTest {
             assertEquals(EXPECTED_FREQUECY_TABLE.get(tableItem.getCategoryId()), tableItem.getFrequency(), 0.001);
         }
 
+    }
+
+    @Test
+    public void testAsynchronousSingleColumn() {
+        catRecognizer.prepare();
+        long start = System.currentTimeMillis();
+        for (String data : EXPECTED_CAT_ID.keySet()) {
+            catRecognizer.addQueryProcess(data);
+        }
+        System.out.println("yolo");
+        for (String data : EXPECTED_CAT_ID.keySet()) {
+            String[] catNames = new String[0];
+            try {
+                catNames = catRecognizer.getQueryProcess();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            System.out.print(catNames.length + ", ");
+        }
+        System.out.println();
+        for (String data : EXPECTED_CAT_ID.keySet()) {
+            String[] catNames = catRecognizer.process(data);
+
+            System.out.print(catNames.length + ", ");
+        }
+
+        Collection<CategoryFrequency> result = catRecognizer.getResult();
+
+        assertEquals(EXPECTED_FREQUECY_TABLE.size(), result.size());
+        for (CategoryFrequency tableItem : result) {
+            log.debug("frequencyTableItem = " + tableItem.getCategoryId() + " / " + tableItem.getCount() + " / "
+                    + tableItem.getFrequency() + " %");
+            assertEquals(EXPECTED_FREQUECY_TABLE.get(tableItem.getCategoryId()), tableItem.getFrequency(), 0.001);
+        }
     }
 
     @Test
