@@ -428,17 +428,6 @@ public class TSwooshGrouping<TYPE> {
                     groupRows.remove(tempGid);
                 }
             }
-            //Added TDQ-12851, only handle the lost records, but not the group
-            if (!groupRows.isEmpty()) {
-                Iterator<String> iterator = groupRows.keySet().iterator();
-                while (iterator.hasNext()) {
-                    List<List<DQAttribute<?>>> list = groupRows.get(iterator.next());
-                    for (List<DQAttribute<?>> attri : list) {
-                        RichRecord createRecord = createRecord(attri, attri.get(indexGID2).getValue());
-                        output(createRecord);
-                    }
-                }
-            }
         }
 
     }
