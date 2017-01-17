@@ -92,11 +92,11 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
     }
 
     @Override
-    public void getQuery() {
+    public void executeQueries() {
         for (CategoryRecognizer categoryRecognizer : columnIdxToCategoryRecognizer.values()) {
             // System.out.println(i);
             try {
-                categoryRecognizer.getQueryProcess();
+                categoryRecognizer.executeQueries();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

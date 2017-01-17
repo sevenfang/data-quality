@@ -105,7 +105,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
     }
 
     @Override
-    public void getQuery() {
+    public void executeQueries() {
 
     }
 

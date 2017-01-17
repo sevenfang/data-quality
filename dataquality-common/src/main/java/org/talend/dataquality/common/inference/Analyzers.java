@@ -112,15 +112,16 @@ public class Analyzers implements Analyzer<Analyzers.Result> {
 
     @Override
     public void addQuery(String[] record) {
+        results.resize(record.length);
         for (Analyzer<?> executor : analyzers) {
             executor.addQuery(record);
         }
     }
 
     @Override
-    public void getQuery() {
+    public void executeQueries() {
         for (Analyzer<?> executor : analyzers) {
-            executor.getQuery();
+            executor.executeQueries();
         }
     }
 

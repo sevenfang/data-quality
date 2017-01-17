@@ -37,9 +37,14 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     private final UserDefinedClassifier userDefineClassifier;
 
-    CompletionService<Set<String>> completionService;
+    ExecutorService executorService;
 
-    private final LFUCache<String, Set<String>> knownCategoryCache = new LFUCache<String, Set<String>>(10, 1000, 0.01f);
+    private final List<Future<Set<String>>> futures = new ArrayList<>();
+
+    private final LFUCache<String, Future<Set<String>>> knownCategoryCache = new LFUCache<String, Future<Set<String>>>(10, 1000,
+            0.01f);
+
+    // private final LFUCache<String, Set<String>> knownCategoryCacheOrigin = new LFUCache<String, Set<String>>(10, 1000, 0.01f);
 
     private long emptyCount = 0;
 
@@ -64,36 +69,45 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
     }
 
     @Override
-    public synchronized String[] getQueryProcess() throws InterruptedException, ExecutionException {
-        if (completionService == null) {
-            this.completionService = new ExecutorCompletionService<Set<String>>(Executors.newCachedThreadPool());
+    public synchronized void executeQueries() throws InterruptedException, ExecutionException {
+        if (executorService == null) {
+            this.executorService = Executors.newCachedThreadPool();
         }
-        Set<String> categories = completionService.take().get();
-        if (categories.size() > 0) {
-            for (String catId : categories) {
-                DQCategory meta = crm.getCategoryMetadataByName(catId);
-                incrementCategory(catId, meta == null ? catId : meta.getLabel());
+        for (Future<Set<String>> future : futures) {
+            Set<String> categories = future.get();
+            if (categories.size() > 0) {
+                for (String catId : categories) {
+                    DQCategory meta = crm.getCategoryMetadataByName(catId);
+                    incrementCategory(catId, meta == null ? catId : meta.getLabel());
+                }
+            } else {
+                incrementCategory(StringUtils.EMPTY);
             }
-        } else {
-            incrementCategory(StringUtils.EMPTY);
+            total++;
         }
-        total++;
-        return categories.toArray(new String[categories.size()]);
+        // return pair.getRight().toArray(new String[pair.getRight().size()]);
     }
 
     @Override
     public synchronized void addQueryProcess(final String data) {
-        final Callable<Set<String>> callable = new Callable<Set<String>>() {
+        final Future<Set<String>> knownCategory = knownCategoryCache.get(data);
+        if (knownCategory != null) {
+            futures.add(knownCategory);
+        } else {
+            final Callable<Set<String>> callable = new Callable<Set<String>>() {
 
-            @Override
-            public Set<String> call() throws Exception {
-                return getSubCategorySet(data);
+                @Override
+                public Set<String> call() throws Exception {
+                    return getSubCategorySet(data);
+                }
+            };
+            if (executorService == null) {
+                this.executorService = Executors.newCachedThreadPool();
             }
-        };
-        if (completionService == null) {
-            this.completionService = new ExecutorCompletionService<Set<String>>(Executors.newCachedThreadPool());
+            Future<Set<String>> future = executorService.submit(callable);
+            knownCategoryCache.put(data, future);
+            futures.add(future);
         }
-        completionService.submit(callable);
     }
 
     /**
@@ -105,25 +119,10 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
             emptyCount++;
             return new HashSet<>();
         }
-        // asynchronous cache
-        // if (knownCategoryCache.containsKey(data)) {
-        // final Set<String> knownCategory = knownCategoryCache.get(data);
-        // while (knownCategoryCache.get(data) == null) {
-        // try {
-        // Thread.sleep(50);
-        // } catch (InterruptedException e) {
-        // e.printStackTrace();
+        // final Set<String> knownCategory = knownCategoryCacheOrigin.get(data);
+        // if (knownCategory != null) {
+        // return knownCategory;
         // }
-        // }
-        // return knownCategoryCache.get(data);
-        //
-        // } else {
-        // knownCategoryCache.put(data, null);
-        // }
-        final Set<String> knownCategory = knownCategoryCache.get(data);
-        if (knownCategory != null) {
-            return knownCategory;
-        }
 
         MainCategory mainCategory = MainCategory.getMainCategory(data);
         Set<String> subCategorySet = new HashSet<>();
@@ -135,13 +134,13 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
             if (userDefineClassifier != null) {
                 subCategorySet.addAll(userDefineClassifier.classify(data, mainCategory));
             }
-            knownCategoryCache.put(data, subCategorySet);
+            // knownCategoryCacheOrigin.put(data, subCategorySet);
             break;
         case Numeric:
             if (userDefineClassifier != null) {
                 subCategorySet.addAll(userDefineClassifier.classify(data, mainCategory));
             }
-            knownCategoryCache.put(data, subCategorySet);
+            // knownCategoryCacheOrigin.put(data, subCategorySet);
             break;
         case NULL:
         case BLANK:
@@ -166,6 +165,7 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
         total = 0;
         emptyCount = 0;
         knownCategoryCache.clear();
+        // knownCategoryCacheOrigin.clear();
     }
 
     /*
@@ -229,5 +229,6 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
     public void end() {
         dataDictFieldClassifier.closeIndex();
         knownCategoryCache.clear();
+        // knownCategoryCacheOrigin.clear();
     }
 }

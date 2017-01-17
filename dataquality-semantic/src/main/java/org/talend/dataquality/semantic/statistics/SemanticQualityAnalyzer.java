@@ -207,7 +207,7 @@ public class SemanticQualityAnalyzer extends QualityAnalyzer<ValueQualityStatist
     }
 
     @Override
-    public void getQuery() {
+    public void executeQueries() {
 
     }
 

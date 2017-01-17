@@ -278,13 +278,12 @@ public class CategoryRecognizerTest {
             System.out.println("-------------------------------");
             String[] catNames = new String[0];
             try {
-                catNames = catRecognizer.getQueryProcess();
+                catRecognizer.executeQueries();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            System.out.printf("%-30s  \t  %-20s\n", "[" + data + "]", Arrays.toString(catNames));
 
             Collection<CategoryFrequency> result = catRecognizer.getResult();
             for (CategoryFrequency frequencyTableItem : result) {
@@ -336,7 +335,7 @@ public class CategoryRecognizerTest {
         for (String data : EXPECTED_CAT_ID.keySet()) {
             String[] catNames = new String[0];
             try {
-                catNames = catRecognizer.getQueryProcess();
+                catRecognizer.executeQueries();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

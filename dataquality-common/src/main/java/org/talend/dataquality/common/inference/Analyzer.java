@@ -64,5 +64,5 @@ public interface Analyzer<T> extends Serializable, AutoCloseable {
 
     void addQuery(String[] record);
 
-    void getQuery();
+    void executeQueries();
 }

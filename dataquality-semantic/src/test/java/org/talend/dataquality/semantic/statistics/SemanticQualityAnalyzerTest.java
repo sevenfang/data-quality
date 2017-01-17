@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
@@ -97,9 +98,13 @@ public class SemanticQualityAnalyzerTest {
                 new SemanticQualityAnalyzer(builder, expectedCategories)//
         );
 
+        long start = System.currentTimeMillis();
+
         for (String[] record : records) {
             analyzers.analyze(record);
         }
+        System.out.println(System.currentTimeMillis() - start + " ms");
+
         final List<Analyzers.Result> result = analyzers.getResult();
 
         assertEquals(expectedCategories.length, result.size());
@@ -149,9 +154,7 @@ public class SemanticQualityAnalyzerTest {
             analyzers.addQuery(record);
             // analyzers.analyze(record);
         }
-        for (int i = 0; i < records.size() - 1; i++) {
-            analyzers.getQuery();
-        }
+        analyzers.executeQueries();
 
         System.out.println(System.currentTimeMillis() - start + " ms");
         final List<Analyzers.Result> result = analyzers.getResult();
@@ -161,13 +164,12 @@ public class SemanticQualityAnalyzerTest {
         // Composite result assertions (there should be a DataType and a SemanticType)
         for (Analyzers.Result columnResult : result) {
             assertNotNull(columnResult.get(SemanticType.class));
-            assertNotNull(columnResult.get(ValueQualityStatistics.class));
         }
 
         // Semantic types assertions
         for (int i = 0; i < expectedCategories.length; i++) {
             final SemanticType stats = result.get(i).get(SemanticType.class);
-            // System.out.println("\"" + stats.getSuggestedCategory() + "\", //");
+            System.out.println("\"" + stats.getSuggestedCategory() + "\", // ");
             assertEquals("Unexpected SemanticType on column " + i, expectedCategories[i],
                     result.get(i).get(SemanticType.class).getSuggestedCategory());
             for (CategoryFrequency cf : stats.getCategoryToCount().keySet()) {
@@ -179,17 +181,6 @@ public class SemanticQualityAnalyzerTest {
                     }
                 }
             }
-        }
-
-        // Semantic validation assertions
-        for (int i = 0; i < expectedCategories.length; i++) {
-            final ValueQualityStatistics stats = result.get(i).get(ValueQualityStatistics.class);
-            // System.out.println("new long[] {" + stats.getValidCount() + ", " + stats.getInvalidCount() + ", "
-            // + stats.getEmptyCount() + "}, //");
-            assertEquals("Unexpected valid count on column " + i, expectedValidityCount[i][0], stats.getValidCount());
-            assertEquals("Unexpected invalid count on column " + i, expectedValidityCount[i][1], stats.getInvalidCount());
-            assertEquals("Unexpected empty count on column " + i, expectedValidityCount[i][2], stats.getEmptyCount());
-            assertEquals("Unexpected unknown count on column " + i, 0, stats.getUnknownCount());
         }
     }
 
