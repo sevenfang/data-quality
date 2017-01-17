@@ -32,6 +32,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -44,6 +45,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Bits;
 
 /**
  * @author scorreia A class to create an index with synonyms.
@@ -268,16 +270,36 @@ public class SynonymIndexSearcher {
     }
 
     /**
-     * Get a document from search result by its document number.
+     * Get a document from search result by its document number.include non-live doc like as deleted doc
      *
      * @param docNum the doc number
      * @return the document (can be null if any problem)
      */
     public Document getDocument(int docNum) {
+
+        return getDocument(docNum, false);
+    }
+
+    /**
+     * Get a document from search result by its document number.
+     *
+     * @param docNum the doc number
+     * @param onlyLiveDocs the doc should be lived.
+     * @return the document (can be null if any problem)
+     */
+    public Document getDocument(int docNum, boolean onlyLiveDocs) {
         Document doc = null;
         try {
             final IndexSearcher searcher = mgr.acquire();
             doc = searcher.doc(docNum);
+
+            if (onlyLiveDocs && doc != null) {
+                IndexReader reader = searcher.getIndexReader();
+                Bits liveDocs = MultiFields.getLiveDocs(reader);
+                if (liveDocs != null && !liveDocs.get(docNum)) {
+                    return null;
+                }
+            }
             mgr.release(searcher);
         } catch (IOException e) {
             LOGGER.error(e);
@@ -316,6 +338,23 @@ public class SynonymIndexSearcher {
         try {
             final IndexSearcher searcher = mgr.acquire();
             final int numDocs = searcher.getIndexReader().numDocs();
+            mgr.release(searcher);
+            return numDocs;
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return -1;
+    }
+
+    /**
+     * Method "getNumDocs".
+     *
+     * @return the number of documents in the index
+     */
+    public int getmaxDocs() {
+        try {
+            final IndexSearcher searcher = mgr.acquire();
+            final int numDocs = searcher.getIndexReader().maxDoc();
             mgr.release(searcher);
             return numDocs;
         } catch (IOException e) {
