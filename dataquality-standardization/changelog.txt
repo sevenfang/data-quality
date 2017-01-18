@@ -1,3 +1,6 @@
+3.1.6 2017-01-18 (for Studio 6.2.2)
+	- TDQ-13066 Hide the delete index node on UI.
+
 3.1.1 2016-06-27 (for Studio 6.2.1)
 	(no change in this version)
 

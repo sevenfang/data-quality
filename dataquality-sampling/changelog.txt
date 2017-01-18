@@ -1,3 +1,6 @@
+V2.2.6 2017-01-18 (for Studio 6.2.2)
+	(no change in this version)
+
 V2.2.2 2016-06-27 (for Studio 6.2.1)
     - TDQ-11437 fix FR_PHONE generation function of data masking
     - TDQ-11293 rename Function package to lowercase

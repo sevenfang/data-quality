@@ -1,3 +1,6 @@
+V1.4.6 2017-01-18 (for Studio 6.2.2)
+	(no change in this version)
+
 V1.4.5 2016-06-27 (for Studio 6.2.1)
 	- TDQ-11437 fix the regex for FR_PHONE recognition
 	- TDQ-12055 correctly pick category in semantic discovery analysis 

@@ -1,3 +1,6 @@
+V3.1.6 2017-01-18 (for Studio 6.2.2)
+	- TDQ-13131 use the "most common" function as a default when the column is not selected and fixed TDQ-13060 on the branch 6.2(1.4)
+
 V3.1.3 2016-06-27 (for Studio 6.2.1)
 	- TDQ-12038 rename datascience.common package to dataquality.common
 	- TDQ-12031 improve speed of q-Gram metric

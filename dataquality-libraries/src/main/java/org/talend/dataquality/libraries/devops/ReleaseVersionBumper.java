@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
  */
 public class ReleaseVersionBumper {
 
-    private String targetVersion = "1.5.7";
+    private String targetVersion = "1.4.6";
 
     private static final String DATAQUALITY_PREFIX = "dataquality.";
 
