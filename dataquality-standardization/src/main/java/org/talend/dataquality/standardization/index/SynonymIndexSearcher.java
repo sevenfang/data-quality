@@ -270,37 +270,24 @@ public class SynonymIndexSearcher {
     }
 
     /**
-     * Get a document from search result by its document number.include non-live doc like as deleted doc
+     * Get a document from search result by its document number.
      *
      * @param docNum the doc number
      * @return the document (can be null if any problem)
      */
     public Document getDocument(int docNum) {
-
-        return getDocument(docNum, false);
-    }
-
-    /**
-     * Get a document from search result by its document number.
-     *
-     * @param docNum the doc number
-     * @param onlyLiveDocs the doc should be lived.
-     * @return the document (can be null if any problem)
-     */
-    public Document getDocument(int docNum, boolean onlyLiveDocs) {
         Document doc = null;
         try {
             final IndexSearcher searcher = mgr.acquire();
-            doc = searcher.doc(docNum);
-
-            if (onlyLiveDocs && doc != null) {
-                IndexReader reader = searcher.getIndexReader();
-                Bits liveDocs = MultiFields.getLiveDocs(reader);
-                if (liveDocs != null && !liveDocs.get(docNum)) {
-                    return null;
-                }
+            IndexReader reader = searcher.getIndexReader();
+            Bits liveDocs = MultiFields.getLiveDocs(reader);
+            if (liveDocs != null && !liveDocs.get(docNum)) {
+                return null;
+            } else {
+                doc = reader.document(docNum);
+                mgr.release(searcher);
+                return doc;
             }
-            mgr.release(searcher);
         } catch (IOException e) {
             LOGGER.error(e);
         }
@@ -347,11 +334,11 @@ public class SynonymIndexSearcher {
     }
 
     /**
-     * Method "getNumDocs".
+     * Method "getMaxDoc".
      *
-     * @return the number of documents in the index
+     * @return the the max document number of the index
      */
-    public int getmaxDocs() {
+    public int getMaxDoc() {
         try {
             final IndexSearcher searcher = mgr.acquire();
             final int numDocs = searcher.getIndexReader().maxDoc();
