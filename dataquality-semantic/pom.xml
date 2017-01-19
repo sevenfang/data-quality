@@ -3,11 +3,11 @@
 	<parent>
 		<groupId>org.talend.dataquality</groupId>
 		<artifactId>dataquality-libraries</artifactId>
-		<version>1.4.6</version>
+		<version>1.4.7-SNAPSHOT</version>
 		<relativePath>../dataquality-libraries</relativePath>
 	</parent>
 	<artifactId>org.talend.dataquality.semantic</artifactId>
-	<version>${dataquality.libraries.released.version}</version>
+	<version>${dataquality.libraries.snapshot.version}</version>
 	<packaging>bundle</packaging>
 	<name>dataquality-semantic</name>
 	<description>API for semantic category analysis</description>
@@ -16,12 +16,12 @@
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>org.talend.dataquality.common</artifactId>
-			<version>${dataquality.libraries.released.version}</version>
+			<version>${dataquality.libraries.snapshot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>org.talend.dataquality.standardization</artifactId>
-			<version>${dataquality.standardization.released.version}</version>
+			<version>${dataquality.standardization.snapshot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
