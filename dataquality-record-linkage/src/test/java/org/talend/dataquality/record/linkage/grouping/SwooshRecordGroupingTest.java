@@ -3100,8 +3100,6 @@ public class SwooshRecordGroupingTest {
 
     }
 
-
-
     @Test
     public void testSwoosh_one_grpQuality()
             throws IOException, InterruptedException, InstantiationException, IllegalAccessException, ClassNotFoundException {
