@@ -21,7 +21,7 @@ import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.ResizableList;
 import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
+import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilderInterface;
 
 /**
  * Semantic type infer executor. <br>
@@ -37,7 +37,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private final Map<Integer, CategoryRecognizer> columnIdxToCategoryRecognizer = new HashMap<>();
 
-    private final CategoryRecognizerBuilder builder;
+    private final CategoryRecognizerBuilderInterface builder;
 
     // Threshold of handle to be run. since the semantic inferring will require
     // more time than expected, we may only want to run the handle method on a
@@ -46,11 +46,11 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private int currentCount = 0;
 
-    public SemanticAnalyzer(CategoryRecognizerBuilder builder) {
+    public SemanticAnalyzer(CategoryRecognizerBuilderInterface builder) {
         this(builder, 10000);
     }
 
-    public SemanticAnalyzer(CategoryRecognizerBuilder builder, int limit) {
+    public SemanticAnalyzer(CategoryRecognizerBuilderInterface builder, int limit) {
         this.builder = builder;
         this.limit = limit;
         builder.initIndex();
@@ -96,7 +96,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         for (CategoryRecognizer categoryRecognizer : columnIdxToCategoryRecognizer.values()) {
             // System.out.println(i);
             try {
-                categoryRecognizer.executeQueries();
+                categoryRecognizer.executeFutures();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

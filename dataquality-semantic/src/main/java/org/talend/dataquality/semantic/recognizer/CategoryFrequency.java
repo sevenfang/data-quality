@@ -29,11 +29,11 @@ public class CategoryFrequency implements Comparable<CategoryFrequency>, Seriali
 
     String categoryId;
 
-    String categoryName;
+    public String categoryName;
 
-    float frequency;
+    public float frequency;
 
-    long count;
+    public long count;
 
     /**
      * CategoryFrequency constructor from a category.

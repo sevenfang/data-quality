@@ -15,6 +15,7 @@ package org.talend.dataquality.semantic.classifier.impl;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.Future;
 
 import org.talend.dataquality.semantic.classifier.ISubCategoryClassifier;
 import org.talend.dataquality.semantic.index.Index;
@@ -46,6 +47,23 @@ public class DataDictFieldClassifier implements ISubCategoryClassifier {
         } else {
             result.addAll(dictionary.findCategories(data));
             result.addAll(keyword.findCategories(data));
+        }
+
+        return result;
+    }
+
+    @Override
+    public Set<Future> classifyFuture(String data) {
+        StringTokenizer t = new StringTokenizer(data, " ");
+        final int tokenCount = t.countTokens();
+
+        Set<Future> result = new HashSet<>();
+        // if it's a valid syntactic data --> search in DD
+        if (tokenCount < 3) {
+            result.add(dictionary.findFutureCategories(data));
+        } else {
+            result.add(dictionary.findFutureCategories(data));
+            result.add(keyword.findFutureCategories(data));
         }
 
         return result;

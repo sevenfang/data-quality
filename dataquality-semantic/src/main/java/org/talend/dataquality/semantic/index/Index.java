@@ -13,6 +13,7 @@
 package org.talend.dataquality.semantic.index;
 
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * created by talend on 2015-07-28 Detailled comment.
@@ -24,6 +25,8 @@ public interface Index {
     void closeIndex();
 
     Set<String> findCategories(String data);
+
+    Future findFutureCategories(String data);
 
     boolean validCategory(String data, String semanticType);
 }

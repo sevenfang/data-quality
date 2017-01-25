@@ -35,7 +35,7 @@ public interface CategoryRecognizer {
 
     Collection<CategoryFrequency> getResult();
 
-    public void executeQueries() throws InterruptedException, ExecutionException;
+    public void executeFutures() throws ExecutionException, InterruptedException;
 
     public void addQueryProcess(final String data);
 

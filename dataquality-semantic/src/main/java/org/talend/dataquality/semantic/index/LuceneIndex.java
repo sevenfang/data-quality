@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -70,6 +71,11 @@ public class LuceneIndex implements Index {
             LOG.error(e, e);
         }
         return foundCategorySet;
+    }
+
+    @Override
+    public Future findFutureCategories(String data) {
+        return null;
     }
 
     @Override

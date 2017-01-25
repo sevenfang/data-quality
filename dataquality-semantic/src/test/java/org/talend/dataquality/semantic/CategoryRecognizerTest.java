@@ -278,7 +278,7 @@ public class CategoryRecognizerTest {
             System.out.println("-------------------------------");
             String[] catNames = new String[0];
             try {
-                catRecognizer.executeQueries();
+                catRecognizer.executeFutures();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -335,7 +335,7 @@ public class CategoryRecognizerTest {
         for (String data : EXPECTED_CAT_ID.keySet()) {
             String[] catNames = new String[0];
             try {
-                catRecognizer.executeQueries();
+                catRecognizer.executeFutures();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

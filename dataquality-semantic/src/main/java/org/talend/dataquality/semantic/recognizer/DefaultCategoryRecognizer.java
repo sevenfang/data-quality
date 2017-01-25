@@ -14,7 +14,8 @@ package org.talend.dataquality.semantic.recognizer;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
@@ -37,12 +38,7 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     private final UserDefinedClassifier userDefineClassifier;
 
-    ExecutorService executorService;
-
-    private final List<Future<Set<String>>> futures = new ArrayList<>();
-
-    private final LFUCache<String, Future<Set<String>>> knownCategoryCache = new LFUCache<String, Future<Set<String>>>(10, 1000,
-            0.01f);
+    private final LFUCache<String, Set<Future>> knownCategoryCache = new LFUCache<>(10, 1000, 0.01f);
 
     // private final LFUCache<String, Set<String>> knownCategoryCacheOrigin = new LFUCache<String, Set<String>>(10, 1000, 0.01f);
 
@@ -66,48 +62,6 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
     @Override
     public UserDefinedClassifier getUserDefineClassifier() {
         return userDefineClassifier;
-    }
-
-    @Override
-    public synchronized void executeQueries() throws InterruptedException, ExecutionException {
-        if (executorService == null) {
-            this.executorService = Executors.newCachedThreadPool();
-        }
-        for (Future<Set<String>> future : futures) {
-            Set<String> categories = future.get();
-            if (categories.size() > 0) {
-                for (String catId : categories) {
-                    DQCategory meta = crm.getCategoryMetadataByName(catId);
-                    incrementCategory(catId, meta == null ? catId : meta.getLabel());
-                }
-            } else {
-                incrementCategory(StringUtils.EMPTY);
-            }
-            total++;
-        }
-        // return pair.getRight().toArray(new String[pair.getRight().size()]);
-    }
-
-    @Override
-    public synchronized void addQueryProcess(final String data) {
-        final Future<Set<String>> knownCategory = knownCategoryCache.get(data);
-        if (knownCategory != null) {
-            futures.add(knownCategory);
-        } else {
-            final Callable<Set<String>> callable = new Callable<Set<String>>() {
-
-                @Override
-                public Set<String> call() throws Exception {
-                    return getSubCategorySet(data);
-                }
-            };
-            if (executorService == null) {
-                this.executorService = Executors.newCachedThreadPool();
-            }
-            Future<Set<String>> future = executorService.submit(callable);
-            knownCategoryCache.put(data, future);
-            futures.add(future);
-        }
     }
 
     /**
@@ -150,6 +104,48 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
             break;
         }
         return subCategorySet;
+    }
+
+    /**
+     * @param data the input value
+     * @return the set of its semantic categories
+     */
+    public Set<Future> getFutureSubCategorySet(String data) {
+        if (data == null || StringUtils.EMPTY.equals(data.trim())) {
+            emptyCount++;
+            return new HashSet<>();
+        }
+        // final Set<String> knownCategory = knownCategoryCacheOrigin.get(data);
+        // if (knownCategory != null) {
+        // return knownCategory;
+        // }
+
+        MainCategory mainCategory = MainCategory.getMainCategory(data);
+        Set<Future> futureSubCategorySet = new HashSet<>();
+
+        switch (mainCategory) {
+        case Alpha:
+        case AlphaNumeric:
+            futureSubCategorySet.addAll(dataDictFieldClassifier.classifyFuture(data));
+            if (userDefineClassifier != null) {
+                futureSubCategorySet.addAll(userDefineClassifier.classifyFuture(data, mainCategory));
+            }
+            // knownCategoryCacheOrigin.put(data, subCategorySet);
+            break;
+        case Numeric:
+            if (userDefineClassifier != null) {
+                futureSubCategorySet.addAll(userDefineClassifier.classifyFuture(data, mainCategory));
+            }
+            // knownCategoryCacheOrigin.put(data, subCategorySet);
+            break;
+        case NULL:
+        case BLANK:
+            emptyCount++;
+            break;
+        case UNKNOWN:
+            break;
+        }
+        return futureSubCategorySet;
     }
 
     @Override
@@ -223,6 +219,15 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
             }
         });
         return catList;
+    }
+
+    @Override
+    public void executeFutures() throws ExecutionException, InterruptedException {
+    }
+
+    @Override
+    public void addQueryProcess(String data) {
+
     }
 
     @Override

@@ -14,7 +14,9 @@ package org.talend.dataquality.semantic.classifier.custom;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 import org.talend.dataquality.semantic.classifier.ISubCategory;
 import org.talend.dataquality.semantic.classifier.impl.AbstractSubCategoryClassifier;
 import org.talend.dataquality.semantic.filter.ISemanticFilter;
@@ -81,6 +83,20 @@ public class UserDefinedClassifier extends AbstractSubCategoryClassifier {
     public boolean validCategory(String str, String semanticType) {
         MainCategory mainCategory = MainCategory.getMainCategory(str);
         return validCategory(str, mainCategory, semanticType);
+    }
+
+    @Override
+    public Set<Future> classifyFuture(String data) {
+        MainCategory mainCategory = MainCategory.getMainCategory(data);
+        return classifyFuture(data, mainCategory);
+    }
+
+    public Set<Future> classifyFuture(String data, MainCategory mainCategory) {
+        Set<Future> res = new HashSet();
+        Set<String> a = classify(data, mainCategory);
+        if (!a.isEmpty())
+            res.add(ConcurrentUtils.constantFuture(a));
+        return res;
     }
 
     private boolean validCategory(String str, MainCategory mainCategory, String semanticType) {

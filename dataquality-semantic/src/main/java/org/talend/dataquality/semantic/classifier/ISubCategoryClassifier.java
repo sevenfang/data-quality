@@ -14,6 +14,7 @@ package org.talend.dataquality.semantic.classifier;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Created by sizhaoliu on 16.03.15.
@@ -29,4 +30,6 @@ public interface ISubCategoryClassifier extends Serializable {
     public Set<String> classify(String str);
 
     boolean validCategory(String value, String semanticType);
+
+    public Set<Future> classifyFuture(String data);
 }
