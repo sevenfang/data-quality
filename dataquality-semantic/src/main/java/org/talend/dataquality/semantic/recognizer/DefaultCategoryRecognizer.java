@@ -28,7 +28,7 @@ import org.talend.dataquality.semantic.model.DQCategory;
  */
 class DefaultCategoryRecognizer implements CategoryRecognizer {
 
-    private final List<CategoryFrequency> catList = new ArrayList<>();
+    protected final List<CategoryFrequency> catList = new ArrayList<>();
 
     protected final Map<String, CategoryFrequency> categoryToFrequency = new HashMap<>();
 

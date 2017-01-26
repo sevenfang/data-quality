@@ -13,9 +13,11 @@
 package org.talend.dataquality.semantic.classifier.impl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.talend.dataquality.semantic.classifier.ISubCategoryClassifier;
 import org.talend.dataquality.semantic.index.Index;
 
@@ -73,4 +75,7 @@ public class DataDictFieldClassifier implements ISubCategoryClassifier {
         keyword.closeIndex();
     }
 
+    public List<Pair<String, Set<String>>> multipleClassify(List<String> inputList) {
+        return dictionary.sendMultiSearch(inputList);
+    }
 }

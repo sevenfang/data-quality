@@ -12,7 +12,10 @@
 // ============================================================================
 package org.talend.dataquality.semantic.index;
 
+import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * created by talend on 2015-07-28 Detailled comment.
@@ -26,4 +29,6 @@ public interface Index {
     Set<String> findCategories(String data);
 
     boolean validCategory(String data, String semanticType);
+
+    public List<Pair<String, Set<String>>> sendMultiSearch(List<String> data);
 }

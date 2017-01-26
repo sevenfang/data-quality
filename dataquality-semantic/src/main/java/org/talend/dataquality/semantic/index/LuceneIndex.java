@@ -15,8 +15,11 @@ package org.talend.dataquality.semantic.index;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.ScoreDoc;
@@ -82,5 +85,10 @@ public class LuceneIndex implements Index {
             LOG.error(e, e);
         }
         return validCategory;
+    }
+
+    @Override
+    public List<Pair<String, Set<String>>> sendMultiSearch(List<String> data) {
+        throw new NotImplementedException("MultiSearch is not supported for lucene index.");
     }
 }

@@ -2,12 +2,12 @@ package org.talend.dataquality.semantic.recognizer;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.talend.dataquality.semantic.index.Index;
 import org.talend.dataquality.semantic.model.DQCategory;
 
@@ -94,39 +94,48 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         inputList.add(data);
         if (inputList.size() % batchSize == 0) {
             sendBatchQueryToES(new ArrayList<String>(inputList));
-            System.out.println("submit " +total +" "+ inputList.get(inputList.size() - 1));
+            // System.out.println("submit " + total + " " + inputList.get(inputList.size() - 1));
             inputList.clear();
         }
         return new String[0];
     }
 
     private void sendBatchQueryToES(List<String> data) {
-        FutureTask<String> task = new BatchFutureTask(new BatchQueryCallable(data), this);
+        FutureTask<Boolean> task = new BatchFutureTask(new BatchQueryCallable(data), this);
         threadPool.submit(task);
     }
 
     void incrementCategory(List<String> cats) {
-        System.out.println("increment categories " + cats);
+        // System.out.println("increment categories " + cats);
+        for (String catId : cats) {
+            CategoryFrequency c = categoryToFrequency.get(catId);
+            if (c == null) {
+                c = new CategoryFrequency(catId, catId);
+                categoryToFrequency.put(catId, c);
+                catList.add(c);
+            }
+            c.count++;
+        }
     }
 
     public Collection<CategoryFrequency> getResult() {
         if (inputList.size() > 0) {
             sendBatchQueryToES(inputList);
-            System.out.println("submit " + inputList.get(inputList.size() - 1));
+            // System.out.println("submit " + inputList.get(inputList.size() - 1));
         }
 
         threadPool.shutdown();
         return super.getResult();
     }
 
-    class BatchFutureTask extends FutureTask<String> {
+    class BatchFutureTask extends FutureTask<Boolean> {
 
         private BulkCategoryRecognizer bulkCategoryRecognizer;
 
         private BatchQueryCallable callable;
 
         public BatchFutureTask(BatchQueryCallable callable, BulkCategoryRecognizer bulkCategoryRecognizer) {
-            super(callable);
+            super(callable, true);
             this.callable = callable;
             this.bulkCategoryRecognizer = bulkCategoryRecognizer;
         }
@@ -139,7 +148,7 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
 
     }
 
-    class BatchQueryCallable implements Callable<String> {
+    class BatchQueryCallable implements Runnable {
 
         private List<String> inputList;
 
@@ -150,23 +159,28 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         }
 
         @Override
-        public String call() {
-            try {
-                // ESIndex().send(inputList)
-                String lastCellName = inputList.get(inputList.size() - 1);
-                System.out.println("start handling " + lastCellName);
-                long delay = Math.round(Math.random() * 100);
-                try {
-                    Thread.currentThread().sleep(delay);
-                    System.out.println("finished " + lastCellName + "\t in " + delay + " ms");
-                } catch (InterruptedException e) {
-                    System.out.println(e.getMessage());
-                }
-                categories.add(lastCellName);
-            } catch (Exception e) {
-                e.printStackTrace();
+        public void run() {
+            for (Pair<String, Set<String>> pair : dataDictFieldClassifier.multipleClassify(inputList)) {
+                categories.addAll(pair.getRight());
             }
-            return "abc";
+            // try {
+            //
+            // dataDictFieldClassifier.multipleClassify(inputList);
+            // // ESIndex().send(inputList)
+            // String lastCellName = inputList.get(inputList.size() - 1);
+            // System.out.println("start handling " + lastCellName);
+            // long delay = Math.round(Math.random() * 100);
+            // try {
+            // Thread.currentThread().sleep(delay);
+            // System.out.println("finished " + lastCellName + "\t in " + delay + " ms");
+            // } catch (InterruptedException e) {
+            // System.out.println(e.getMessage());
+            // }
+            // categories.add(lastCellName);
+            // } catch (Exception e) {
+            // e.printStackTrace();
+            // }
+
         }
 
         public List<String> getCategories() {
