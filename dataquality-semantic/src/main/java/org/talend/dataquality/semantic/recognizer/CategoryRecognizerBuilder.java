@@ -21,6 +21,7 @@ import org.apache.lucene.store.Directory;
 import org.talend.dataquality.semantic.classifier.custom.UDCategorySerDeser;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.index.DictionarySearchMode;
+import org.talend.dataquality.semantic.index.Index;
 import org.talend.dataquality.semantic.index.LuceneIndex;
 
 /**
@@ -47,9 +48,9 @@ public class CategoryRecognizerBuilder {
 
     private URI regexPath;
 
-    private LuceneIndex dataDictIndex;
+    private Index dataDictIndex;
 
-    private LuceneIndex keywordIndex;
+    private Index keywordIndex;
 
     private Directory ddDirectory;
 
@@ -74,6 +75,11 @@ public class CategoryRecognizerBuilder {
         return this;
     }
 
+    public CategoryRecognizerBuilder dataDictIndex(Index dataDictIndex) {
+        this.dataDictIndex = dataDictIndex;
+        return this;
+    }
+
     public CategoryRecognizerBuilder kwPath(URI kwPath) {
         this.kwPath = kwPath;
         return this;
@@ -94,8 +100,18 @@ public class CategoryRecognizerBuilder {
         return this;
     }
 
+    public CategoryRecognizerBuilder keywordIndex(Index keywordIndex) {
+        this.keywordIndex = keywordIndex;
+        return this;
+    }
+
     public CategoryRecognizerBuilder lucene() {
         this.mode = Mode.LUCENE;
+        return this;
+    }
+
+    public CategoryRecognizerBuilder es() {
+        this.mode = Mode.ELASTIC_SEARCH;
         return this;
     }
 
@@ -103,19 +119,21 @@ public class CategoryRecognizerBuilder {
 
         switch (mode) {
         case LUCENE:
-            LuceneIndex dict = getDataDictIndex();
-            LuceneIndex keyword = getKeywordIndex();
+            Index dict = getDataDictIndex();
+            Index keyword = getKeywordIndex();
             UserDefinedClassifier regex = getRegexClassifier();
             return new DefaultCategoryRecognizer(dict, keyword, regex);
         case ELASTIC_SEARCH:
-            throw new IllegalArgumentException("Elasticsearch mode is not supported any more");
+            // TODO switch to keyword index on ES when it's ready
+            Index keywordIndex = getKeywordIndex(); // keep using local keyword index for the moment
+            return new BulkCategoryRecognizer(dataDictIndex, keywordIndex);
         default:
             throw new IllegalArgumentException("no mode specified.");
         }
 
     }
 
-    private LuceneIndex getDataDictIndex() {
+    private Index getDataDictIndex() {
         if (dataDictIndex == null) {
             if (ddDirectory == null) {
                 if (ddPath == null) {
@@ -137,7 +155,7 @@ public class CategoryRecognizerBuilder {
         return dataDictIndex;
     }
 
-    private LuceneIndex getKeywordIndex() {
+    private Index getKeywordIndex() {
         if (keywordIndex == null) {
             if (kwDirectory == null) {
                 if (kwPath == null) {

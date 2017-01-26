@@ -30,19 +30,19 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     private final List<CategoryFrequency> catList = new ArrayList<>();
 
-    private final Map<String, CategoryFrequency> categoryToFrequency = new HashMap<>();
+    protected final Map<String, CategoryFrequency> categoryToFrequency = new HashMap<>();
 
-    private final DataDictFieldClassifier dataDictFieldClassifier;
+    protected final DataDictFieldClassifier dataDictFieldClassifier;
 
-    private final UserDefinedClassifier userDefineClassifier;
+    protected final UserDefinedClassifier userDefineClassifier;
 
-    private final LFUCache<String, Set<String>> knownCategoryCache = new LFUCache<String, Set<String>>(10, 1000, 0.01f);
+    protected final LFUCache<String, Set<String>> knownCategoryCache = new LFUCache<String, Set<String>>(10, 1000, 0.01f);
 
-    private long emptyCount = 0;
+    protected long emptyCount = 0;
 
-    private long total = 0;
+    protected long total = 0;
 
-    private CategoryRegistryManager crm;
+    protected CategoryRegistryManager crm;
 
     public DefaultCategoryRecognizer(Index dictionary, Index keyword) throws IOException {
         this(dictionary, keyword, CategoryRegistryManager.getInstance().getRegexClassifier());
@@ -141,11 +141,11 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
         return categories.toArray(new String[categories.size()]);
     }
 
-    private void incrementCategory(String catId) {
+    protected void incrementCategory(String catId) {
         incrementCategory(catId, catId);
     }
 
-    private void incrementCategory(String catId, String catName) {
+    protected void incrementCategory(String catId, String catName) {
         CategoryFrequency c = categoryToFrequency.get(catId);
         if (c == null) {
             c = new CategoryFrequency(catId, catName);
