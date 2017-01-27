@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -108,13 +109,7 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
     void incrementCategory(List<String> cats) {
         // System.out.println("increment categories " + cats);
         for (String catId : cats) {
-            CategoryFrequency c = categoryToFrequency.get(catId);
-            if (c == null) {
-                c = new CategoryFrequency(catId, catId);
-                categoryToFrequency.put(catId, c);
-                catList.add(c);
-            }
-            c.count++;
+            super.incrementCategory(catId);
         }
     }
 
@@ -125,6 +120,14 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         }
 
         threadPool.shutdown();
+
+        // Blocks until all tasks have completed execution after a shutdown request
+        try {
+            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            System.out.println("All elasticSearch tasks didn't finished. " + e.getMessage());
+        }
+
         return super.getResult();
     }
 
