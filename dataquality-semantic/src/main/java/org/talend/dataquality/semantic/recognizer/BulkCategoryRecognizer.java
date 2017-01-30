@@ -131,6 +131,13 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         return super.getResult();
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        inputList.clear();
+        threadPool = Executors.newFixedThreadPool(5);
+    }
+
     class BatchFutureTask extends FutureTask<Boolean> {
 
         private BulkCategoryRecognizer bulkCategoryRecognizer;
