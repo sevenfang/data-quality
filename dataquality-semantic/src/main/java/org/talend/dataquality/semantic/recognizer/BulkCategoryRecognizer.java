@@ -18,9 +18,11 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
 
     private List<String> inputList = new ArrayList<String>();
 
-    private ExecutorService threadPool = Executors.newFixedThreadPool(5);
+    private ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     private boolean isCacheActivated = false;
+
+    private int totalRecords = 0;
 
     public BulkCategoryRecognizer(Index dictionary, Index keyword) throws IOException {
         super(dictionary, keyword);
@@ -91,11 +93,10 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
     }
 
     private String[] processNew(String data) {
-
+        totalRecords++;
         inputList.add(data);
         if (inputList.size() % batchSize == 0) {
             sendBatchQueryToES(new ArrayList<String>(inputList));
-            // System.out.println("submit " + total + " " + inputList.get(inputList.size() - 1));
             inputList.clear();
         }
         return new String[0];
@@ -104,6 +105,7 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
     private void sendBatchQueryToES(List<String> data) {
         FutureTask<Boolean> task = new BatchFutureTask(new BatchQueryCallable(data), this);
         threadPool.submit(task);
+        System.out.println("submitted " + totalRecords) ;
     }
 
     void incrementCategory(List<String> cats) {
@@ -119,11 +121,18 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
             // System.out.println("submit " + inputList.get(inputList.size() - 1));
         }
 
+        System.out.println("call shutdown");
         threadPool.shutdown();
 
         // Blocks until all tasks have completed execution after a shutdown request
         try {
-            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+
+            System.out.println("call awaitTermination");
+            if(threadPool.awaitTermination(5, TimeUnit.SECONDS)){
+               // System.out.println("OK");
+            }else{
+                System.out.println("KO");
+            }
         } catch (InterruptedException e) {
             System.out.println("All elasticSearch tasks didn't finished. " + e.getMessage());
         }
@@ -153,6 +162,8 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         @Override
         public void done() {
             // callback
+
+            System.out.println("done " + (totalRecords));
             bulkCategoryRecognizer.incrementCategory(callable.getCategories());
         }
 
