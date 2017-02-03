@@ -13,11 +13,8 @@
 package org.talend.dataquality.semantic.statistics;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.talend.dataquality.common.inference.Analyzer;
@@ -36,18 +33,18 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private static final long serialVersionUID = 6808620909722453108L;
 
-    private final ResizableList<SemanticType> results = new ResizableList<>(SemanticType.class);
+    protected final ResizableList<SemanticType> results = new ResizableList<>(SemanticType.class);
 
-    private final Map<Integer, CategoryRecognizer> columnIdxToCategoryRecognizer = new HashMap<>();
+    protected final Map<Integer, CategoryRecognizer> columnIdxToCategoryRecognizer = new HashMap<>();
 
     private final CategoryRecognizerBuilder builder;
 
     // Threshold of handle to be run. since the semantic inferring will require
     // more time than expected, we may only want to run the handle method on a
     // sample with small size. Default value is 10000.
-    private int limit = 10000;
+    protected int limit = 10000;
 
-    private int currentCount = 0;
+    protected int currentCount = 0;
 
     public SemanticAnalyzer(CategoryRecognizerBuilder builder) {
         this(builder, 10000);
@@ -61,7 +58,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     /**
      * Set the maximum of records this semantic analyzer is expected to process. Any value <= 0 is considered as
-     * "no limit". A value of 1 will only analyze first call to {@link #analyze(String...)}.
+     * "no limit". A value of 1 will only analyze first call to {@link Analyzer#analyze(ExecutorService, String...)}.
      * 
      * @param limit A integer that indicate the maximum number of record this analyzer should process.
      */
@@ -98,7 +95,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         return true;
     }
 
-    private void resizeCategoryRecognizer(String[] record) {
+    protected void resizeCategoryRecognizer(String[] record) {
         if (columnIdxToCategoryRecognizer.size() > 0) {
             // already resized
             return;

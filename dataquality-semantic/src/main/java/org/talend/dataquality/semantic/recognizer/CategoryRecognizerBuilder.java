@@ -124,8 +124,6 @@ public class CategoryRecognizerBuilder {
             UserDefinedClassifier regex = getRegexClassifier();
             return new DefaultCategoryRecognizer(dict, keyword, regex);
         case ELASTIC_SEARCH:
-            // TODO switch to keyword index on ES when it's ready
-            Index keywordIndex = getKeywordIndex(); // keep using local keyword index for the moment
             return new BulkCategoryRecognizer(dataDictIndex, keywordIndex);
         default:
             throw new IllegalArgumentException("no mode specified.");

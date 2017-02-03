@@ -1,11 +1,12 @@
 package org.talend.dataquality.semantic.recognizer;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,8 +19,6 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
 
     private List<String> inputList = new ArrayList<String>();
 
-    private ExecutorService threadPool = Executors.newSingleThreadExecutor();
-
     private boolean isCacheActivated = false;
 
     private int totalRecords = 0;
@@ -28,10 +27,9 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         super(dictionary, keyword);
     }
 
-    @Override
-    public String[] process(String data) {
+    public String[] process(String data, ExecutorService threadPool) {
         total++;
-        Set<String> categories = getSubCategorySet(data);
+        Set<String> categories = getSubCategorySet(data, threadPool);
         if (categories.size() > 0) {
             for (String catId : categories) {
                 DQCategory meta = crm.getCategoryMetadataByName(catId);
@@ -45,10 +43,10 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
 
     /**
      * @param data the input value
+     * @param threadPool
      * @return the set of its semantic categories
      */
-    @Override
-    public Set<String> getSubCategorySet(String data) {
+    private Set<String> getSubCategorySet(String data, ExecutorService threadPool) {
         if (data == null || StringUtils.EMPTY.equals(data.trim())) {
             emptyCount++;
             return new HashSet<>();
@@ -65,7 +63,7 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         case Alpha:
         case AlphaNumeric:
             // subCategorySet.addAll(dataDictFieldClassifier.classify(data));
-            processNew(data);
+            processNew(data, threadPool);
             if (userDefineClassifier != null) {
                 subCategorySet.addAll(userDefineClassifier.classify(data, mainCategory));
             }
@@ -92,20 +90,20 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
 
     }
 
-    private String[] processNew(String data) {
+    private String[] processNew(String data, ExecutorService threadPool) {
         totalRecords++;
         inputList.add(data);
         if (inputList.size() % batchSize == 0) {
-            sendBatchQueryToES(new ArrayList<String>(inputList));
+            sendBatchQueryToES(new ArrayList<String>(inputList), threadPool);
             inputList.clear();
         }
         return new String[0];
     }
 
-    private void sendBatchQueryToES(List<String> data) {
+    private void sendBatchQueryToES(List<String> data, ExecutorService threadPool) {
         FutureTask<Boolean> task = new BatchFutureTask(new BatchQueryCallable(data), this);
         threadPool.submit(task);
-        System.out.println("submitted " + totalRecords) ;
+        // System.out.println("submitted " + totalRecords);
     }
 
     void incrementCategory(List<String> cats) {
@@ -115,36 +113,17 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         }
     }
 
-    public Collection<CategoryFrequency> getResult() {
-        if (inputList.size() > 0) {
-            sendBatchQueryToES(inputList);
-            // System.out.println("submit " + inputList.get(inputList.size() - 1));
-        }
-
-        System.out.println("call shutdown");
-        threadPool.shutdown();
-
-        // Blocks until all tasks have completed execution after a shutdown request
-        try {
-
-            System.out.println("call awaitTermination");
-            if(threadPool.awaitTermination(5, TimeUnit.SECONDS)){
-               // System.out.println("OK");
-            }else{
-                System.out.println("KO");
-            }
-        } catch (InterruptedException e) {
-            System.out.println("All elasticSearch tasks didn't finished. " + e.getMessage());
-        }
-
-        return super.getResult();
-    }
-
     @Override
     public void reset() {
         super.reset();
         inputList.clear();
-        threadPool = Executors.newFixedThreadPool(5);
+    }
+
+    public void sendLastData(ExecutorService threadPool) {
+        if (!inputList.isEmpty()) {
+            sendBatchQueryToES(new ArrayList<String>(inputList), threadPool);
+            inputList.clear();
+        }
     }
 
     class BatchFutureTask extends FutureTask<Boolean> {
@@ -163,7 +142,7 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         public void done() {
             // callback
 
-            System.out.println("done " + (totalRecords));
+            // System.out.println("done " + (totalRecords));
             bulkCategoryRecognizer.incrementCategory(callable.getCategories());
         }
 
