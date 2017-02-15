@@ -40,7 +40,7 @@
  |                                                                      |
  +======================================================================+
 --->
-dataquality-converters
+org.talend.dataquality.converters
 ===================
 
 API for all types of convert functions
