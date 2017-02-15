@@ -131,22 +131,23 @@ public class ConvertDateUtilsTest {
                 ConvertDateUtils.convertDate(IsoStr, pattern, pattern1, IsoChronology.INSTANCE, ThaiBuddhistChronology.INSTANCE));
         assertEquals(ThaiBuddhistStr1, ConvertDateUtils.convertDate(IsoStr1, pattern1, pattern1, IsoChronology.INSTANCE,
                 ThaiBuddhistChronology.INSTANCE));
-        assertEquals(ThaiBuddhistStr,
-                ConvertDateUtils.convertDate(IsoStr1, pattern1, pattern, IsoChronology.INSTANCE, ThaiBuddhistChronology.INSTANCE));
+        assertEquals(ThaiBuddhistStr, ConvertDateUtils.convertDate(IsoStr1, pattern1, pattern, IsoChronology.INSTANCE,
+                ThaiBuddhistChronology.INSTANCE));
     }
 
     @Test
     public void TestConvertHijrahDateTo() {
         assertEquals(IsoStr, ConvertDateUtils.convertDate(HijrahStr, HijrahChronology.INSTANCE, IsoChronology.INSTANCE));
-        assertEquals(JapaneseStr, ConvertDateUtils.convertDate(HijrahStr, HijrahChronology.INSTANCE, JapaneseChronology.INSTANCE));
+        assertEquals(JapaneseStr,
+                ConvertDateUtils.convertDate(HijrahStr, HijrahChronology.INSTANCE, JapaneseChronology.INSTANCE));
         assertEquals(MinguoStr, ConvertDateUtils.convertDate(HijrahStr, HijrahChronology.INSTANCE, MinguoChronology.INSTANCE));
         assertEquals(ThaiBuddhistStr,
                 ConvertDateUtils.convertDate(HijrahStr, HijrahChronology.INSTANCE, ThaiBuddhistChronology.INSTANCE));
 
         assertEquals(JapaneseStr1, ConvertDateUtils.convertDate(HijrahStr, pattern, pattern1, HijrahChronology.INSTANCE,
                 JapaneseChronology.INSTANCE));
-        assertEquals(MinguoStr,
-                ConvertDateUtils.convertDate(HijrahStr2, pattern6, pattern, HijrahChronology.INSTANCE, MinguoChronology.INSTANCE));
+        assertEquals(MinguoStr, ConvertDateUtils.convertDate(HijrahStr2, pattern6, pattern, HijrahChronology.INSTANCE,
+                MinguoChronology.INSTANCE));
         assertEquals(ThaiBuddhistStr5, ConvertDateUtils.convertDate(HijrahStr, pattern, pattern5, HijrahChronology.INSTANCE,
                 ThaiBuddhistChronology.INSTANCE));
 
@@ -155,8 +156,10 @@ public class ConvertDateUtilsTest {
     @Test
     public void TestConvertJapaneseDateTo() {
         assertEquals(IsoStr, ConvertDateUtils.convertDate(JapaneseStr, JapaneseChronology.INSTANCE, IsoChronology.INSTANCE));
-        assertEquals(HijrahStr, ConvertDateUtils.convertDate(JapaneseStr, JapaneseChronology.INSTANCE, HijrahChronology.INSTANCE));
-        assertEquals(MinguoStr, ConvertDateUtils.convertDate(JapaneseStr, JapaneseChronology.INSTANCE, MinguoChronology.INSTANCE));
+        assertEquals(HijrahStr,
+                ConvertDateUtils.convertDate(JapaneseStr, JapaneseChronology.INSTANCE, HijrahChronology.INSTANCE));
+        assertEquals(MinguoStr,
+                ConvertDateUtils.convertDate(JapaneseStr, JapaneseChronology.INSTANCE, MinguoChronology.INSTANCE));
         assertEquals(ThaiBuddhistStr,
                 ConvertDateUtils.convertDate(JapaneseStr, JapaneseChronology.INSTANCE, ThaiBuddhistChronology.INSTANCE));
 
@@ -170,7 +173,8 @@ public class ConvertDateUtilsTest {
     public void TestConvertMinguoDateTo() {
         assertEquals(IsoStr, ConvertDateUtils.convertDate(MinguoStr, MinguoChronology.INSTANCE, IsoChronology.INSTANCE));
         assertEquals(HijrahStr, ConvertDateUtils.convertDate(MinguoStr, MinguoChronology.INSTANCE, HijrahChronology.INSTANCE));
-        assertEquals(JapaneseStr, ConvertDateUtils.convertDate(MinguoStr, MinguoChronology.INSTANCE, JapaneseChronology.INSTANCE));
+        assertEquals(JapaneseStr,
+                ConvertDateUtils.convertDate(MinguoStr, MinguoChronology.INSTANCE, JapaneseChronology.INSTANCE));
         assertEquals(ThaiBuddhistStr,
                 ConvertDateUtils.convertDate(MinguoStr, MinguoChronology.INSTANCE, ThaiBuddhistChronology.INSTANCE));
 
@@ -231,13 +235,13 @@ public class ConvertDateUtilsTest {
         assertEquals(date, parseDateString1);
         assertEquals("2011-08-19", ConvertDateUtils.formatDateToString(parseDateString1, null)); //$NON-NLS-1$
 
-        LocalDate parseDateString2 = ConvertDateUtils
-                .parseStringToDate("2011 08 19", DateTimeFormatter.ofPattern(pattern6), null); //$NON-NLS-1$ 
+        LocalDate parseDateString2 = ConvertDateUtils.parseStringToDate("2011 08 19", DateTimeFormatter.ofPattern(pattern6), //$NON-NLS-1$
+                null);
         assertEquals(date, parseDateString2);
         assertEquals("2011 08 19", ConvertDateUtils.formatDateToString(parseDateString2, null, pattern6)); //$NON-NLS-1$ 
 
-        LocalDate parseDateString3 = ConvertDateUtils.parseStringToDate(
-                "20110819", DateTimeFormatter.BASIC_ISO_DATE, JapaneseChronology.INSTANCE);// '20110819' //$NON-NLS-1$
+        LocalDate parseDateString3 = ConvertDateUtils.parseStringToDate("20110819", DateTimeFormatter.BASIC_ISO_DATE, //$NON-NLS-1$
+                JapaneseChronology.INSTANCE);// '20110819' 
         assertEquals(date, parseDateString3);
         assertEquals("0023 08 19", ConvertDateUtils.formatDateToString(parseDateString3, JapaneseChronology.INSTANCE, pattern6)); //$NON-NLS-1$ 
 
