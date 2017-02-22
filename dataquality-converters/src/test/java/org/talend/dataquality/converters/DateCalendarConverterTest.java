@@ -273,8 +273,7 @@ public class DateCalendarConverterTest {
         assertEquals("2011-08-19", new DateCalendarConverter().formatDateToString(parseDateString1, null)); //$NON-NLS-1$
 
         LocalDate parseDateString2 = new DateCalendarConverter().parseStringToDate("2011 08 19", //$NON-NLS-1$
-                DateTimeFormatter.ofPattern(pattern6),
-                null);
+                DateTimeFormatter.ofPattern(pattern6), null);
         assertEquals(date, parseDateString2);
         assertEquals("2011 08 19", new DateCalendarConverter().formatDateToString(parseDateString2, null, pattern6)); //$NON-NLS-1$ 
 
@@ -291,8 +290,7 @@ public class DateCalendarConverterTest {
                 new DateCalendarConverter().formatDateToString(parseDateString4, JapaneseChronology.INSTANCE, pattern));
 
         LocalDate parseDateString5 = new DateCalendarConverter().parseStringToDate("2011 08 19", //$NON-NLS-1$
-                DateTimeFormatter.ofPattern(pattern6),
-                JapaneseChronology.INSTANCE);
+                DateTimeFormatter.ofPattern(pattern6), JapaneseChronology.INSTANCE);
         assertEquals(date, parseDateString5);
         assertEquals("0023/08/19", //$NON-NLS-1$
                 new DateCalendarConverter().formatDateToString(parseDateString5, JapaneseChronology.INSTANCE, pattern1));
