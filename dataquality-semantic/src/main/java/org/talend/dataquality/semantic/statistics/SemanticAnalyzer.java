@@ -37,7 +37,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     protected final Map<Integer, CategoryRecognizer> columnIdxToCategoryRecognizer = new HashMap<>();
 
-    private final CategoryRecognizerBuilder builder;
+    protected final CategoryRecognizerBuilder builder;
 
     // Threshold of handle to be run. since the semantic inferring will require
     // more time than expected, we may only want to run the handle method on a

@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.dataquality.semantic.statistics;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,12 +56,28 @@ public class PooledSemanticAnalyzer extends SemanticAnalyzer {
                 if (categoryRecognizer == null) {
                     throw new RuntimeException("CategoryRecognizer is null for record and i=" + i + " " + Arrays.asList(record));
                 } else {
-                    categoryRecognizer.process(record[i], threadPool);
+                    categoryRecognizer.process(record[i]);
                 }
             }
             currentCount++;
         }
         return true;
+    }
+
+    protected void resizeCategoryRecognizer(String[] record) {
+        if (columnIdxToCategoryRecognizer.size() > 0) {
+            // already resized
+            return;
+        }
+        for (int idx = 0; idx < record.length; idx++) {
+            try {
+                BulkCategoryRecognizer recognizer = (BulkCategoryRecognizer) builder.build();
+                recognizer.setThreadPool(threadPool);
+                columnIdxToCategoryRecognizer.put(idx, recognizer);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Unable to configure category recognizer with builder.", e);
+            }
+        }
     }
 
     @Override
@@ -74,7 +91,6 @@ public class PooledSemanticAnalyzer extends SemanticAnalyzer {
 
         // Blocks until all tasks have completed execution after a shutdown request
         try {
-
             System.out.println("call awaitTermination");
             if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
                 System.out.println("KO");

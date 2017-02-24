@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.dataquality.semantic.recognizer;
 
 import java.io.IOException;
@@ -21,22 +33,24 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
 
     private boolean isCacheActivated = false;
 
-    private int totalRecords = 0;
+    private ExecutorService threadPool;
 
     public BulkCategoryRecognizer(Index dictionary, Index keyword) throws IOException {
         super(dictionary, keyword);
     }
 
-    public String[] process(String data, ExecutorService threadPool) {
+    public void setThreadPool(ExecutorService threadPool) {
+        this.threadPool = threadPool;
+    }
+
+    public String[] process(String data) {
         total++;
-        Set<String> categories = getSubCategorySet(data, threadPool);
+        Set<String> categories = getSubCategorySet(data);
         if (categories.size() > 0) {
             for (String catId : categories) {
                 DQCategory meta = crm.getCategoryMetadataByName(catId);
                 incrementCategory(catId, meta == null ? catId : meta.getLabel());
             }
-        } else {
-            // do not increment any category
         }
         return categories.toArray(new String[categories.size()]);
     }
@@ -46,7 +60,7 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
      * @param threadPool
      * @return the set of its semantic categories
      */
-    private Set<String> getSubCategorySet(String data, ExecutorService threadPool) {
+    public Set<String> getSubCategorySet(String data) {
         if (data == null || StringUtils.EMPTY.equals(data.trim())) {
             emptyCount++;
             return new HashSet<>();
@@ -62,7 +76,6 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         switch (mainCategory) {
         case Alpha:
         case AlphaNumeric:
-            // subCategorySet.addAll(dataDictFieldClassifier.classify(data));
             processNew(data, threadPool);
             if (userDefineClassifier != null) {
                 subCategorySet.addAll(userDefineClassifier.classify(data, mainCategory));
@@ -91,7 +104,6 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
     }
 
     private String[] processNew(String data, ExecutorService threadPool) {
-        totalRecords++;
         inputList.add(data);
         if (inputList.size() % batchSize == 0) {
             sendBatchQueryToES(new ArrayList<String>(inputList), threadPool);
@@ -103,11 +115,9 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
     private void sendBatchQueryToES(List<String> data, ExecutorService threadPool) {
         FutureTask<Boolean> task = new BatchFutureTask(new BatchQueryCallable(data), this);
         threadPool.submit(task);
-        // System.out.println("submitted " + totalRecords);
     }
 
     void incrementCategory(List<String> cats) {
-        // System.out.println("increment categories " + cats);
         for (String catId : cats) {
             super.incrementCategory(catId);
         }
@@ -141,8 +151,6 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
         @Override
         public void done() {
             // callback
-
-            // System.out.println("done " + (totalRecords));
             bulkCategoryRecognizer.incrementCategory(callable.getCategories());
         }
 
@@ -163,24 +171,6 @@ public class BulkCategoryRecognizer extends DefaultCategoryRecognizer {
             for (Pair<String, Set<String>> pair : dataDictFieldClassifier.multipleClassify(inputList)) {
                 categories.addAll(pair.getRight());
             }
-            // try {
-            //
-            // dataDictFieldClassifier.multipleClassify(inputList);
-            // // ESIndex().send(inputList)
-            // String lastCellName = inputList.get(inputList.size() - 1);
-            // System.out.println("start handling " + lastCellName);
-            // long delay = Math.round(Math.random() * 100);
-            // try {
-            // Thread.currentThread().sleep(delay);
-            // System.out.println("finished " + lastCellName + "\t in " + delay + " ms");
-            // } catch (InterruptedException e) {
-            // System.out.println(e.getMessage());
-            // }
-            // categories.add(lastCellName);
-            // } catch (Exception e) {
-            // e.printStackTrace();
-            // }
-
         }
 
         public List<String> getCategories() {
