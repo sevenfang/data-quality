@@ -17,7 +17,6 @@ package org.talend.dataquality.common.regex;
  */
 public class HandlerFactory {
 
-
     public static ChainResponsibilityHandler createEastAsiaPatternHandler() {
         ChainResponsibilityHandler handler = new HiraganaSmall();
         handler.linkSuccessor(new Hiragana()).linkSuccessor(new KatakanaSmall()).linkSuccessor(new Katakana())
