@@ -30,6 +30,10 @@ import java.util.List;
  */
 public class KeysLoader {
 
+    private KeysLoader() {
+
+    }
+
     /**
      * 
      * @param filePath the file path where keys to be loaded.
