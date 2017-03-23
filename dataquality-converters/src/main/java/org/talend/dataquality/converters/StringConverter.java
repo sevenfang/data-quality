@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.dataquality.converters;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -48,6 +51,34 @@ public class StringConverter {
             , '\u205F' + "" // MEDIUM MATHEMATICAL SPACE //$NON-NLS-1$
             , '\u3000' + "" // IDEOGRAPHIC SPACE //$NON-NLS-1$
     };
+
+    private String repeatChar = null;
+
+    private Pattern removeRepeatCharPattern = null;
+
+    private Pattern removeWhiteSpacesPattern = null;
+
+    /**
+     * 
+     * This constructor is used to some cases but except removing a specify repeated String {@link #removeRepeatedChar(String)}.
+     */
+    public StringConverter() {
+        this(null);
+    }
+
+    /**
+     * 
+     * This constructor is used to remove a specify repeated String {@link #removeRepeatedChar(String)} .
+     * 
+     * @param repeatStr it is a repeat String
+     */
+    public StringConverter(String repeatStr) {
+        this.repeatChar = repeatStr;
+        if (!StringUtils.isEmpty(repeatStr)) {
+            removeRepeatCharPattern = Pattern.compile("(" + repeatStr + ")+"); //$NON-NLS-1$//$NON-NLS-2$
+        }
+        removeWhiteSpacesPattern = Pattern.compile("([\\s\\u0085\\p{Z}])\\1+"); //$NON-NLS-1$
+    }
 
     /**
      * Remove trailing and leading characters which may be empty string, space string,\t,\n,\r,\f...any space, break related
@@ -113,15 +144,37 @@ public class StringConverter {
      * 
      * Remove consecutive repeated characters by a specified char.
      * 
-     * @param str the source String
-     * @param repeatStr need to be removed repeat String
+     * @param inputStr the source String
      * @return the string with the source string removed if found
      */
-    public String removeRepeat(String str, String repeatStr) {
-        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(repeatStr)) {
-            return str;
+    public String removeRepeatedChar(String inputStr) {
+        if (StringUtils.isEmpty(inputStr) || StringUtils.isEmpty(repeatChar) || removeRepeatCharPattern == null) {
+            return inputStr;
         }
-        return str.replaceAll("(" + repeatStr + ")+", repeatStr); //$NON-NLS-1$ //$NON-NLS-2$
+        Matcher matcher = removeRepeatCharPattern.matcher(inputStr);
+        return matcher.replaceAll(repeatChar);
+    }
+
+    /**
+     * 
+     * Remove all repeated white spaces which include all strings in {@link #WHITESPACE_CHARS} like as " ","\n","\r","\t".
+     * *
+     * 
+     * <pre>
+     * removeRepeatedWhitespaces(null) = null
+     * removeRepeatedWhitespaces("")   = ""
+     * removeRepeatedWhitespaces("a  back\t\t\td") = "a back\td"
+     * </pre>
+     * 
+     * @param inputStr inputStr the source String
+     * @return the string removed all whiteSpaces
+     */
+    public String removeRepeatedWhitespaces(String inputStr) {
+        if (StringUtils.isEmpty(inputStr) || removeWhiteSpacesPattern == null) {
+            return inputStr;
+        }
+        Matcher matcher = removeWhiteSpacesPattern.matcher(inputStr);
+        return matcher.replaceAll("$1"); //$NON-NLS-1$
     }
 
 }
