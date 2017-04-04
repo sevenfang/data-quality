@@ -12,17 +12,15 @@
 // ============================================================================
 package org.talend.dataquality.statistics.cardinality;
 
+import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLog;
 
 /**
- * Cardianlity statistics bean of hypper log log .
- * 
- * @author zhao
+ * Cardinality statistics bean of hyper log log .
  *
+ * @author zhao
  */
-public class CardinalityHLLStatistics {
-
-    private long count = 0L;
+public class CardinalityHLLStatistics extends AbstractCardinalityStatistics<CardinalityHLLStatistics> {
 
     private HyperLogLog hyperLogLog = null;
 
@@ -33,27 +31,33 @@ public class CardinalityHLLStatistics {
         return hyperLogLog;
     }
 
-    public long getDuplicateCount() {
-        return count - getDistinctCount();
-    }
-
-    public long getCount() {
-        return count;
+    public void setHyperLogLog(HyperLogLog hyperLogLog2) {
+        this.hyperLogLog = hyperLogLog2;
     }
 
     public long getDistinctCount() {
         return hyperLogLog.cardinality();
     }
 
-    public void incrementCount() {
-        count += 1;
+    public void add(String colStr) {
+        this.hyperLogLog.offer(colStr);
     }
 
-    public void setHyperLogLog(HyperLogLog hyperLogLog2) {
-        this.hyperLogLog = hyperLogLog2;
-    }
-
-    public void setCount(long count) {
-        this.count = count;
+    /**
+     * <b>This method merges two instances of CardinalityHLLStatistics. </b>
+     * <p>
+     * If the instance to merge is not of the type CardinalityHLLStatistics (but CardinalityStatistics),
+     * the method will return false to indicate that the merge was not possible.
+     * Also, if the other instance is a instance of CardinalityHLLStatistics but its {@link HyperLogLog} instance
+     * cannot be merged with the current HyperLogLog instance, this method will catch the exception triggered by
+     * the {@link HyperLogLog#addAll(HyperLogLog)} method and return false.
+     * </p>
+     *
+     * @param other An other instance of CardinalityHLLStatistics
+     * @return boolean that indicates if the merge was possible
+     */
+    public void merge(CardinalityHLLStatistics other) throws CardinalityMergeException {
+        this.hyperLogLog.addAll(other.hyperLogLog);
+        super.count += other.count;
     }
 }
