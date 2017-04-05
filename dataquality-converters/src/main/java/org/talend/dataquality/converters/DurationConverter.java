@@ -110,7 +110,7 @@ public class DurationConverter {
             return value;
         }
 
-        if (Double.MAX_VALUE == value || Double.MIN_VALUE == value) {
+        if (Double.compare(Double.MAX_VALUE, value) == 0 || Double.compare(Double.MIN_VALUE, value) == 0) {
             return value;
         }
         if (this.fromUnit.equals(this.toUnit)) {
