@@ -1,4 +1,6 @@
-=== 2016-02-15 ===
-1. TDQ-13220 Create API that converts dates  - msjian
-   (create project and Add Date Calendar Converter class)
+V1.0.0 2017-4-7
+1. TDQ-13220 create project and Create API that converts dates  - msjian
 2. TDQ-13269 create API for Trim on a different character than whitespace  - msjian  
+3. TDQ-13221 Create API that converts distances  - liuxianquan
+4. TDQ-13267 Create API for Remove consecutive repeated characters -liqiong
+5. TDQ-13273 Create API for Convert durations  - msjian  
