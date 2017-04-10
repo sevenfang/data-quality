@@ -21,17 +21,17 @@
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>dataquality-common</artifactId>
-			<version>${dataquality.libraries.released.version}</version>
+			<version>${dataquality.libraries.snapshot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>dataquality-semantic-model</artifactId>
-			<version>${dataquality.libraries.released.version}</version>
+			<version>${dataquality.libraries.snapshot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>dataquality-standardization</artifactId>
-			<version>${dataquality.standardization.released.version}</version>
+			<version>${dataquality.standardization.snapshot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

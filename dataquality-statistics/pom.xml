@@ -25,12 +25,12 @@
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>dataquality-common</artifactId>
-			<version>${dataquality.libraries.released.version}</version>
+			<version>${dataquality.libraries.snapshot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.talend.dataquality</groupId>
 			<artifactId>dataquality-semantic</artifactId>
-			<version>${dataquality.libraries.released.version}</version>
+			<version>${dataquality.libraries.snapshot.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
