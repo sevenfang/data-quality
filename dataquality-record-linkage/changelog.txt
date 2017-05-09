@@ -1,3 +1,6 @@
+V3.3.2 2017-05-09
+	(no change in this version)
+
 V3.3.1 2017-05-02
 	- TDQ-13490 avoid to output duplicate none-master records when swoosh with store on disk
 

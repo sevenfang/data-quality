@@ -1,3 +1,6 @@
+V1.0.2 2017-05-09
+	(no change in this version)
+
 V1.0.1 2017-05-02
 	- TDQ-13358 support for String in DuplicateCharEraser
 	- TDP-3670  Add Locale support to DateCalendarConverter for management of month in literal

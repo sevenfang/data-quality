@@ -1,3 +1,7 @@
+V1.6.2 2017-05-09
+	- TDQ-13539 add support for a new date pattern yyyy/M/d
+	- TDQ-13369 use more strict date patterns which do not allow padding zeroes for single M and/or d
+
 V1.6.1 2017-05-02
 	(no change in this version)
 

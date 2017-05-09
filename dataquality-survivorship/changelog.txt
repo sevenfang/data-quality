@@ -1,3 +1,6 @@
+V2.0.2 2017-05-09
+	- TDQ-13653 fixed the issue which result in wrong default survived value
+
 V2.0.1 2017-05-02
 	(no change in this version)
 
