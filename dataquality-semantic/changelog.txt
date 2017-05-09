@@ -1,3 +1,8 @@
+V1.6.2 2017-05-09
+	- TDQ-13699 regex is case insensitive for discovery and case sensitive for validation
+	- TDQ-13715 allowing value to be equal to category name
+	- TDQ-13696 compound validation for dictionary bug fix
+
 V1.6.1 2017-05-02
 	- TDQ-13602 add validationMode field in lucene index
     - TDQ-13017 Split semantic discovery and semantic validation
