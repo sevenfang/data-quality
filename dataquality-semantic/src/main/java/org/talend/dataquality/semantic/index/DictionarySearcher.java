@@ -256,7 +256,7 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
      */
     public String[] getSynonymsByDocNumber(int docNo) {
         Document document = getDocument(docNo);
-        return document != null ? document.getValues(F_SYN) : null;
+        return document != null ? document.getValues(F_RAW) : null;
     }
 
     /**
