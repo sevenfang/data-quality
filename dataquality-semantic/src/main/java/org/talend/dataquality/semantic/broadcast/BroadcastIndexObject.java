@@ -58,6 +58,15 @@ public class BroadcastIndexObject implements Serializable {
         this(inputDirectory, false);
     }
 
+    public BroadcastIndexObject(Directory inputDirectory, Set<String> categories) {
+        try {
+            documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory, categories);
+        } catch (IOException e) {
+            documentList = Collections.emptyList();
+            LOGGER.error("Unable to read synonym index.", e);
+        }
+    }
+
     /**
      * Constructor
      * 
@@ -70,13 +79,13 @@ public class BroadcastIndexObject implements Serializable {
                 documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory);
             } else {
                 Collection<DQCategory> cats = CategoryRegistryManager.getInstance().listCategories(false);
-                Set<String> catNames = new HashSet<String>();
+                Set<String> catIds = new HashSet<String>();
                 for (DQCategory dqCat : cats) {
                     if (CategoryType.DICT.equals(dqCat.getType())) {
-                        catNames.add(dqCat.getName());
+                        catIds.add(dqCat.getId());
                     }
                 }
-                documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory, catNames);
+                documentList = BroadcastUtils.readDocumentsFromIndex(inputDirectory, catIds);
             }
         } catch (IOException e) {
             documentList = Collections.emptyList();

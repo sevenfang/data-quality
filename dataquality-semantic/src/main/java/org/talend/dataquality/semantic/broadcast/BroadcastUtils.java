@@ -29,6 +29,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.Version;
+import org.talend.dataquality.semantic.api.DictionaryUtils;
 import org.talend.dataquality.semantic.index.DictionarySearcher;
 
 class BroadcastUtils {
@@ -65,7 +66,8 @@ class BroadcastUtils {
     /**
      * initialize a list of serializable BroadcastDocumentObject from existing lucene Directory
      */
-    static List<BroadcastDocumentObject> readDocumentsFromIndex(Directory indexDir, Set<String> catNames) throws IOException {
+    static List<BroadcastDocumentObject> readDocumentsFromIndex(Directory indexDir, Set<String> selectedCategoryIds)
+            throws IOException {
         List<BroadcastDocumentObject> dictionaryObject = new ArrayList<>();
         DirectoryReader reader = DirectoryReader.open(indexDir);
         Bits liveDocs = MultiFields.getLiveDocs(reader);
@@ -74,10 +76,9 @@ class BroadcastUtils {
                 continue;
             }
             Document doc = reader.document(i);
-            String category = doc.getField(DictionarySearcher.F_WORD).stringValue();
-            if (catNames.contains(category)) {
-                String catId = doc.getField(DictionarySearcher.F_CATID).stringValue();
-                Set<String> valueSet = new HashSet<String>();
+            String catId = doc.getField(DictionarySearcher.F_CATID).stringValue();
+            if (selectedCategoryIds.contains(catId)) {
+                Set<String> valueSet = new HashSet<>();
                 // original values must be read from the F_RAW field
                 for (IndexableField syntermField : doc.getFields(DictionarySearcher.F_RAW)) {
                     valueSet.add(syntermField.stringValue());
@@ -112,7 +113,8 @@ class BroadcastUtils {
         ftSyn.freeze();
         indexDoc.add(new StringField(DictionarySearcher.F_CATID, objectDoc.getCategory(), Field.Store.YES));
         for (String value : objectDoc.getValueSet()) {
-            // no need to include the field F_RAW during recreation of directory
+            // F_RAW field is necessary for broadcasting with new validation modes.
+            indexDoc.add(new Field(DictionarySearcher.F_RAW, value, DictionaryUtils.FIELD_TYPE_RAW_VALUE));
             indexDoc.add(new StringField(DictionarySearcher.F_SYNTERM, DictionarySearcher.getJointTokens(value), Field.Store.NO));
         }
         return indexDoc;
