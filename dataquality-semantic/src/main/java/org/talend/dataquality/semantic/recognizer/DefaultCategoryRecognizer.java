@@ -17,7 +17,6 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.classifier.impl.DataDictFieldClassifier;
 import org.talend.dataquality.semantic.index.Index;
@@ -122,23 +121,28 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.talend.dataquality.semantic.recognizer.CategoryRecognizer#process(java.lang.String)
      */
     @Override
     public String[] process(String data) {
         Set<String> ids = getSubCategorySet(data);
-        Set<String> categories = new HashSet<>();
-        Set<String> categoriesAlreadySeen = new HashSet<>();
+        Map<String, Integer> categoryToLevel = new HashMap<>();
+        List<String> categories = new ArrayList<>();
         if (!ids.isEmpty()) {
             for (String id : ids) {
-                categoriesAlreadySeen.add(id);
+                categoryToLevel.put(id, 0);
                 DQCategory meta = metadata.get(id);
                 if (meta != null) {
-                    incrementCategory(meta.getName(), meta.getLabel());
                     if (!CollectionUtils.isEmpty(meta.getParents()))
-                        incrementAncestorsCategories(categories, id, categoriesAlreadySeen);
+                        incrementAncestorsCategories(categoryToLevel, id);
+                }
+            }
+            for (Map.Entry<String, Integer> entry : categoryToLevel.entrySet()) {
+                DQCategory meta = metadata.get(entry.getKey());
+                if (meta != null) {
                     categories.add(meta.getName());
+                    incrementCategory(meta.getName(), meta.getLabel(), entry.getValue());
                 }
             }
         } else {
@@ -152,50 +156,47 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
      * For the discovery, if a category c matches with the data,
      * it means all the ancestor categories of c have to match too.
      * This method increments the ancestor categories of c.
-     * 
-     * @param categories, the category result
+     *
+     * @param categoryToLevel, the category result
      * @param id, the category ID of the matched category c
-     * @param categoriesAlreadySeen, the categories already seen
-     * 
+     * @param categoryToLevel
+     *
      */
-    private void incrementAncestorsCategories(Set<String> categories, String id, Set<String> categoriesAlreadySeen) {
-        Deque<Pair<String, Integer>> catToSee = new ArrayDeque<>();
-        catToSee.add(Pair.of(id, 0));
-        Pair<String, Integer> currentCategory;
+    private void incrementAncestorsCategories(Map<String, Integer> categoryToLevel, String id) {
+        Deque<String> catToSee = new ArrayDeque<>();
+        catToSee.add(id);
+        String currentCategory;
         while (!catToSee.isEmpty()) {
             currentCategory = catToSee.pop();
-            DQCategory dqCategory = metadata.get(currentCategory.getLeft());
+            DQCategory dqCategory = metadata.get(currentCategory);
+            Integer categoryLevel = categoryToLevel.get(currentCategory);
             if (dqCategory != null && !CollectionUtils.isEmpty(dqCategory.getParents())) {
-                int parentLevel = currentCategory.getRight() + 1;
                 for (DQCategory parent : dqCategory.getParents()) {
-                    if (!categoriesAlreadySeen.contains(parent.getId())) {
-                        categoriesAlreadySeen.add(parent.getId());
-                        catToSee.add(Pair.of(parent.getId(), parentLevel));
-                        DQCategory meta = metadata.get(parent.getId());
-                        if (meta != null) {
-                            incrementCategory(meta.getName(), meta.getLabel(), parentLevel);
-                            categories.add(meta.getName());
-                        }
+                    String parentId = parent.getId();
+                    Integer level = categoryToLevel.get(parentId);
+                    if (level == null || level < categoryLevel + 1) {
+                        categoryToLevel.put(parentId, categoryLevel + 1);
+                        catToSee.add(parentId);
                     }
                 }
             }
         }
     }
 
-    private void incrementCategory(String catId) {
-        incrementCategory(catId, catId);
+    private void incrementCategory(String categoryName) {
+        incrementCategory(categoryName, categoryName);
     }
 
-    private void incrementCategory(String catId, String catName) {
-        incrementCategory(catId, catName, 0);
+    private void incrementCategory(String categoryName, String categoryLabel) {
+        incrementCategory(categoryName, categoryLabel, 0);
 
     }
 
-    private void incrementCategory(String catId, String catName, int categoryLevel) {
-        CategoryFrequency c = categoryToFrequency.get(catId);
+    private void incrementCategory(String categoryName, String categoryLabel, int categoryLevel) {
+        CategoryFrequency c = categoryToFrequency.get(categoryName);
         if (c == null) {
-            c = new CategoryFrequency(catId, catName, categoryLevel);
-            categoryToFrequency.put(catId, c);
+            c = new CategoryFrequency(categoryName, categoryLabel, categoryLevel);
+            categoryToFrequency.put(categoryName, c);
             catList.add(c);
         }
         c.count++;
