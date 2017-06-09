@@ -14,13 +14,12 @@ package org.talend.dataquality.statistics.datetime;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalQueries;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
@@ -37,9 +36,15 @@ public class SystemDateTimePatternManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemDateTimePatternManager.class);
 
+    private static Locale DEFAULT_LOCALE = Locale.US;
+
+    private static Locale SYSTEM_LOCALE = Locale.getDefault();
+
     private static List<Map<Pattern, String>> DATE_PATTERN_GROUP_LIST = new ArrayList<Map<Pattern, String>>();
 
     private static List<Map<Pattern, String>> TIME_PATTERN_GROUP_LIST = new ArrayList<Map<Pattern, String>>();
+
+    private static Map<String, DateTimeFormatter> dateTimeFormatterCache = new HashMap<String, DateTimeFormatter>();
 
     static {
         try {
@@ -136,7 +141,10 @@ public class SystemDateTimePatternManager {
                 for (Pattern parser : patternMap.keySet()) {
                     try {
                         if (parser.matcher(value).find()) {
-                            return true;
+                            String dateFormat = patternMap.get(parser);
+                            if (isMatchDateTimePattern(value, dateFormat, SYSTEM_LOCALE)) {
+                                return true;
+                            }
                         }
                     } catch (Exception e) {
                         // ignore
@@ -183,5 +191,56 @@ public class SystemDateTimePatternManager {
             }
         }
         return resultSet;
+    }
+
+    private static DateTimeFormatter getDateTimeFormatterByPattern(String customPattern, Locale locale) {
+        String localeStr = locale.toString();
+        DateTimeFormatter formatter = dateTimeFormatterCache.get(customPattern + localeStr);
+        if (formatter == null) {
+            try {
+                formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(customPattern)
+                        .toFormatter(locale);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+            dateTimeFormatterCache.put(customPattern + localeStr, formatter);
+        }
+        return formatter;
+    }
+
+    private static boolean validateWithDateTimeFormatter(String value, DateTimeFormatter formatter) {
+        if (formatter != null) {
+            try {
+                final TemporalAccessor temporal = formatter.parse(value);
+                if (temporal != null && (temporal.query(TemporalQueries.localDate()) != null
+                        || temporal.query(TemporalQueries.localTime()) != null)) {
+                    return true;
+                }
+            } catch (DateTimeParseException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    static boolean isMatchDateTimePattern(String value, String pattern, Locale locale) {
+        if (pattern == null) {
+            return false;
+        }
+
+        // firstly, try with user-defined locale
+        final DateTimeFormatter formatter = getDateTimeFormatterByPattern(pattern, locale);
+        if (validateWithDateTimeFormatter(value, formatter)) {
+            return true;
+        } else {
+            if (!DEFAULT_LOCALE.equals(locale)) {
+                // try with LOCALE_US if user defined locale is not US
+                final DateTimeFormatter formatterUS = getDateTimeFormatterByPattern(pattern, Locale.US);
+                if (validateWithDateTimeFormatter(value, formatterUS)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

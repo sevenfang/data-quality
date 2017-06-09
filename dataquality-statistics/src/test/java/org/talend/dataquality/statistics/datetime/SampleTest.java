@@ -17,13 +17,19 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SampleTest {
 
     private static List<String> DATE_SAMPLES;
@@ -349,10 +355,14 @@ public class SampleTest {
             { "EEE MMM dd HH:mm:ss z yyyy" })));
             put("22/Mar/99 5:06 AM", new HashSet<String>(Arrays.asList(new String[] //
             { "dd/MMM/yy h:mm a" })));
+            put("1999/3/22", new HashSet<String>(Arrays.asList(new String[] //
+            { "yyyy/M/d" })));
             put("19990322+0100", new HashSet<String>(Arrays.asList(new String[] //
             { "yyyyMMddZ" })));
             put("19990322", new HashSet<String>(Arrays.asList(new String[] //
             { "yyyyMMdd" })));
+            put("1999-03-22 AD", new HashSet<String>(Arrays.asList(new String[] //
+            { "yyyy-MM-dd G" })));
             put("1999-03-22+01:00", new HashSet<String>(Arrays.asList(new String[] //
             { "yyyy-MM-ddXXX" })));
             put("1999-03-22T05:06:07.000[Europe/Paris]", new HashSet<String>(Arrays.asList(new String[] //
@@ -369,8 +379,10 @@ public class SampleTest {
             { "yyyy-MM-dd'T'HH:mm:ssXXX" })));
             put("1999-081+01:00", new HashSet<String>(Arrays.asList(new String[] //
             { "yyyy-DDDXXX" })));
-            put("1999-W13-4+01:00", new HashSet<String>(Arrays.asList(new String[] //
-            { "yyyy-'W'w-WXXX" })));
+            put("1999W132", new HashSet<String>(Arrays.asList(new String[] //
+            { "YYYY'W'wc" })));
+            put("1999-W13-2", new HashSet<String>(Arrays.asList(new String[] //
+            { "YYYY-'W'w-c" })));
             put("1999-03-22T05:06:07.000+01:00[Europe/Paris]", new HashSet<String>(Arrays.asList(new String[] //
             { "yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'" })));
             put("1999-03-22T05:06:07+01:00[Europe/Paris]", new HashSet<String>(Arrays.asList(new String[] //
@@ -499,6 +511,14 @@ public class SampleTest {
         TIME_SAMPLES = IOUtils.readLines(timeInputStream, "UTF-8");
     }
 
+    private static void setFinalStatic(Field field, Object newValue) throws Exception {
+        field.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        field.set(null, newValue);
+    }
+
     @Test
     public void testDatesWithMultipleFormats() throws IOException {
 
@@ -535,7 +555,7 @@ public class SampleTest {
     }
 
     @Test
-    public void testAllSupportedDatesWithRegexes() throws IOException {
+    public void testAllSupportedDatesWithRegexes() throws Exception {
 
         for (int i = 1; i < DATE_SAMPLES.size(); i++) {
             String line = DATE_SAMPLES.get(i);
@@ -547,6 +567,16 @@ public class SampleTest {
                 // System.out.println(SystemDateTimePatternManager.isDate(sample) + "\t" + locale + "\t" + sample + "\t"
                 // + expectedPattern);
                 // System.out.println(SystemDateTimePatternManager.datePatternReplace(sample));
+
+                String locale = sampleLine[2];
+                locale = locale.replaceAll("_", "-");
+                Locale local = Locale.forLanguageTag(locale);
+
+                // SystemDateTimePatternManager.renewCache();
+                setFinalStatic(SystemDateTimePatternManager.class.getDeclaredField("SYSTEM_LOCALE"), local);
+                setFinalStatic(SystemDateTimePatternManager.class.getDeclaredField("dateTimeFormatterCache"),
+                        new HashMap<String, DateTimeFormatter>());
+
                 assertTrue(sample + " is expected to be a valid date but actually not.",
                         SystemDateTimePatternManager.isDate(sample));
             }
@@ -554,7 +584,7 @@ public class SampleTest {
     }
 
     @Test
-    public void testAllSupportedTimesWithRegexes() throws IOException {
+    public void testAllSupportedTimesWithRegexes() throws Exception {
 
         for (int i = 1; i < TIME_SAMPLES.size(); i++) {
             String line = TIME_SAMPLES.get(i);
@@ -565,9 +595,17 @@ public class SampleTest {
                 // String locale = sampleLine[2];
                 // System.out.println(SystemDateTimePatternManager.isTime(sample) + "\t" + locale + "\t" + sample + "\t"
                 // + expectedPattern);
+
+                String locale = sampleLine[2];
+                locale = locale.replaceAll("_", "-");
+                Locale local = Locale.forLanguageTag(locale);
+
+                setFinalStatic(SystemDateTimePatternManager.class.getDeclaredField("SYSTEM_LOCALE"), local);
+
                 assertTrue(sample + " is expected to be a valid time but actually not.",
                         SystemDateTimePatternManager.isTime(sample));
             }
         }
     }
+
 }
