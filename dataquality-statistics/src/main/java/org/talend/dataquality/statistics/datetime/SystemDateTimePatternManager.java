@@ -19,7 +19,15 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
@@ -45,6 +53,8 @@ public class SystemDateTimePatternManager {
     private static List<Map<Pattern, String>> TIME_PATTERN_GROUP_LIST = new ArrayList<Map<Pattern, String>>();
 
     private static Map<String, DateTimeFormatter> dateTimeFormatterCache = new HashMap<String, DateTimeFormatter>();
+
+    private static final String PATTERN_SUFFIX_ERA = " G"; //$NON-NLS-1$
 
     static {
         try {
@@ -200,6 +210,10 @@ public class SystemDateTimePatternManager {
             try {
                 formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(customPattern)
                         .toFormatter(locale);
+                // TDQ-13936 add Chronology for specified Locale.
+                if (customPattern != null && customPattern.endsWith(PATTERN_SUFFIX_ERA)) {
+                    formatter = ChronologyParameterManager.getDateTimeFormatterWithChronology(formatter, locale);
+                }
             } catch (IllegalArgumentException e) {
                 return null;
             }
@@ -229,11 +243,19 @@ public class SystemDateTimePatternManager {
         }
 
         // firstly, try with user-defined locale
-        final DateTimeFormatter formatter = getDateTimeFormatterByPattern(pattern, locale);
+        Locale correctLocale = locale;
+        // TDQ-13936 Guess locale by the end of value when the pattern is "yyyy-MM-dd G"
+        if (pattern.endsWith(PATTERN_SUFFIX_ERA)) {
+            Locale guessLocale = ChronologyParameterManager.guessLocaleByEra(value);
+            if (!DEFAULT_LOCALE.equals(guessLocale)) {
+                correctLocale = guessLocale;
+            }
+        }
+        final DateTimeFormatter formatter = getDateTimeFormatterByPattern(pattern, correctLocale);
         if (validateWithDateTimeFormatter(value, formatter)) {
             return true;
         } else {
-            if (!DEFAULT_LOCALE.equals(locale)) {
+            if (!DEFAULT_LOCALE.equals(correctLocale)) {
                 // try with LOCALE_US if user defined locale is not US
                 final DateTimeFormatter formatterUS = getDateTimeFormatterByPattern(pattern, Locale.US);
                 if (validateWithDateTimeFormatter(value, formatterUS)) {
