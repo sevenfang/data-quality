@@ -23,6 +23,13 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 /**
+ * Java application for updating DQ library versions used in studio components.
+ * 
+ * Usage:
+ * 1. update the expect version in DEP_VERSION_MAP field.
+ * 2. tell the application if need to USE_SNAPSHOT_VERSION.
+ * 3. Run this class as Java application.
+ * 
  * @author sizhaoliu
  */
 public class UpdateComponentDefinition {
