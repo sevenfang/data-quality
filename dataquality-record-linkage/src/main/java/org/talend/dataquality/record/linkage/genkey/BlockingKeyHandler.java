@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * generate the blocking key for each selected columns
@@ -74,8 +75,9 @@ public class BlockingKeyHandler {
             inputString[index++] = obj == null ? null : obj.toString();
         }
         Map<String, String> columnValueMap = new HashMap<String, String>();
-        for (String columnName : columnIndexMap.keySet()) {
-            columnValueMap.put(columnName, inputString[Integer.parseInt(columnIndexMap.get(columnName))]);
+        for (Entry<String, String> entry : columnIndexMap.entrySet()) {
+            String columnName = entry.getKey();
+            columnValueMap.put(columnName, inputString[Integer.parseInt(entry.getValue())]);
         }
         String genKey = generateKeyAPI.getGenKey(blockKeyDefinitions, columnValueMap);
         generateKeyAPI.appendGenKeyResult(inputString, genKey);
