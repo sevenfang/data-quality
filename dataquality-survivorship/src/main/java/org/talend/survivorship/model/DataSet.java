@@ -130,6 +130,8 @@ public class DataSet {
         survivorIndexMap.clear();
         conflictList.clear();
         conflictsOfSurvivor.clear();
+        clearConflictDataMap();
+        chainMap.clear();
         fs.init();
         ss.init();
         ts.init();
@@ -309,9 +311,11 @@ public class DataSet {
                 if (crcrHandler != null) {
                     SurvivedResult survivoredRowNum = crcrHandler.getSurvivedRowNum();
                     if (survivoredRowNum != null) {
+                        if (survivoredRowNum.isResolved()) {
+                            conflictsOfSurvivor.remove(conflictCol);
+                        }
                         Object survivedVlaue = this.getValueAfterFiled(survivoredRowNum.getRowNum(),
                                 survivoredRowNum.getColumnName());
-                        conflictsOfSurvivor.remove(conflictCol);
                         survivorMap.put(conflictCol, survivedVlaue);
                         survivorIndexMap.put(conflictCol, survivoredRowNum.getRowNum());
                     }
@@ -523,6 +527,19 @@ public class DataSet {
      */
     public SoftReference<HashMap<String, List<Integer>>> getConflictDataMap() {
         return this.conflictDataMap;
+    }
+
+    /**
+     * Clear ConflictDataMap
+     * 
+     * @return Clear the map of ConflictDataMap
+     */
+    private void clearConflictDataMap() {
+        Map<String, List<Integer>> tempConflictDataMap = this.getConflictDataMap().get();
+        if (tempConflictDataMap != null) {
+            tempConflictDataMap.clear();
+        }
+
     }
 
     /**
