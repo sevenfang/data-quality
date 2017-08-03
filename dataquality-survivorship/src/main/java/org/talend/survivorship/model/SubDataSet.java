@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class SubDataSet extends DataSet {
 
-    private List<Integer> dataSetIndex;
+    private final List<Integer> dataSetIndex;
 
     private Map<Attribute, FilledAttribute> fillAttributeMap;
 

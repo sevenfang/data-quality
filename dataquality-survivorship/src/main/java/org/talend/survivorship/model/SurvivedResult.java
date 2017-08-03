@@ -20,12 +20,12 @@ public class SurvivedResult {
     /**
      * The row number of current survived value
      */
-    private Integer rowNum;
+    private final Integer rowNum;
 
     /**
      * The column name of current survived value
      */
-    private String columnName;
+    private final String columnName;
 
     /**
      * Indicate that whether current result sucess to resolved conflict

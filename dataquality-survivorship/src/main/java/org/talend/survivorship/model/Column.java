@@ -24,9 +24,9 @@ import java.util.Map.Entry;
  */
 public class Column {
 
-    private String name;
+    private final String name;
 
-    private String dataType;
+    private final String dataType;
 
     /**
      * contains all attributes of the column in the group.
