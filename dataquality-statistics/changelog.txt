@@ -1,3 +1,6 @@
+V1.6.4 2017-08-25
+	(no change in this version)
+
 V1.6.3 2017-06-09
 	- TDQ-13851 support Date pattern "yyyy-MM-dd G"
 	- TDQ-13347 the value "5 TOTO 1999" must not be considered as a valid date
