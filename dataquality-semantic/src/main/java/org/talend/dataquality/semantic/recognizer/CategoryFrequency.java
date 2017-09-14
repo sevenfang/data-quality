@@ -28,8 +28,6 @@ public class CategoryFrequency implements Comparable<CategoryFrequency>, Seriali
 
     String categoryLabel;
 
-    float frequency;
-
     long count;
 
     int categoryLevel;
@@ -95,8 +93,12 @@ public class CategoryFrequency implements Comparable<CategoryFrequency>, Seriali
         return categoryLabel != null ? categoryLabel : categoryName;
     }
 
+    /**
+     * @deprecated use getScore() instead
+     * @return
+     */
     public float getFrequency() {
-        return frequency;
+        return score;
     }
 
     public long getCount() {
@@ -141,11 +143,6 @@ public class CategoryFrequency implements Comparable<CategoryFrequency>, Seriali
         int count = Float.compare(this.getScore(), o.getScore());
         if (count != 0) {
             return count;
-        }
-
-        count = Long.compare(this.getCount(), o.getCount());
-        if (count != 0) {
-            return count;
         } else {
             int level = -Integer.compare(this.getCategoryLevel(), o.getCategoryLevel());
             if (level != 0) {
@@ -169,6 +166,6 @@ public class CategoryFrequency implements Comparable<CategoryFrequency>, Seriali
 
     @Override
     public String toString() {
-        return "[Category: " + categoryName + " Count: " + count + " Frequency: " + frequency + " Score: " + score + "]";
+        return "[Category: " + categoryName + " Count: " + count + " Score: " + score + "]";
     }
 }

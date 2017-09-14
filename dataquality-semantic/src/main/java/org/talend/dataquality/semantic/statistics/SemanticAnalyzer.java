@@ -13,15 +13,10 @@
 package org.talend.dataquality.semantic.statistics;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Metadata;
 import org.talend.dataquality.common.inference.ResizableList;
@@ -40,7 +35,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private static final long serialVersionUID = 6808620909722453108L;
 
-    private static float DEFAULT_WEIGHT_VALUE = 0.9f;
+    private static float DEFAULT_WEIGHT_VALUE = 0.1f;
 
     private final ResizableList<SemanticType> results = new ResizableList<>(SemanticType.class);
 
@@ -164,30 +159,21 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
         for (Entry<Integer, CategoryRecognizer> entry : columnIdxToCategoryRecognizer.entrySet()) {
             Integer colIdx = entry.getKey();
-            Collection<CategoryFrequency> result = entry.getValue().getResult();
+
+            String columnName = "";
+            if (metadataMap.get(Metadata.HEADER_NAME) != null) {
+                List<String> metadata = metadataMap.get(Metadata.HEADER_NAME);
+                columnName = metadata.get(colIdx);
+            }
+
+            Collection<CategoryFrequency> result = entry.getValue().getResult(columnName, weight);
 
             for (CategoryFrequency semCategory : result) {
-                final float scoreOnHeader = getScoreOnHeader(colIdx, semCategory.getCategoryName());
-                final float score = semCategory.getFrequency() * weight + (scoreOnHeader * 100 * (1 - weight));
-
-                semCategory.setScore(score);
                 results.get(colIdx).increment(semCategory, semCategory.getCount());
             }
         }
 
         return results;
-    }
-
-    private float getScoreOnHeader(Integer columnIdx, String categoryName) {
-        int score = 0;
-        List<String> metadata = metadataMap.get(Metadata.HEADER_NAME);
-        if (metadata != null) {
-            final boolean match = StringUtils.equalsIgnoreCase(metadata.get(columnIdx), categoryName);
-            if (metadataMap.get(Metadata.HEADER_NAME) != null && match && Float.compare(weight, 0f) != 0) {
-                score = 1;
-            }
-        }
-        return score;
     }
 
     @Override

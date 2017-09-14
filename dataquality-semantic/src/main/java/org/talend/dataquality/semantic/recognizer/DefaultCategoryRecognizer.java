@@ -17,6 +17,7 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.talend.dataquality.record.linkage.attribute.FingerprintkeyMatcher;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.classifier.impl.DataDictFieldClassifier;
 import org.talend.dataquality.semantic.index.Index;
@@ -45,11 +46,14 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     private long total = 0;
 
+    private FingerprintkeyMatcher keyMatcher;
+
     public DefaultCategoryRecognizer(Index dictionary, Index keyword, UserDefinedClassifier regex,
             Map<String, DQCategory> metadata) throws IOException {
         dataDictFieldClassifier = new DataDictFieldClassifier(dictionary, keyword);
         this.userDefineClassifier = regex;
         this.metadata = metadata;
+        this.keyMatcher = new FingerprintkeyMatcher();
     }
 
     @Override
@@ -196,10 +200,23 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     }
 
-    @Override
+    @Deprecated
     public Collection<CategoryFrequency> getResult() {
         for (CategoryFrequency category : categoryToFrequency.values()) {
-            category.frequency = Math.round(category.count * 10000 / total) / 100F;
+            category.score = Math.round(category.count * 10000 / total) / 100F;
+        }
+
+        Collections.sort(catList, Collections.reverseOrder());
+        return catList;
+    }
+
+    @Override
+    public Collection<CategoryFrequency> getResult(String columnName, float weight) {
+        for (CategoryFrequency category : categoryToFrequency.values()) {
+
+            final float scoreOnHeader = Double.valueOf(keyMatcher.getMatchingWeight(columnName, category.getCategoryName()))
+                    .floatValue();
+            category.score = Math.min(Math.round(category.count * 10000 / total) / 100F + scoreOnHeader * weight * 100, 100);
         }
 
         Collections.sort(catList, Collections.reverseOrder());
