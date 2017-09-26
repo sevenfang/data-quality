@@ -291,4 +291,31 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
             LOGGER.error(e.getMessage(), e);
         }
     }
+
+    public TopDocs findSimilarValuesInCategory(String input, String category) throws IOException {
+        BooleanQuery combinedQuery = new BooleanQuery();
+        if (category != null && !StringUtils.EMPTY.equals(category)) {
+            Term catTerm = new Term(DictionarySearcher.F_WORD, category);
+            Query catQuery = new TermQuery(catTerm);
+            combinedQuery.add(catQuery, BooleanClause.Occur.MUST);
+        }
+
+        BooleanQuery valueQuery = new BooleanQuery();
+        List<String> tokens = getTokensFromAnalyzer(input);
+        Query inputTermQuery = getTermQuery(F_SYNTERM, StringUtils.join(tokens, ' '), true);
+        valueQuery.add(inputTermQuery, BooleanClause.Occur.SHOULD);
+
+        BooleanQuery inputTokenQuery = new BooleanQuery();
+        for (String token : tokens) {
+            inputTokenQuery.add(getTermQuery(F_SYNTERM, token, true), BooleanClause.Occur.SHOULD);
+        }
+        valueQuery.add(inputTokenQuery, BooleanClause.Occur.SHOULD);
+
+        combinedQuery.add(valueQuery, BooleanClause.Occur.MUST);
+
+        final IndexSearcher searcher = mgr.acquire();
+        TopDocs topDocs = searcher.search(combinedQuery, 50);
+        mgr.release(searcher);
+        return topDocs;
+    }
 }

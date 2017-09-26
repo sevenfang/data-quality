@@ -69,7 +69,7 @@ public abstract class AbstractDictionarySearcher {
         this.searchMode = searchMode;
     }
 
-    private Query getTermQuery(String field, String text, boolean fuzzy) {
+    protected Query getTermQuery(String field, String text, boolean fuzzy) {
         Term term = new Term(field, text);
         return fuzzy ? new FuzzyQuery(term, maxEdits) : new TermQuery(term);
     }

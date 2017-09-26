@@ -14,14 +14,16 @@ package org.talend.dataquality.semantic.index;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
+import org.talend.dataquality.record.linkage.attribute.LevenshteinMatcher;
+import org.talend.dataquality.record.linkage.constant.TokenizedResolutionMethod;
 import org.talend.dataquality.semantic.model.DQCategory;
 
 /**
@@ -33,6 +35,8 @@ public class LuceneIndex implements Index {
 
     private final DictionarySearcher searcher;
 
+    private final LevenshteinMatcher levenshtein = new LevenshteinMatcher();
+
     public LuceneIndex(URI indexPath, DictionarySearchMode searchMode) {
         this(new DictionarySearcher(indexPath), searchMode);
     }
@@ -43,8 +47,10 @@ public class LuceneIndex implements Index {
 
     private LuceneIndex(DictionarySearcher searcher, DictionarySearchMode searchMode) {
         this.searcher = searcher;
-        searcher.setTopDocLimit(20);
-        searcher.setSearchMode(searchMode);
+        this.searcher.setTopDocLimit(20);
+        this.searcher.setSearchMode(searchMode);
+        this.searcher.setMaxEdits(2);
+        levenshtein.setTokenMethod(TokenizedResolutionMethod.NO);
     }
 
     @Override
@@ -83,5 +89,65 @@ public class LuceneIndex implements Index {
             LOG.error(e, e);
         }
         return validCategory;
+    }
+
+    private static Map<String, Double> sortMapByValue(Map<String, Double> unsortedMap) {
+        List<Map.Entry<String, Double>> list = new LinkedList<>(unsortedMap.entrySet());
+
+        Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
+
+            @Override
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+
+        Map<String, Double> sortedMap = new LinkedHashMap<>();
+        for (Iterator<Map.Entry<String, Double>> it = list.iterator(); it.hasNext();) {
+            Map.Entry<String, Double> entry = it.next();
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedMap;
+    }
+
+    public Map<String, Double> findSimilarFieldsInCategory(String input, String category, Double similarity) {
+        Map<String, Double> similarFieldMap = new HashMap<>();
+        try {
+            TopDocs docs = searcher.findSimilarValuesInCategory(input, category);
+            for (ScoreDoc scoreDoc : docs.scoreDocs) {
+                Document doc = searcher.getDocument(scoreDoc.doc);
+                IndexableField[] synFields = doc.getFields(DictionarySearcher.F_RAW);
+                for (IndexableField synField : synFields) {
+                    String synFieldValue = synField.stringValue();
+                    if (!similarFieldMap.containsKey(synFieldValue)) {
+                        double distance = calculateOverallSimilarity(input, synFieldValue);
+                        if (distance >= similarity) {
+                            similarFieldMap.put(synFieldValue, distance);
+                        }
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return sortMapByValue(similarFieldMap);
+    }
+
+    private double calculateOverallSimilarity(String input, String field) throws IOException {
+        final List<String> inputTokens = DictionarySearcher.getTokensFromAnalyzer(input);
+        final List<String> fieldTokens = DictionarySearcher.getTokensFromAnalyzer(field);
+
+        double bestTokenSimilarity = 0;
+        for (String inputToken : inputTokens) {
+            for (String fieldToken : fieldTokens) {
+                double similarity = levenshtein.getMatchingWeight(inputToken, fieldToken);
+                if (similarity > bestTokenSimilarity) {
+                    bestTokenSimilarity = similarity;
+                }
+            }
+        }
+        final double fullSimilarity = levenshtein.getMatchingWeight(input.toLowerCase(), field.toLowerCase());
+        return (bestTokenSimilarity + fullSimilarity) / 2;
     }
 }
