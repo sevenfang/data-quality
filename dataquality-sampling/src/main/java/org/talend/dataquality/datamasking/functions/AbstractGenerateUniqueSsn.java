@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import org.talend.dataquality.datamasking.generic.GenerateUniqueRandomPatterns;
+import org.talend.dataquality.datamasking.generic.fields.AbstractField;
+
 import java.util.List;
 import java.util.Random;
 

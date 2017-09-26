@@ -12,6 +12,10 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import org.talend.dataquality.datamasking.generic.fields.AbstractField;
+import org.talend.dataquality.datamasking.generic.fields.FieldEnum;
+import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +23,7 @@ import java.util.List;
  * 
  * @author jteuladedenantes
  * 
- * French patter: a-bb-cc-dd-eee-fff a: 1 -> 2 bb: 1 -> 99 cc: 1 -> 12 dd: 1 -> 19 ; (2A, 2B) ; 20 -> 99 eee: 1 -> 990
+ * French patter: a-bb-cc-dd-eee-fff a: 1 -> 2 bb: 0 -> 99 cc: 1 -> 12 dd: 1 -> 19 ; (2A, 2B) ; 20 -> 99 eee: 1 -> 990
  * fff: 1 -> 999
  */
 public class GenerateUniqueSsnFr extends AbstractGenerateUniqueSsn {

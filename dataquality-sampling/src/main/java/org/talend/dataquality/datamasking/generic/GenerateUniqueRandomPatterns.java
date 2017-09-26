@@ -10,18 +10,20 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.dataquality.datamasking.functions;
+package org.talend.dataquality.datamasking.generic;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.talend.dataquality.datamasking.generic.fields.AbstractField;
+import org.talend.dataquality.sampling.exception.DQRuntimeException;
 
 /**
  * @author jteuladedenantes
- * 
+ * <p>
  * This class allows to generate unique random pattern from a list of fields. Each field define a set of possible
  * values.
  */
@@ -29,7 +31,10 @@ public class GenerateUniqueRandomPatterns implements Serializable {
 
     private static final long serialVersionUID = -5509905086789639724L;
 
-    private static final Logger LOGGER = Logger.getLogger(GenerateUniqueRandomPatterns.class);
+    /**
+     * The maximum width value we can handle (around Long.MaxValue / 11000)
+     */
+    private static final long WIDTH_THRESHOLD = 838000000000000L;
 
     /**
      * The random key to make impossible the decoding
@@ -56,19 +61,21 @@ public class GenerateUniqueRandomPatterns implements Serializable {
         this.fields = fields;
 
         // longestWidth init
-        longestWidth = 1L;
+        BigInteger longestWidthBig = new BigInteger("1");
         for (int i = 0; i < getFieldsNumber(); i++) {
             long width = this.fields.get(i).getWidth();
-            longestWidth *= width;
+            longestWidthBig = longestWidthBig.multiply(BigInteger.valueOf(width));
         }
-        LOGGER.debug("longestWidth = " + longestWidth);
+        if (longestWidthBig.compareTo(BigInteger.valueOf(WIDTH_THRESHOLD)) > 0)
+            throw new DQRuntimeException("The pattern is too large to be handled with this component");
+
+        longestWidth = longestWidthBig.longValue();
 
         // basedWidthsList init
         basedWidthsList = new ArrayList<Long>();
         basedWidthsList.add(1L);
         for (int i = getFieldsNumber() - 2; i >= 0; i--)
             basedWidthsList.add(0, this.fields.get(i + 1).getWidth() * this.basedWidthsList.get(0));
-        LOGGER.debug("basedWidthsList = " + basedWidthsList);
     }
 
     public List<AbstractField> getFields() {
@@ -128,14 +135,12 @@ public class GenerateUniqueRandomPatterns implements Serializable {
         long numberToMask = 0L;
         for (int i = 0; i < getFieldsNumber(); i++)
             numberToMask += listToMask.get(i) * basedWidthsList.get(i);
-        LOGGER.debug("numberToMask = " + numberToMask);
 
         if (key == null)
-            setKey((new Random()).nextInt() % 10000 + 1000);
+            setKey((new SecureRandom()).nextInt() % 10000 + 1000);
         long coprimeNumber = findLargestCoprime(Math.abs(key));
         // uniqueMaskedNumber is the number we masked
         long uniqueMaskedNumber = (numberToMask * coprimeNumber) % longestWidth;
-        LOGGER.debug("uniqueMaskedNumber = " + uniqueMaskedNumber);
 
         // uniqueMaskedNumberList is the unique list created from uniqueMaskedNumber
         List<Long> uniqueMaskedNumberList = new ArrayList<Long>();
@@ -152,8 +157,7 @@ public class GenerateUniqueRandomPatterns implements Serializable {
     }
 
     /**
-     * 
-     * @param the key from we want to find a coprime number with longestWidth
+     * @param key the key from we want to find a coprime number with longestWidth
      * @return the largest coprime number with longestWidth less than key
      */
     private long findLargestCoprime(long key) {

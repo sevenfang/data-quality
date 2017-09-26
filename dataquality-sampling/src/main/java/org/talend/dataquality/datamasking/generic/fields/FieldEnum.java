@@ -10,15 +10,16 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.dataquality.datamasking.functions;
+package org.talend.dataquality.datamasking.generic.fields;
 
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.talend.dataquality.sampling.exception.DQRuntimeException;
 
 /**
  * @author jteuladedenantes
- * 
+ *
  * A FieldEnum is a list of specific values. We defined a FieldEnum by an exhaustive list of all possible values.
  */
 public class FieldEnum extends AbstractField {
@@ -32,12 +33,27 @@ public class FieldEnum extends AbstractField {
      */
     private List<String> enumValues;
 
+    public FieldEnum(List<String> enumValues) {
+        int maxLen = 0;
+        for (String value : enumValues) {
+            if (value.length() > maxLen) {
+                maxLen = value.length();
+            }
+        }
+        initialize(enumValues, maxLen);
+    }
+
     public FieldEnum(List<String> enumValues, int length) {
+        initialize(enumValues, length);
+    }
+
+    private void initialize(List<String> enumValues, int length) {
         this.length = length;
         for (String value : enumValues)
-            if (value.length() != length) {
+            if (value.length() != this.length) {
                 LOGGER.error("The field <" + value + "> with a length = " + value.length() + " should have a length = " + length);
-                return;
+                throw new DQRuntimeException(
+                        "The value <" + value + "> with a length = " + value.length() + " should have a length = " + length);
             }
         this.enumValues = enumValues;
     }
