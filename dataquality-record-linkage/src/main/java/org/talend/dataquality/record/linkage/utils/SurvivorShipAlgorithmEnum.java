@@ -25,7 +25,6 @@ public enum SurvivorShipAlgorithmEnum {
             "Concatenate", //$NON-NLS-1$
             "Concatenate", //$NON-NLS-1$
             DefaultSurvivorShipDataTypeEnum.BOOLEAN,
-            DefaultSurvivorShipDataTypeEnum.DATE,
             DefaultSurvivorShipDataTypeEnum.STRING),
     PREFER_TRUE(1, "Prefer True (for booleans)", "PreferTrue", DefaultSurvivorShipDataTypeEnum.BOOLEAN), //$NON-NLS-1$ //$NON-NLS-2$
     PREFER_FALSE(2, "Prefer False (for booleans)", "PreferFalse", DefaultSurvivorShipDataTypeEnum.BOOLEAN), //$NON-NLS-1$ //$NON-NLS-2$
@@ -66,7 +65,7 @@ public enum SurvivorShipAlgorithmEnum {
     }
 
     public static String[] getAllTypes() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (SurvivorShipAlgorithmEnum theType : values()) {
             list.add(theType.getValue());
         }
