@@ -15,7 +15,12 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.FuzzyQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 
 /**
  * Created by jteuladedenantes on 16/11/16.
@@ -24,7 +29,7 @@ public abstract class AbstractDictionarySearcher {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractDictionarySearcher.class);
 
-    public static final String F_ID = "docid";//$NON-NLS-1$
+    public static final String F_DOCID = "docid";//$NON-NLS-1$
 
     public static final String F_WORD = "word";//$NON-NLS-1$
 
@@ -135,5 +140,4 @@ public abstract class AbstractDictionarySearcher {
         }
         return termList;
     }
-
 }

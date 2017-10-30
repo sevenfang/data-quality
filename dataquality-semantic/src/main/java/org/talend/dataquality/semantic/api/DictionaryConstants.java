@@ -14,8 +14,6 @@ package org.talend.dataquality.semantic.api;
 
 public class DictionaryConstants {
 
-    public static final String ID = "catid";
-
     public static final String NAME = "name";
 
     public static final String LABEL = "label";
@@ -29,6 +27,10 @@ public class DictionaryConstants {
     public static final String CHILD = "child";
 
     public static final String VALIDATION_MODE = "validationMode";
+
+    public static final String MODIFIED = "modified";
+
+    public static final String DELETED = "deleted";
 
     private DictionaryConstants() {
 

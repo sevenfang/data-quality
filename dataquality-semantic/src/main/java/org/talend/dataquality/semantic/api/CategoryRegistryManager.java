@@ -21,15 +21,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Bits;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.talend.dataquality.semantic.classifier.custom.UDCategorySerDeser;
@@ -43,95 +39,98 @@ import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 /**
  * Singleton class providing API for local category registry management.
  * 
- * A local category registry is composed by the following subfolders:
+ * A local category registry is composed by the following folders:
  * <ul>
- * <li><b>category:</b> lucene index containing metadata of all categories</li>
- * <li><b>index/dictionary:</b> lucene index containing dictionary documents</li>
- * <li><b>index/keyword:</b> lucene index containing keyword documents</li>
+ * <li><b>shared/prod/:</b> shared dictionaries between tenants, provided by Talend</li>
+ * <li><b>t_id/prod/:</b> tenant specific dictionaries</li>
+ * </ul>
+ * 
+ * Inside each of the above folder, the following subfolders can be found:
+ * <ul>
+ * <li><b>metadata:</b> lucene index containing metadata of all categories. In the tenant specific folder, the metadata of
+ * all provided categories are copied from shared metadata.</li>
+ * <li><b>dictionary:</b> lucene index containing dictionary documents. In the tenant specific folder, we only include the
+ * user-defined data dictionaries, and make the copy for only the modified categories provided by Talend</li>
+ * <li><b>keyword:</b> lucene index containing keyword documents. This folder does not exist in tenant specific folder as the
+ * modification is not allowed for these categories</li>
  * <li><b>regex:</b> json file containing all categories that can be recognized by regex patterns and eventual subvalidators</li>
  * </ul>
- * In each of the above subfolders, there is still a level of subfolders representing different contexts. The default context name
- * is "default".
  */
 public class CategoryRegistryManager {
 
     private static final Logger LOGGER = Logger.getLogger(CategoryRegistryManager.class);
 
-    /**
-     * Map between context names and corresponding instances.
-     */
-    private static final Map<String, CategoryRegistryManager> instances = new HashMap<>();
+    private static CategoryRegistryManager instance;
+
+    private static final Map<String, CustomDictionaryHolder> customDictionaryHolderMap = new HashMap<>();
 
     /**
      * Whether the local category registry will be used.
      * Default value is false, which means only initial categories are loaded. This is mostly useful for unit tests.
      * More often, the value is set to true when the localRegistryPath is configured. see
-     * {@link CategoryRegistryManager.setLocalRegistryPath()}
+     * {@link CategoryRegistryManager#setLocalRegistryPath(String)}
      */
     private static boolean usingLocalCategoryRegistry = false;
 
-    private static String localRegistryPath = System.getProperty("user.home") + "/.talend/dataquality/semantic";
+    private static final String DEFAULT_LOCAL_REGISTRY_PATH = System.getProperty("user.home") + "/.talend/dataquality/semantic";
 
-    public static final String CATEGORY_SUBFOLDER_NAME = "category";
+    private static String localRegistryPath = DEFAULT_LOCAL_REGISTRY_PATH;
 
-    public static final String DICTIONARY_SUBFOLDER_NAME = "index/dictionary";
+    public static final String METADATA_SUBFOLDER_NAME = "metadata";
 
-    public static final String KEYWORD_SUBFOLDER_NAME = "index/keyword";
+    public static final String DICTIONARY_SUBFOLDER_NAME = "dictionary";
+
+    public static final String KEYWORD_SUBFOLDER_NAME = "keyword";
 
     public static final String REGEX_SUBFOLDER_NAME = "regex";
 
     public static final String REGEX_CATEGRIZER_FILE_NAME = "categorizer.json";
 
+    public static final String SHARED_FOLDER_NAME = "shared";
+
+    public static final String PRODUCTION_FOLDER_NAME = "prod";
+
+    public static final String REPUBLISH_FOLDER_NAME = "republish";
+
+    public static final String DEFAULT_TENANT_ID = "t_default";
+
     /**
      * Map between category ID and the object containing its metadata.
      */
-    private Map<String, DQCategory> dqCategories = new LinkedHashMap<>();
+    private Map<String, DQCategory> sharedMetadata = new LinkedHashMap<>();
 
-    private String contextName;
+    private UserDefinedClassifier sharedRegexClassifier;
 
-    private UserDefinedClassifier udc;
-
-    private LocalDictionaryCache localDictionaryCache;
+    private Directory sharedDataDictDirectory;
 
     private static final Object indexExtractionLock = new Object();
 
     private CategoryRegistryManager() {
-        this("default");
-    }
-
-    private CategoryRegistryManager(String contextName) {
-        this.contextName = contextName;
-
-        if (dqCategories.isEmpty()) {
-            try {
-                if (usingLocalCategoryRegistry) {
-                    loadRegisteredCategories();
-                } else {
-                    loadInitialCategories();
-                }
-            } catch (IOException | URISyntaxException e) {
-                LOGGER.error(e.getMessage(), e);
+        try {
+            if (usingLocalCategoryRegistry) {
+                loadRegisteredCategories();
+            } else {
+                loadInitialCategories();
             }
+        } catch (IOException | URISyntaxException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     public static CategoryRegistryManager getInstance() {
-        return getInstance("default");
-    }
-
-    public static synchronized CategoryRegistryManager getInstance(String contextName) {
-        if (instances.get(contextName) == null) {
-            instances.put(contextName, new CategoryRegistryManager(contextName));
+        if (instance == null) {
+            instance = new CategoryRegistryManager();
         }
-        return instances.get(contextName);
+        return instance;
     }
 
-    public void reset() {
+    public static void reset() {
         setUsingLocalCategoryRegistry(false);
-        instances.clear();
+        localRegistryPath = DEFAULT_LOCAL_REGISTRY_PATH;
+        instance = null;
     }
 
-    private static void setUsingLocalCategoryRegistry(boolean b) {
+    public static void setUsingLocalCategoryRegistry(boolean b) {
         usingLocalCategoryRegistry = b;
     }
 
@@ -144,7 +143,7 @@ public class CategoryRegistryManager {
         if (folder != null && folder.trim().length() > 0) {
             localRegistryPath = folder;
             usingLocalCategoryRegistry = true;
-            getInstance();
+            instance = new CategoryRegistryManager();
         } else {
             LOGGER.warn("Cannot set an empty path as local registy location. Use default one: " + localRegistryPath);
         }
@@ -158,77 +157,79 @@ public class CategoryRegistryManager {
     }
 
     /**
-     * @return the {@link LocalDictionaryCache} corresponding to the current context.
+     * @return the {@link LocalDictionaryCache} corresponding to the default tenant ID.
      */
     public LocalDictionaryCache getDictionaryCache() {
-        if (localDictionaryCache == null) {
-            return new LocalDictionaryCache(contextName);
-        }
-        return localDictionaryCache;
+        return getDictionaryCache(DEFAULT_TENANT_ID);
     }
 
     /**
-     * Reload the category from local registry. This method is typically called following category or dictionary enrichments.
+     * @param tenantID the ID of the tenant
+     * @return the {@link LocalDictionaryCache} corresponding to a given tenant ID.
+     */
+    public LocalDictionaryCache getDictionaryCache(String tenantID) {
+        return getCustomDictionaryHolder(tenantID).getDictionaryCache();
+    }
+
+    /**
+     * Reload the category from local registry for a given tenant ID. This method is typically called following category or
+     * dictionary enrichments.
+     * 
+     * @param tenantID the ID of the tenant
+     */
+    public void reloadCategoriesFromRegistry(String tenantID) {
+        LOGGER.info("Reload categories from local registry.");
+        getCustomDictionaryHolder(tenantID).reloadCategoryMetadata();
+    }
+
+    /**
+     * Reload the category from local registry for the default tenant. This method is typically called following category or
+     * dictionary enrichments.
      */
     public void reloadCategoriesFromRegistry() {
-        LOGGER.info("Reload categories from local registry.");
-        File categorySubFolder = new File(
-                localRegistryPath + File.separator + CATEGORY_SUBFOLDER_NAME + File.separator + contextName);
-        if (categorySubFolder.exists()) {
-            dqCategories.clear();
-            try {
-                final Directory indexDir = FSDirectory.open(categorySubFolder);
-                final DirectoryReader reader = DirectoryReader.open(indexDir);
-
-                fillDqCategoriesMap(reader);
-
-                reader.close();
-                indexDir.close();
-            } catch (IOException e) {
-                LOGGER.error("Error while reloading categories from local registry.", e);
-            }
-        }
+        reloadCategoriesFromRegistry(DEFAULT_TENANT_ID);
     }
 
     private void loadRegisteredCategories() throws IOException, URISyntaxException {
         // read local DD categories
         LOGGER.info("Loading categories from local registry.");
-        final File categorySubFolder = new File(
-                localRegistryPath + File.separator + CATEGORY_SUBFOLDER_NAME + File.separator + contextName);
-        loadBaseIndex(categorySubFolder, CATEGORY_SUBFOLDER_NAME);
+        final File categorySubFolder = new File(localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator
+                + PRODUCTION_FOLDER_NAME + File.separator + METADATA_SUBFOLDER_NAME);
+        loadBaseIndex(categorySubFolder, METADATA_SUBFOLDER_NAME);
         if (categorySubFolder.exists()) {
-            try (final DirectoryReader reader = DirectoryReader.open(FSDirectory.open(categorySubFolder))) {
-                fillDqCategoriesMap(reader);
-
-            }
+            sharedMetadata = CategoryMetadataUtils.loadMetadataFromIndex(FSDirectory.open(categorySubFolder));
         }
 
         // extract initial DD categories if not present
-        final File dictionarySubFolder = new File(
-                localRegistryPath + File.separator + DICTIONARY_SUBFOLDER_NAME + File.separator + contextName);
+        final File dictionarySubFolder = new File(localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator
+                + PRODUCTION_FOLDER_NAME + File.separator + DICTIONARY_SUBFOLDER_NAME);
         loadBaseIndex(dictionarySubFolder, DICTIONARY_SUBFOLDER_NAME);
 
         // extract initial KW categories if not present
-        final File keywordSubFolder = new File(
-                localRegistryPath + File.separator + KEYWORD_SUBFOLDER_NAME + File.separator + contextName);
+        final File keywordSubFolder = new File(localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator
+                + PRODUCTION_FOLDER_NAME + File.separator + KEYWORD_SUBFOLDER_NAME);
         loadBaseIndex(keywordSubFolder, KEYWORD_SUBFOLDER_NAME);
 
         // read local RE categories
-        final File regexRegistryFolder = new File(
-                localRegistryPath + File.separator + REGEX_SUBFOLDER_NAME + File.separator + contextName);
-        if (!regexRegistryFolder.exists()) {
+        final File regexRegistryFile = new File(localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator
+                + PRODUCTION_FOLDER_NAME + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGRIZER_FILE_NAME);
+        loadBaseRegex(regexRegistryFile);
+    }
+
+    private void loadBaseRegex(final File regexRegistryFile) throws IOException {
+        if (!regexRegistryFile.exists()) {
             // load provided RE into registry
-            InputStream is = CategoryRecognizer.class.getResourceAsStream(REGEX_CATEGRIZER_FILE_NAME);
+            InputStream is = CategoryRecognizer.class.getResourceAsStream(CategoryRecognizerBuilder.DEFAULT_RE_PATH);
             StringBuilder sb = new StringBuilder();
             for (String line : IOUtils.readLines(is)) {
                 sb.append(line);
             }
             JSONObject obj = new JSONObject(sb.toString());
             JSONArray array = obj.getJSONArray("classifiers");
-            regexRegistryFolder.mkdirs();
+            regexRegistryFile.getParentFile().mkdirs();
             FileOutputStream fos = null;
             try {
-                fos = new FileOutputStream(regexRegistryFolder + File.separator + REGEX_CATEGRIZER_FILE_NAME);
+                fos = new FileOutputStream(regexRegistryFile);
                 IOUtils.write(array.toString(2), fos);
             } finally {
                 if (fos != null) {
@@ -239,63 +240,17 @@ public class CategoryRegistryManager {
     }
 
     private void loadInitialCategories() throws IOException, URISyntaxException {
-        try (final DirectoryReader reader = DirectoryReader.open(ClassPathDirectory.open(getMetadataURI()))) {
-            fillDqCategoriesMap(reader);
-        }
-    }
-
-    /**
-     * Fill dqCategories which contains for each category ID, the metadata with all the children and the parents.
-     *
-     * @param reader
-     * @throws IOException
-     */
-    private void fillDqCategoriesMap(DirectoryReader reader) throws IOException {
-        Map<String, Set<String>> categoryToParents = new HashMap<>();
-        Bits liveDocs = MultiFields.getLiveDocs(reader);
-        // add the categories
-        for (int i = 0; i < reader.maxDoc(); i++) {
-            if (liveDocs != null && !liveDocs.get(i)) {
-                continue;
-            }
-            Document doc = reader.document(i);
-            DQCategory dqCat = DictionaryUtils.categoryFromDocument(doc);
-            dqCategories.put(dqCat.getId(), dqCat);
-            if (!CollectionUtils.isEmpty(dqCat.getChildren()))
-                fillCategoryToParents(categoryToParents, dqCat);
-        }
-
-        // add the parent references in the child
-        for (Map.Entry<String, Set<String>> entry : categoryToParents.entrySet())
-            if (dqCategories.get(entry.getKey()) != null) {
-                List<DQCategory> parents = new ArrayList<>();
-                for (String child : entry.getValue())
-                    parents.add(new DQCategory(child));
-                dqCategories.get(entry.getKey()).setParents(parents);
-            }
-    }
-
-    /**
-     * fill the map child -> parents
-     * 
-     * @param categoryToParents, the map child -> parents
-     * @param dqCat, the category used to create the reference child -> parents
-     */
-    private void fillCategoryToParents(Map<String, Set<String>> categoryToParents, DQCategory dqCat) {
-        for (DQCategory cat : dqCat.getChildren()) {
-            if (categoryToParents.get(cat.getId()) == null)
-                categoryToParents.put(cat.getId(), new HashSet<String>());
-            categoryToParents.get(cat.getId()).add(dqCat.getId());
-        }
+        sharedMetadata = CategoryMetadataUtils.loadMetadataFromIndex(ClassPathDirectory.open(getMetadataURI()));
     }
 
     private void loadBaseIndex(final File destSubFolder, String sourceSubFolder) throws IOException, URISyntaxException {
         synchronized (indexExtractionLock) {
             if (!destSubFolder.exists()) {
                 final URI indexSourceURI = this.getClass().getResource("/" + sourceSubFolder).toURI();
-                final Directory srcDir = ClassPathDirectory.open(indexSourceURI);
-                if (usingLocalCategoryRegistry && !destSubFolder.exists()) {
-                    DictionaryUtils.rewriteIndex(srcDir, destSubFolder);
+                try (final Directory srcDir = ClassPathDirectory.open(indexSourceURI)) {
+                    if (usingLocalCategoryRegistry && !destSubFolder.exists()) {
+                        DictionaryUtils.rewriteIndex(srcDir, destSubFolder);
+                    }
                 }
             }
         }
@@ -307,7 +262,7 @@ public class CategoryRegistryManager {
      * @return collection of category objects
      */
     public Collection<DQCategory> listCategories() {
-        return dqCategories.values();
+        return getCustomDictionaryHolder().listCategories();
     }
 
     /**
@@ -317,17 +272,7 @@ public class CategoryRegistryManager {
      * @return collection of category objects
      */
     public Collection<DQCategory> listCategories(boolean includeOpenCategories) {
-        if (includeOpenCategories) {
-            return dqCategories.values();
-        } else {
-            List<DQCategory> catList = new ArrayList<>();
-            for (DQCategory dqCat : dqCategories.values()) {
-                if (dqCat.getCompleteness()) {
-                    catList.add(dqCat);
-                }
-            }
-            return catList;
-        }
+        return getCustomDictionaryHolder().listCategories(includeOpenCategories);
     }
 
     /**
@@ -337,67 +282,55 @@ public class CategoryRegistryManager {
      * @return collection of category objects of the given type
      */
     public List<DQCategory> listCategories(CategoryType type) {
-        List<DQCategory> catList = new ArrayList<>();
-        for (DQCategory dqCat : dqCategories.values()) {
-            if (type.equals(dqCat.getType())) {
-                catList.add(dqCat);
-            }
-        }
-        return catList;
-    }
-
-    /**
-     * Get the label of a category by its functional ID.
-     * 
-     * @param catId the category ID
-     * @return the category label
-     */
-    public String getCategoryLabel(String catId) {
-        if ("".equals(catId)) {
-            return "";
-        }
-        return getCategoryMetadataByName(catId).getLabel();
+        return getCustomDictionaryHolder().listCategories(type);
     }
 
     /**
      * Get the full map between category ID and category metadata.
      */
-    public Map<String, DQCategory> getCategoryMetadataMap() {
-        return dqCategories;
+    public Map<String, DQCategory> getSharedCategoryMetadata() {
+        return sharedMetadata;
     }
 
     /**
-     * Get the category object by its technical ID.
+     * Getter for sharedDataDictDirectory.
+     */
+    public Directory getSharedDataDictDirectory() {
+        if (sharedDataDictDirectory == null) {
+            try {
+                sharedDataDictDirectory = ClassPathDirectory.open(getDictionaryURI());
+            } catch (URISyntaxException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return sharedDataDictDirectory;
+    }
+
+    /**
+     * Get the full map between category ID and category metadata for the default tenant.
+     */
+    public Map<String, DQCategory> getCategoryMetadataMap() {
+        return getCustomDictionaryHolder().getMetadata();
+    }
+
+    /**
+     * Get the category object by its technical ID for the default tenant.
      * 
      * @param catId the technical ID of the category
      * @return the category object
      */
     public DQCategory getCategoryMetadataById(String catId) {
-        return dqCategories.get(catId);
+        return getCustomDictionaryHolder().getCategoryMetadataById(catId);
     }
 
     /**
-     * Get the category object by its functional ID (aka. name).
+     * Get the category object by its functional ID (aka. name) for the default tenant.
      * 
      * @param catName the functional ID (aka. name)
      * @return the category object
      */
     public DQCategory getCategoryMetadataByName(String catName) {
-        for (DQCategory cat : dqCategories.values()) {
-            if (cat.getName().equals(catName)) {
-                return cat;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get the category IDs.
-     *
-     * @return the category IDs
-     */
-    public Set<String> getCategoryIds() {
-        return dqCategories.keySet();
+        return getCustomDictionaryHolder().getCategoryMetadataByName(catName);
     }
 
     /**
@@ -406,40 +339,31 @@ public class CategoryRegistryManager {
      * @param refresh whether classifiers should be reloaded from local json file
      */
     public UserDefinedClassifier getRegexClassifier(boolean refresh) throws IOException {
-        if (!usingLocalCategoryRegistry)
+        if (!usingLocalCategoryRegistry) {
             return UDCategorySerDeser.getRegexClassifier();
+        }
 
         // load regexes from local registry
-        if (udc == null || refresh) {
-            final File regexRegistryFile = new File(localRegistryPath + File.separator + REGEX_SUBFOLDER_NAME + File.separator
-                    + contextName + File.separator + REGEX_CATEGRIZER_FILE_NAME);
+        if (sharedRegexClassifier == null || refresh) {
+            final File regexRegistryFile = new File(
+                    localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator + PRODUCTION_FOLDER_NAME
+                            + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGRIZER_FILE_NAME);
 
             if (!regexRegistryFile.exists()) {
-                regexRegistryFile.getParentFile().mkdirs();
-                // load provided RE into registry
-                InputStream is = CategoryRecognizer.class.getResourceAsStream(REGEX_CATEGRIZER_FILE_NAME);
-                StringBuilder sb = new StringBuilder();
-                for (String line : IOUtils.readLines(is)) {
-                    sb.append(line);
-                }
-                JSONObject obj = new JSONObject(sb.toString());
-                JSONArray array = obj.getJSONArray("classifiers");
-                FileOutputStream fos = new FileOutputStream(regexRegistryFile);
-                IOUtils.write(array.toString(2), fos);
-                fos.close();
+                loadBaseRegex(regexRegistryFile);
             }
 
-            udc = UDCategorySerDeser.readJsonFile(regexRegistryFile.toURI());
+            sharedRegexClassifier = UDCategorySerDeser.readJsonFile(regexRegistryFile.toURI());
         }
-        return udc;
+        return sharedRegexClassifier;
     }
 
     /**
      * get URI of local category metadata
      */
-    public URI getMetadataURI() throws URISyntaxException {
+    private URI getMetadataURI() throws URISyntaxException {
         if (usingLocalCategoryRegistry) {
-            return Paths.get(localRegistryPath, CATEGORY_SUBFOLDER_NAME, contextName).toUri();
+            return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, METADATA_SUBFOLDER_NAME).toUri();
         } else {
             return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_METADATA_PATH).toURI();
         }
@@ -450,7 +374,7 @@ public class CategoryRegistryManager {
      */
     public URI getDictionaryURI() throws URISyntaxException {
         if (usingLocalCategoryRegistry) {
-            return Paths.get(localRegistryPath, DICTIONARY_SUBFOLDER_NAME, contextName).toUri();
+            return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, DICTIONARY_SUBFOLDER_NAME).toUri();
         } else {
             return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_DD_PATH).toURI();
         }
@@ -461,7 +385,7 @@ public class CategoryRegistryManager {
      */
     public URI getKeywordURI() throws URISyntaxException {
         if (usingLocalCategoryRegistry) {
-            return Paths.get(localRegistryPath, KEYWORD_SUBFOLDER_NAME, contextName).toUri();
+            return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, KEYWORD_SUBFOLDER_NAME).toUri();
         } else {
             return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_KW_PATH).toURI();
         }
@@ -472,9 +396,50 @@ public class CategoryRegistryManager {
      */
     public URI getRegexURI() throws URISyntaxException {
         if (usingLocalCategoryRegistry) {
-            return Paths.get(localRegistryPath, REGEX_SUBFOLDER_NAME, contextName, REGEX_CATEGRIZER_FILE_NAME).toUri();
+            return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, REGEX_SUBFOLDER_NAME,
+                    REGEX_CATEGRIZER_FILE_NAME).toUri();
         } else {
             return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_RE_PATH).toURI();
+        }
+    }
+
+    /**
+     * Get CustomDictioanryHolder instance for the given tenant ID.
+     * 
+     * @param tenantID the ID of the tenant.
+     */
+    public CustomDictionaryHolder getCustomDictionaryHolder(String tenantID) {
+        CustomDictionaryHolder cdh = customDictionaryHolderMap.get(tenantID);
+        if (cdh == null) {
+            cdh = new CustomDictionaryHolder(tenantID);
+            customDictionaryHolderMap.put(tenantID, cdh);
+        }
+        return cdh;
+    }
+
+    /**
+     * Get CustomDictioanryHolder instance for the default tenant.
+     */
+    public CustomDictionaryHolder getCustomDictionaryHolder() {
+        return getCustomDictionaryHolder(DEFAULT_TENANT_ID);
+    }
+
+    /**
+     * Remove the CustomDictionaryHolder for a given tenant ID.
+     * 
+     * @param tenantID the ID of the tenant.
+     */
+    public void removeCustomDictionaryHolder(String tenantID) {
+        CustomDictionaryHolder cdh = customDictionaryHolderMap.get(tenantID);
+        if (cdh != null) {
+            cdh.closeDictionaryAccess();
+            File folder = new File(localRegistryPath + File.separator + tenantID);
+            try {
+                FileUtils.deleteDirectory(folder);
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+            customDictionaryHolderMap.remove(tenantID);
         }
     }
 }

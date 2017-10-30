@@ -35,16 +35,16 @@ public abstract class AbstractSubCategoryClassifier implements ISubCategoryClass
      * @see org.talend.dataquality.semantic.classifier.ISubCategoryClassifier#classify(java.lang.String)
      */
     @Override
-    public Set<String> classify(String str) {
+    public Set<String> classify(String data) {
         Set<String> catSet = new HashSet<>();
         for (ISubCategory classifier : potentialSubCategories) {
             ISemanticFilter filter = classifier.getFilter();
 
-            if (filter != null && !filter.isQualified(str)) {
+            if (filter != null && !filter.isQualified(data)) {
                 continue;
             }
             ISemanticValidator validator = classifier.getValidator();
-            if (validator != null && validator.isValid(str)) {
+            if (validator != null && validator.isValid(data)) {
                 catSet.add(classifier.getName());
             }
         }

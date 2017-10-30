@@ -54,6 +54,11 @@ public class LuceneIndex implements Index {
     }
 
     @Override
+    public void setCategoriesToSearch(List<String> categoryIds) {
+        searcher.setCategoriesToSearch(categoryIds);
+    }
+
+    @Override
     public void initIndex() {
         searcher.maybeRefreshIndex();
     }

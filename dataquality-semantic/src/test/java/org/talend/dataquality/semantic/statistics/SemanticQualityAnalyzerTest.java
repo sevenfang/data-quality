@@ -2,24 +2,45 @@ package org.talend.dataquality.semantic.statistics;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder.DEFAULT_DD_PATH;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.junit.BeforeClass;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.Analyzers.Result;
 import org.talend.dataquality.common.inference.ValueQualityStatistics;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.api.DictionaryUtils;
+import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
+import org.talend.dataquality.semantic.index.ClassPathDirectory;
+import org.talend.dataquality.semantic.index.DictionarySearcher;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
@@ -87,8 +108,8 @@ public class SemanticQualityAnalyzerTest {
     private static final long[][] EXPECTED_VALIDITY_COUNT_PHONE = new long[][] { //
             new long[] { 11, 0, 0 } };
 
-    @BeforeClass
-    public static void setupBuilder() throws URISyntaxException {
+    @Before
+    public void setupBuilder() throws URISyntaxException {
         final URI ddPath = SemanticQualityAnalyzerTest.class.getResource(CategoryRecognizerBuilder.DEFAULT_DD_PATH).toURI();
         final URI kwPath = SemanticQualityAnalyzerTest.class.getResource(CategoryRecognizerBuilder.DEFAULT_KW_PATH).toURI();
         builder = CategoryRecognizerBuilder.newBuilder() //
@@ -111,6 +132,38 @@ public class SemanticQualityAnalyzerTest {
     @Test
     public void testSemanticQualityAnalyzerWithPhoneCategory() {
         testAnalysis(RECORDS_PHONES, new String[] { "PHONE" }, EXPECTED_VALIDITY_COUNT_PHONE, EXPECTED_VALIDITY_COUNT_PHONE);
+    }
+
+    @Test
+    public void testMultiTenantIndex() throws IOException, URISyntaxException {
+        long[][] expectedCount = new long[][] { new long[] { 1, 0, 0 } };
+        initTenantIndex(true);
+        testAnalysis(Collections.singletonList(new String[] { "CDG" }),
+                new String[] { SemanticCategoryEnum.AIRPORT_CODE.getId() }, expectedCount, expectedCount);
+        testAnalysis(Collections.singletonList(new String[] { "AAAA" }),
+                new String[] { SemanticCategoryEnum.AIRPORT_CODE.getId() }, expectedCount, expectedCount);
+    }
+
+    @Test
+    public void testMultiTenantIndexWithoutExistingValues() throws IOException, URISyntaxException {
+        long[][] expectedCount = new long[][] { new long[] { 1, 0, 0 } };
+        initTenantIndex(false);
+        testAnalysis(Collections.singletonList(new String[] { "CDG" }), new String[] { StringUtils.EMPTY }, expectedCount,
+                expectedCount);
+        testAnalysis(Collections.singletonList(new String[] { "AAAA" }),
+                new String[] { SemanticCategoryEnum.AIRPORT_CODE.getId() }, expectedCount, expectedCount);
+    }
+
+    @Test
+    public void testMultiTenantIndexWithDeletedCategory() throws IOException, URISyntaxException {
+        long[][] expectedCount = new long[][] { new long[] { 1, 0, 0 } };
+        testAnalysis(Collections.singletonList(new String[] { "Berulle" }),
+                new String[] { SemanticCategoryEnum.FR_COMMUNE.getId() }, expectedCount, expectedCount);
+        CategoryRegistryManager.getInstance().getCategoryMetadataById(SemanticCategoryEnum.FR_COMMUNE.getTechnicalId())
+                .setDeleted(true);
+        testAnalysis(Collections.singletonList(new String[] { "Berulle" }), new String[] { StringUtils.EMPTY }, expectedCount,
+                expectedCount);
+
     }
 
     public void testAnalysis(List<String[]> records, String[] expectedCategories, long[][] expectedValidityCountForDiscovery,
@@ -184,5 +237,49 @@ public class SemanticQualityAnalyzerTest {
             e.printStackTrace();
         }
         return records;
+    }
+
+    public void initTenantIndex(boolean addExistingValues) throws IOException, URISyntaxException {
+
+        Map<String, DQCategory> metadata = builder.getCategoryMetadata();
+
+        metadata.get(SemanticCategoryEnum.AIRPORT_CODE.getTechnicalId()).setModified(true);
+
+        IndexSearcher sharedLuceneDocumentSearcher = new IndexSearcher(DirectoryReader
+                .open(ClassPathDirectory.open(CategoryRecognizerBuilder.class.getResource(DEFAULT_DD_PATH).toURI())));
+
+        Directory ramDirectory = new RAMDirectory();
+        IndexWriterConfig writerConfig = new IndexWriterConfig(Version.LATEST, new StandardAnalyzer(CharArraySet.EMPTY_SET));
+        IndexWriter writer = new IndexWriter(ramDirectory, writerConfig);
+
+        final Term searchTerm = new Term(DictionarySearcher.F_CATID, SemanticCategoryEnum.AIRPORT_CODE.getTechnicalId());
+
+        if (addExistingValues)
+            for (ScoreDoc d : sharedLuceneDocumentSearcher.search(new TermQuery(searchTerm), Integer.MAX_VALUE).scoreDocs) {
+                Document doc = sharedLuceneDocumentSearcher.getIndexReader().document(d.doc);
+                for (String value : doc.getValues(DictionarySearcher.F_RAW)) {
+                    List<String> tokens = DictionarySearcher.getTokensFromAnalyzer(value);
+                    doc.add(new StringField(DictionarySearcher.F_SYNTERM, StringUtils.join(tokens, ' '), Field.Store.NO));
+                }
+                writer.addDocument(doc);
+            }
+
+        writer.addDocument(DictionaryUtils.generateDocument("ID_DOCUMENT", SemanticCategoryEnum.AIRPORT_CODE.getTechnicalId(),
+                SemanticCategoryEnum.AIRPORT_CODE.getId(), new HashSet<String>(Arrays.asList("AAAA", "BBBB"))));
+        writer.addDocument(DictionaryUtils.generateDocument("ID_DOCUMENT2", SemanticCategoryEnum.AIRPORT_CODE.getTechnicalId(),
+                SemanticCategoryEnum.AIRPORT_CODE.getId(), new HashSet<String>(Arrays.asList("CCCC", "DDDD"))));
+
+        writer.commit();
+        writer.close();
+        builder.ddCustomDirectory(ramDirectory).lucene().build();
+
+    }
+
+    @After
+    public void finish() {
+        CategoryRegistryManager.reset();
+        if (builder != null) {
+            builder.metadata(null);
+        }
     }
 }

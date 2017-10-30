@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class DQCategory implements Serializable {
 
     private String id;
@@ -66,6 +68,12 @@ public class DQCategory implements Serializable {
     private List<DQCategory> children;
 
     private List<DQCategory> parents;
+
+    @JsonIgnore
+    private Boolean modified = Boolean.FALSE;
+
+    @JsonIgnore
+    private Boolean deleted = Boolean.FALSE;
 
     public DQCategory(String id) {
         this.id = id;
@@ -267,11 +275,27 @@ public class DQCategory implements Serializable {
         this.validationMode = validationMode;
     }
 
+    public Boolean getModified() {
+        return modified;
+    }
+
+    public void setModified(Boolean modified) {
+        this.modified = modified;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
     @Override
     public String toString() {
         return String.format(
-                "Category [ID=%s  Type=%s  Name=%-20s  Label=%-20s  Completeness=%-5s  Description=%s Creator=%s Last Modifier=%s State=%-20s Last published=%s]",
-                id, type, name, label, completeness, description, creator, lastModifier, state, publishedAt);
+                "Category [ID=%s  Type=%s  Name=%-20s  Label=%-20s  Completeness=%s  Modified=%-5s  Creator=%s Last Modifier=%s State=%-20s Last published=%s]",
+                id, type, name, label, completeness, modified, creator, lastModifier, state, publishedAt);
     }
 
 }

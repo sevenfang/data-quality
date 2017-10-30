@@ -48,12 +48,31 @@ class DefaultCategoryRecognizer implements CategoryRecognizer {
 
     private FingerprintkeyMatcher keyMatcher;
 
-    public DefaultCategoryRecognizer(Index dictionary, Index keyword, UserDefinedClassifier regex,
-            Map<String, DQCategory> metadata) throws IOException {
-        dataDictFieldClassifier = new DataDictFieldClassifier(dictionary, keyword);
+    public DefaultCategoryRecognizer(final Index sharedDictionary, Index customDictionary, Index keyword,
+            UserDefinedClassifier regex, Map<String, DQCategory> metadata) throws IOException {
         this.userDefineClassifier = regex;
+        this.userDefineClassifier.getClassifiers().removeIf(classifier -> metadata.get(classifier.getId()) != null
+                && Boolean.TRUE.equals(metadata.get(classifier.getId()).getDeleted()));
         this.metadata = metadata;
         this.keyMatcher = new FingerprintkeyMatcher();
+
+        final List<String> sharedCategories = new ArrayList<>();
+        final List<String> customCategories = new ArrayList<>();
+        for (DQCategory cat : metadata.values()) {
+            if (!cat.getDeleted()) {
+                if (cat.getModified()) {
+                    customCategories.add(cat.getId());
+                } else {
+                    sharedCategories.add(cat.getId());
+                }
+            }
+        }
+
+        sharedDictionary.setCategoriesToSearch(sharedCategories);
+        if (customDictionary != null) {
+            customDictionary.setCategoriesToSearch(customCategories);
+        }
+        dataDictFieldClassifier = new DataDictFieldClassifier(sharedDictionary, customDictionary, keyword);
     }
 
     @Override

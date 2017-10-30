@@ -39,6 +39,8 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
 
     private Map<String, CachingWrapperFilter> categoryToCache = new HashMap<>();
 
+    private CachingWrapperFilter cachingWrapperFilterForDiscovery;
+
     /**
      * SynonymIndexSearcher constructor creates this searcher and initializes the index.
      *
@@ -75,6 +77,11 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
         }
     }
 
+    public void setCategoriesToSearch(List<String> categoryIds) {
+        cachingWrapperFilterForDiscovery = new CachingWrapperFilter(
+                new FieldCacheTermsFilter(F_CATID, categoryIds.toArray(new String[categoryIds.size()])));
+    }
+
     /**
      * search for documents by one of the synonym (which may be the word).
      *
@@ -95,7 +102,9 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
             break;
         }
         final IndexSearcher searcher = mgr.acquire();
-        TopDocs topDocs = searcher.search(query, topDocLimit);
+
+        // if the filter is NULL, it's equivalent to a method call to searcher.search(query, topDocLimit)
+        TopDocs topDocs = searcher.search(query, cachingWrapperFilterForDiscovery, topDocLimit);
         mgr.release(searcher);
         return topDocs;
     }
