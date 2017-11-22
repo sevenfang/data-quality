@@ -37,6 +37,8 @@ import org.json.JSONObject;
 import org.talend.dataquality.semantic.classifier.custom.UDCategorySerDeser;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.index.ClassPathDirectory;
+import org.talend.dataquality.semantic.index.DictionarySearchMode;
+import org.talend.dataquality.semantic.index.LuceneIndex;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
@@ -482,5 +484,39 @@ public class CategoryRegistryManager {
             }
             customDictionaryHolderMap.remove(tenantID);
         }
+    }
+
+    /**
+     * 
+     * @param input the input value
+     * @param categoryName the category name
+     * @param similarity the threshold value, the compared score must be >= similarity
+     * @return most similar value from customer dictionary or share dictionary
+     */
+    public String findMostSimilarValue(String input, String categoryName, double similarity) {
+        LuceneIndex index = getLuceneIndex(categoryName);
+        if (index == null) {
+            return input;
+        }
+        return index.findMostSimilarFieldInCategory(input, categoryName, similarity);
+    }
+
+    /**
+     * 
+     * @param categoryName
+     * @return Get a custom or shared LuncenIndex according to the category metadata
+     */
+    LuceneIndex getLuceneIndex(String categoryName) {
+        DQCategory dqCategory = getCategoryMetadataByName(categoryName);
+        if (dqCategory != null) {
+            Directory dataDictDirectory = null;
+            if (dqCategory.getModified()) { // get a custom directory if the Category is modified
+                dataDictDirectory = getCustomDictionaryHolder().getDataDictDirectory();
+            } else { // otherwise, get shared directory
+                dataDictDirectory = getSharedDataDictDirectory();
+            }
+            return new LuceneIndex(dataDictDirectory, DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY);
+        }
+        return null;
     }
 }
