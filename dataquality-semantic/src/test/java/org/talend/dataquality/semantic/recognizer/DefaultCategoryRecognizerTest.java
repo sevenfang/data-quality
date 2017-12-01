@@ -1,12 +1,5 @@
 package org.talend.dataquality.semantic.recognizer;
 
-import static org.junit.Assert.assertEquals;
-import static org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder.DEFAULT_DD_PATH;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
@@ -23,9 +16,11 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.DictionaryUtils;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
@@ -34,7 +29,18 @@ import org.talend.dataquality.semantic.index.DictionarySearcher;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 
-public class DefaultCategoryRecognizerTest {
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder.DEFAULT_DD_PATH;
+
+public class DefaultCategoryRecognizerTest extends CategoryRegistryManagerAbstract {
 
     private CategoryRecognizer recognizer;
 
@@ -55,7 +61,10 @@ public class DefaultCategoryRecognizerTest {
      */
     @Before
     public void init() throws IOException {
+
         builder = CategoryRecognizerBuilder.newBuilder();
+        builder.tenantID("t_default_category");
+
         Map<String, DQCategory> metadata = builder.getCategoryMetadata();
         String randomId1 = "RANDOM_ID_1";
         String randomId2 = "RANDOM_ID_2";
@@ -197,11 +206,4 @@ public class DefaultCategoryRecognizerTest {
         recognizer.reset();
     }
 
-    @After
-    public void finish() {
-        if (builder != null) {
-            CategoryRegistryManager.reset();
-            builder.metadata(null);
-        }
-    }
 }

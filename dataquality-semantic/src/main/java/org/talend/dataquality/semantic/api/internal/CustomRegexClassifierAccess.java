@@ -1,10 +1,8 @@
 package org.talend.dataquality.semantic.api.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
@@ -13,16 +11,17 @@ import org.talend.dataquality.semantic.classifier.ISubCategory;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedCategory;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Low level API for operations on regex file.
  */
 public class CustomRegexClassifierAccess {
 
-    private final Logger LOGGER = Logger.getLogger(CustomRegexClassifierAccess.class);
+    private static final Logger LOGGER = Logger.getLogger(CustomRegexClassifierAccess.class);
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -43,19 +42,43 @@ public class CustomRegexClassifierAccess {
         }
     }
 
+    public CustomRegexClassifierAccess(String regexFilePath) {
+        regExFile = new File(regexFilePath);
+        if (!regExFile.exists()) {
+            writeRegExs(new ArrayList<>());
+        }
+    }
+
     /**
-     * add the regEx to the lucene index and share it on HDFS
+     * insert or update the regEx to the lucene index and share it on HDFS
      *
      * @param regEx the document to add
      */
-    public void createRegex(ISubCategory regEx) {
-        LOGGER.debug("createRegex: " + regEx);
+    public void insertOrUpdateRegex(ISubCategory regEx) {
+        LOGGER.debug("insertOrUpdateRegex: " + regEx);
         List<ISubCategory> regExs = getRegExs();
         if (regExs == null)
             regExs = new ArrayList<>();
+        else
+            regExs.removeIf(expression -> expression.getId().equals(regEx.getId()));
 
         regExs.add(regEx);
 
+        writeRegExs(regExs);
+    }
+
+    /**
+     * delete the regEx to the lucene index and share it on HDFS
+     *
+     * @param regEx the document to add
+     */
+    public void deleteRegex(ISubCategory regEx) {
+        LOGGER.debug("insertOrUpdateRegex: " + regEx);
+        List<ISubCategory> regExs = getRegExs();
+        if (regExs == null)
+            regExs = new ArrayList<>();
+        else
+            regExs.removeIf(expression -> regEx.getId().equals(expression.getId()));
         writeRegExs(regExs);
     }
 

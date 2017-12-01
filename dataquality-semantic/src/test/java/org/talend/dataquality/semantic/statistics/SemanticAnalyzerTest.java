@@ -12,22 +12,13 @@
 // ============================================================================
 package org.talend.dataquality.semantic.statistics;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
-import org.apache.commons.lang3.SerializationUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.Analyzers.Result;
 import org.talend.dataquality.common.inference.Metadata;
+import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.CustomDictionaryHolder;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
@@ -39,7 +30,16 @@ import org.talend.dataquality.semantic.model.DQValidator;
 import org.talend.dataquality.semantic.model.MainCategory;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 
-public class SemanticAnalyzerTest {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
 
     private final List<String[]> TEST_RECORDS = new ArrayList<String[]>() {
 
@@ -118,11 +118,6 @@ public class SemanticAnalyzerTest {
         builder = CategoryRecognizerBuilder.newBuilder().lucene();
     }
 
-    @After
-    public void reset() {
-        CategoryRegistryManager.reset();
-    }
-
     @Test
     public void testTagada() {
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(builder.getDictionaryConstituents());
@@ -147,7 +142,6 @@ public class SemanticAnalyzerTest {
 
     @Test
     public void testTagadaWithCustomMetadata() {
-        CategoryRegistryManager.setLocalRegistryPath("target/test_crm");
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder("t_custom_meta");
         builder.tenantID("t_custom_meta");
 
@@ -180,22 +174,19 @@ public class SemanticAnalyzerTest {
     }
 
     @Test
-    public void testTagadaWithCustomDataDict() {
-        CategoryRegistryManager.setLocalRegistryPath("target/test_crm");
+    public void testTagadaWithCustomDataDict() throws IOException {
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder("t_custom_dd");
         builder.tenantID("t_custom_dd");
 
         DQCategory answerCategory = holder.getMetadata().get(SemanticCategoryEnum.ANSWER.getTechnicalId());
-        DQCategory categoryClone = SerializationUtils.clone(answerCategory); // make a clone instead of modifying the shared
-                                                                             // category metadata
-        categoryClone.setModified(true);
-        holder.updateCategory(categoryClone);
+
+        holder.updateCategory(answerCategory);
 
         DQDocument newDoc = new DQDocument();
-        newDoc.setCategory(categoryClone);
+        newDoc.setCategory(answerCategory);
         newDoc.setId("the_doc_id");
         newDoc.setValues(new HashSet<>(Arrays.asList("true", "false")));
-        holder.addDataDictDocument(Collections.singletonList(newDoc));
+        holder.addDataDictDocuments(Collections.singletonList(newDoc));
 
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(builder);
 
@@ -223,7 +214,6 @@ public class SemanticAnalyzerTest {
 
     @Test
     public void testTagadaWithCustomRegex() {
-        CategoryRegistryManager.setLocalRegistryPath("target/test_crm");
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder("t_custom_re");
         builder.tenantID("t_custom_re");
 
@@ -240,7 +230,7 @@ public class SemanticAnalyzerTest {
         dqCat.setType(CategoryType.REGEX);
         dqCat.setCompleteness(Boolean.TRUE);
         dqCat.setModified(Boolean.TRUE);
-        holder.addRegexCategory(dqCat);
+        holder.updateCategory(dqCat);
 
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(builder);
 

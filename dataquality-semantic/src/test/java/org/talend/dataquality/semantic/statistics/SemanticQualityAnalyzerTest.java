@@ -1,20 +1,5 @@
 package org.talend.dataquality.semantic.statistics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder.DEFAULT_DD_PATH;
-
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
@@ -33,15 +18,18 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.Analyzers.Result;
 import org.talend.dataquality.common.inference.ValueQualityStatistics;
+import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.api.CustomDictionaryHolder;
 import org.talend.dataquality.semantic.api.DictionaryUtils;
+import org.talend.dataquality.semantic.broadcast.TdqCategories;
+import org.talend.dataquality.semantic.broadcast.TdqCategoriesFactory;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.index.ClassPathDirectory;
 import org.talend.dataquality.semantic.index.DictionarySearcher;
@@ -50,7 +38,22 @@ import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 
-public class SemanticQualityAnalyzerTest {
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder.DEFAULT_DD_PATH;
+
+public class SemanticQualityAnalyzerTest extends CategoryRegistryManagerAbstract {
 
     public static final CategoryRegistryManager crm = CategoryRegistryManager.getInstance();
 
@@ -179,8 +182,17 @@ public class SemanticQualityAnalyzerTest {
         long[][] expectedCount = new long[][] { new long[] { 1, 0, 0 } };
         testAnalysis(Collections.singletonList(new String[] { "Berulle" }),
                 new String[] { SemanticCategoryEnum.FR_COMMUNE.getId() }, expectedCount, expectedCount);
-        CategoryRegistryManager.getInstance().getCategoryMetadataById(SemanticCategoryEnum.FR_COMMUNE.getTechnicalId())
-                .setDeleted(true);
+
+        TdqCategories tdqCategories = TdqCategoriesFactory.createTdqCategories();
+        builder = CategoryRecognizerBuilder.newBuilder().lucene()//
+                .metadata(tdqCategories.getCategoryMetadata().getMetadata())//
+                .ddDirectory(tdqCategories.getDictionary().asDirectory())//
+                .kwDirectory(tdqCategories.getKeyword().asDirectory()) //
+                .regexClassifier(tdqCategories.getRegex().getRegexClassifier());
+        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
+
+        DQCategory category = holder.getCategoryMetadataById(SemanticCategoryEnum.FR_COMMUNE.getTechnicalId());
+        holder.deleteCategory(category);
         testAnalysis(Collections.singletonList(new String[] { "Berulle" }), new String[] { StringUtils.EMPTY }, expectedCount,
                 expectedCount);
 
@@ -302,11 +314,4 @@ public class SemanticQualityAnalyzerTest {
 
     }
 
-    @After
-    public void finish() {
-        CategoryRegistryManager.reset();
-        if (builder != null) {
-            builder.metadata(null);
-        }
-    }
 }
