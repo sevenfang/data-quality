@@ -21,9 +21,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.log4j.Logger;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Metadata;
 import org.talend.dataquality.common.inference.ResizableList;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.exception.DQSemanticRuntimeException;
 import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
@@ -41,13 +43,13 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private static final long serialVersionUID = 6808620909722453108L;
 
+    private static final Logger LOGGER = Logger.getLogger(SemanticQualityAnalyzer.class);
+
     private static float DEFAULT_WEIGHT_VALUE = 0.1f;
 
     private final ResizableList<SemanticType> results = new ResizableList<>(SemanticType.class);
 
     private final Map<Integer, CategoryRecognizer> columnIdxToCategoryRecognizer = new HashMap<>();
-
-    private final CategoryRecognizerBuilder builder;
 
     // Threshold of rows to be handled. in case we only want to analyze a given number of samples. Default value is 10000.
     private int limit = 10000;
@@ -62,7 +64,6 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     public SemanticAnalyzer(DictionaryConstituents constituents) {
         this.constituents = constituents;
-        builder = null;
         metadataMap = new HashMap<>();
     }
 
@@ -88,10 +89,10 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
      * be taken into account for a weight of 0.1
      */
     public SemanticAnalyzer(CategoryRecognizerBuilder builder, int limit, float weight) {
-        this.builder = builder;
+        CategoryRegistryManager.getInstance().reloadCategoriesFromRegistry();
+        this.constituents = builder.getDictionaryConstituents();
         this.limit = limit;
         this.weight = weight;
-        builder.initIndex();
         metadataMap = new HashMap<>();
     }
 
@@ -120,8 +121,8 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         currentCount = 0;
         columnIdxToCategoryRecognizer.clear();
         results.clear();
-        if (builder != null) {
-            builder.initIndex();
+        if (constituents != null) {
+            constituents.getCustomDataDict().initIndex();
         }
     }
 
@@ -156,7 +157,7 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
             try {
                 CategoryRecognizer recognizer;
                 if (constituents == null) {
-                    recognizer = builder.build();
+                    throw new NullPointerException("Dictionary constituents is Null.");
                 } else {
                     recognizer = new DefaultCategoryRecognizer(constituents);
                 }
