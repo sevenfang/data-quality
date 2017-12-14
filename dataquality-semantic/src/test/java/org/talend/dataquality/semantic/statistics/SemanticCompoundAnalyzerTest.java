@@ -12,23 +12,24 @@
 // ============================================================================
 package org.talend.dataquality.semantic.statistics;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 
 public class SemanticCompoundAnalyzerTest extends CategoryRegistryManagerAbstract {
 
-    private CategoryRecognizerBuilder builder;
+    private DictionarySnapshot dictionarySnapshot;
 
     private static final String PHONE = "PHONE";
 
@@ -51,12 +52,12 @@ public class SemanticCompoundAnalyzerTest extends CategoryRegistryManagerAbstrac
 
     @Before
     public void setUp() throws Exception {
-        builder = CategoryRecognizerBuilder.newBuilder().lucene();
+        dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
     }
 
     @Test
     public void testPhone() {
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(builder);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(dictionarySnapshot);
 
         Analyzer<Analyzers.Result> analyzer = Analyzers.with(semanticAnalyzer);
         analyzer.init();

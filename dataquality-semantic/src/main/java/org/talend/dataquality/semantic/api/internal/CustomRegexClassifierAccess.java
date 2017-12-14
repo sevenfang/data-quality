@@ -34,11 +34,7 @@ public class CustomRegexClassifierAccess {
                 + CategoryRegistryManager.REGEX_CATEGRIZER_FILE_NAME;
         regExFile = new File(regexFilePath);
         if (!regExFile.exists()) {
-            try {
-                writeRegExs(new ArrayList<>(holder.getRegexClassifier().getClassifiers()));
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+            writeRegExs(new ArrayList<>(holder.getRegexClassifier().getClassifiers()));
         }
     }
 
@@ -70,16 +66,16 @@ public class CustomRegexClassifierAccess {
     /**
      * delete the regEx to the lucene index and share it on HDFS
      *
-     * @param regEx the document to add
+     * @param regexId the id of regex to delete
      */
-    public void deleteRegex(ISubCategory regEx) {
-        LOGGER.debug("insertOrUpdateRegex: " + regEx);
+    public void deleteRegex(String regexId) {
+        LOGGER.debug("insertOrUpdateRegex: " + regexId);
         List<ISubCategory> regExs = getRegExs();
         if (regExs == null)
             regExs = new ArrayList<>();
         else
-            regExs.removeIf(expression -> regEx.getId().equals(expression.getId()));
-        writeRegExs(regExs);
+            regExs.removeIf(expression -> regexId.equals(expression.getId()));
+        writeRegExs(regExs); //TODO is that if really necessary ? Do we need to write when regExs is null ?
     }
 
     private void writeRegExs(List<ISubCategory> regExs) {

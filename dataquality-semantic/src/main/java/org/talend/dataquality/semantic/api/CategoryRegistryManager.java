@@ -27,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
@@ -35,6 +34,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.talend.daikon.multitenant.context.TenancyContextHolder;
+import org.talend.daikon.multitenant.core.Tenant;
 import org.talend.dataquality.semantic.classifier.custom.UDCategorySerDeser;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.index.ClassPathDirectory;
@@ -42,8 +43,6 @@ import org.talend.dataquality.semantic.index.DictionarySearchMode;
 import org.talend.dataquality.semantic.index.LuceneIndex;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 
 /**
  * Singleton class providing API for local category registry management.
@@ -56,13 +55,17 @@ import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
  * <p>
  * Inside each of the above folder, the following subfolders can be found:
  * <ul>
- * <li><b>metadata:</b> lucene index containing metadata of all categories. In the tenant specific folder, the metadata of
+ * <li><b>metadata:</b> lucene index containing metadata of all categories. In the tenant specific folder, the metadata
+ * of
  * all provided categories are copied from shared metadata.</li>
- * <li><b>dictionary:</b> lucene index containing dictionary documents. In the tenant specific folder, we only include the
+ * <li><b>dictionary:</b> lucene index containing dictionary documents. In the tenant specific folder, we only include
+ * the
  * user-defined data dictionaries, and make the copy for only the modified categories provided by Talend</li>
- * <li><b>keyword:</b> lucene index containing keyword documents. This folder does not exist in tenant specific folder as the
+ * <li><b>keyword:</b> lucene index containing keyword documents. This folder does not exist in tenant specific folder
+ * as the
  * modification is not allowed for these categories</li>
- * <li><b>regex:</b> json file containing all categories that can be recognized by regex patterns and eventual subvalidators</li>
+ * <li><b>regex:</b> json file containing all categories that can be recognized by regex patterns and eventual
+ * subvalidators</li>
  * </ul>
  */
 public class CategoryRegistryManager {
@@ -84,6 +87,9 @@ public class CategoryRegistryManager {
     public static final String REPUBLISH_FOLDER_NAME = "republish";
 
     public static final String DEFAULT_TENANT_ID = "t_default";
+
+    public static final String DEFAULT_RE_PATH = File.separator + REGEX_SUBFOLDER_NAME + File.separator
+            + REGEX_CATEGRIZER_FILE_NAME;
 
     private static final Logger LOGGER = Logger.getLogger(CategoryRegistryManager.class);
 
@@ -113,6 +119,8 @@ public class CategoryRegistryManager {
     private UserDefinedClassifier sharedRegexClassifier;
 
     private Directory sharedDataDictDirectory;
+
+    private Directory sharedKeywordDirectory;
 
     private CategoryRegistryManager() {
         try {
@@ -173,34 +181,17 @@ public class CategoryRegistryManager {
      * @return the {@link LocalDictionaryCache} corresponding to the default tenant ID.
      */
     public LocalDictionaryCache getDictionaryCache() {
-        return getDictionaryCache(DEFAULT_TENANT_ID);
+        return getCustomDictionaryHolder().getDictionaryCache();
     }
 
     /**
-     * @param tenantID the ID of the tenant
-     * @return the {@link LocalDictionaryCache} corresponding to a given tenant ID.
-     */
-    public LocalDictionaryCache getDictionaryCache(String tenantID) {
-        return getCustomDictionaryHolder(tenantID).getDictionaryCache();
-    }
-
-    /**
-     * Reload the category from local registry for a given tenant ID. This method is typically called following category or
-     * dictionary enrichments.
-     *
-     * @param tenantID the ID of the tenant
-     */
-    public void reloadCategoriesFromRegistry(String tenantID) {
-        LOGGER.info("Reload categories from local registry.");
-        getCustomDictionaryHolder(tenantID).reloadCategoryMetadata();
-    }
-
-    /**
-     * Reload the category from local registry for the default tenant. This method is typically called following category or
+     * Reload the category from local registry for a given tenant ID. This method is typically called following category
+     * or
      * dictionary enrichments.
      */
     public void reloadCategoriesFromRegistry() {
-        reloadCategoriesFromRegistry(DEFAULT_TENANT_ID);
+        LOGGER.info("Reload categories from local registry.");
+        getCustomDictionaryHolder().reloadCategoryMetadata();
     }
 
     private void loadRegisteredCategories() throws IOException, URISyntaxException {
@@ -232,7 +223,7 @@ public class CategoryRegistryManager {
     private void loadBaseRegex(final File regexRegistryFile) throws IOException {
         if (!regexRegistryFile.exists()) {
             // load provided RE into registry
-            InputStream is = CategoryRecognizer.class.getResourceAsStream(CategoryRecognizerBuilder.DEFAULT_RE_PATH);
+            InputStream is = this.getClass().getResourceAsStream(DEFAULT_RE_PATH);
             StringBuilder sb = new StringBuilder();
             for (String line : IOUtils.readLines(is)) {
                 sb.append(line);
@@ -264,7 +255,8 @@ public class CategoryRegistryManager {
 
                 boolean baseIndexExtracted = false;
 
-                // because the classpath can have multiple 'metadata' packages (especially with spring boot uber jar packaging)
+                // because the classpath can have multiple 'metadata' packages (especially with spring boot uber jar
+                // packaging)
                 // we need to iterate over the potential resources
                 final List<URL> potentialResources = Collections
                         .list(this.getClass().getClassLoader().getResources(sourceSubFolder));
@@ -354,6 +346,20 @@ public class CategoryRegistryManager {
     }
 
     /**
+     * Getter for sharedKeywordDirectory.
+     */
+    public Directory getSharedKeywordDirectory() {
+        if (sharedKeywordDirectory == null) {
+            try {
+                sharedKeywordDirectory = ClassPathDirectory.open(getKeywordURI());
+            } catch (URISyntaxException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return sharedKeywordDirectory;
+    }
+
+    /**
      * Get the full map between category ID and category metadata for the default tenant.
      */
     public Map<String, DQCategory> getCategoryMetadataMap() {
@@ -382,16 +388,14 @@ public class CategoryRegistryManager {
 
     /**
      * get instance of UserDefinedClassifier
-     *
-     * @param refresh whether classifiers should be reloaded from local json file
      */
-    public UserDefinedClassifier getRegexClassifier(boolean refresh) throws IOException {
+    public UserDefinedClassifier getRegexClassifier() throws IOException {
         if (!usingLocalCategoryRegistry) {
             return UDCategorySerDeser.getRegexClassifier();
         }
 
         // load regexes from local registry
-        if (sharedRegexClassifier == null || refresh) {
+        if (sharedRegexClassifier == null) {
             final File regexRegistryFile = new File(
                     localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator + PRODUCTION_FOLDER_NAME
                             + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGRIZER_FILE_NAME);
@@ -409,11 +413,7 @@ public class CategoryRegistryManager {
      * get URI of local category metadata
      */
     private URI getMetadataURI() throws URISyntaxException {
-        if (usingLocalCategoryRegistry) {
-            return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, METADATA_SUBFOLDER_NAME).toUri();
-        } else {
-            return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_METADATA_PATH).toURI();
-        }
+        return this.getClass().getResource("/" + METADATA_SUBFOLDER_NAME + "/").toURI();
     }
 
     /**
@@ -423,7 +423,7 @@ public class CategoryRegistryManager {
         if (usingLocalCategoryRegistry) {
             return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, DICTIONARY_SUBFOLDER_NAME).toUri();
         } else {
-            return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_DD_PATH).toURI();
+            return this.getClass().getResource(File.separator + DICTIONARY_SUBFOLDER_NAME + File.separator).toURI();
         }
     }
 
@@ -434,7 +434,7 @@ public class CategoryRegistryManager {
         if (usingLocalCategoryRegistry) {
             return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, KEYWORD_SUBFOLDER_NAME).toUri();
         } else {
-            return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_KW_PATH).toURI();
+            return this.getClass().getResource(File.separator + KEYWORD_SUBFOLDER_NAME + File.separator).toURI();
         }
     }
 
@@ -446,16 +446,21 @@ public class CategoryRegistryManager {
             return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, REGEX_SUBFOLDER_NAME,
                     REGEX_CATEGRIZER_FILE_NAME).toUri();
         } else {
-            return CategoryRecognizerBuilder.class.getResource(CategoryRecognizerBuilder.DEFAULT_RE_PATH).toURI();
+            return this.getClass().getResource(DEFAULT_RE_PATH).toURI();
         }
     }
 
     /**
-     * Get CustomDictioanryHolder instance for the given tenant ID.
-     *
-     * @param tenantID the ID of the tenant.
+     * Get CustomDictioanryHolder instance for the default tenant.
      */
-    public synchronized CustomDictionaryHolder getCustomDictionaryHolder(String tenantID) {
+    public CustomDictionaryHolder getCustomDictionaryHolder() {
+        Tenant tenant = TenancyContextHolder.getContext().getTenant();
+        String tenantID = (tenant == null) ? DEFAULT_TENANT_ID : tenant.getIdentity().toString();
+        return getCustomDictionaryHolder(tenantID);
+
+    }
+
+    public CustomDictionaryHolder getCustomDictionaryHolder(String tenantID) {
         CustomDictionaryHolder cdh = customDictionaryHolderMap.get(tenantID);
         if (cdh == null) {
             LOGGER.info("Instantiate CustomDictionaryHolder for [" + tenantID + "]");
@@ -466,33 +471,6 @@ public class CategoryRegistryManager {
     }
 
     /**
-     * Get CustomDictioanryHolder instance for the default tenant.
-     */
-    public CustomDictionaryHolder getCustomDictionaryHolder() {
-        return getCustomDictionaryHolder(DEFAULT_TENANT_ID);
-    }
-
-    /**
-     * Remove the CustomDictionaryHolder for a given tenant ID.
-     *
-     * @param tenantID the ID of the tenant.
-     */
-    public void removeCustomDictionaryHolder(String tenantID) {
-        CustomDictionaryHolder cdh = customDictionaryHolderMap.get(tenantID);
-        if (cdh != null) {
-            cdh.closeDictionaryAccess();
-            File folder = new File(localRegistryPath + File.separator + tenantID);
-            try {
-                FileUtils.deleteDirectory(folder);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-            customDictionaryHolderMap.remove(tenantID);
-        }
-    }
-
-    /**
-     * 
      * @param input the input value
      * @param categoryName the category name
      * @param similarity the threshold value, the compared score must be >= similarity
@@ -507,7 +485,6 @@ public class CategoryRegistryManager {
     }
 
     /**
-     * 
      * @param categoryName
      * @return Get a custom or shared LuncenIndex according to the category metadata
      */

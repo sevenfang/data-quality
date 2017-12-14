@@ -13,6 +13,7 @@
 package org.talend.dataquality.semantic.statistics;
 
 import static org.junit.Assert.assertEquals;
+import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,8 +22,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.talend.daikon.multitenant.context.TenancyContextHolder;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.Analyzers.Result;
@@ -37,8 +41,11 @@ import org.talend.dataquality.semantic.model.DQDocument;
 import org.talend.dataquality.semantic.model.DQRegEx;
 import org.talend.dataquality.semantic.model.DQValidator;
 import org.talend.dataquality.semantic.model.MainCategory;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ TenancyContextHolder.class })
 public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
 
     private final List<String[]> TEST_RECORDS = new ArrayList<String[]>() {
@@ -111,39 +118,34 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
     private final List<String> EXPECTED_PHONE_CATEGORY_METADATA = Arrays
             .asList(new String[] { SemanticCategoryEnum.PHONE.name() });
 
-    private CategoryRecognizerBuilder builder;
-
-    @Before
-    public void setUp() throws Exception {
-        builder = CategoryRecognizerBuilder.newBuilder().lucene();
-    }
+    private DictionarySnapshot dictionarySnapshot;
 
     @Test
     public void testTagada() {
+        mockWithTenant("testTagada");
         testSemanticAnalyzer(TEST_RECORDS_TAGADA, null, EXPECTED_CATEGORY_TAGADA);
     }
 
     @Test
     public void testTagadaWithCustomMetadata() {
-        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder("t_custom_meta");
-        builder.tenantID("t_custom_meta");
+        mockWithTenant("t_custom_meta");
+        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
 
         DQCategory firstNameCat = holder.getMetadata().get(SemanticCategoryEnum.FIRST_NAME.getTechnicalId());
         firstNameCat.setDeleted(true);
         holder.updateCategory(firstNameCat);
+        dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
 
         final List<String> EXPECTED_CATEGORIES = Arrays.asList(
                 new String[] { "", SemanticCategoryEnum.LAST_NAME.name(), SemanticCategoryEnum.LAST_NAME.name(), "", "", "" });
 
         testSemanticAnalyzer(TEST_RECORDS_TAGADA, null, EXPECTED_CATEGORIES);
-
-        CategoryRegistryManager.getInstance().removeCustomDictionaryHolder("t_custom_meta");
     }
 
     @Test
     public void testTagadaWithCustomDataDict() throws IOException {
-        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder("t_custom_dd");
-        builder.tenantID("t_custom_dd");
+        mockWithTenant("testTagadaWithCustomDataDict");
+        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
 
         DQCategory answerCategory = holder.getMetadata().get(SemanticCategoryEnum.ANSWER.getTechnicalId());
 
@@ -154,20 +156,19 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
         newDoc.setId("the_doc_id");
         newDoc.setValues(new HashSet<>(Arrays.asList("true", "false")));
         holder.addDataDictDocuments(Collections.singletonList(newDoc));
+        dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
 
         final List<String> EXPECTED_CATEGORIES = Arrays.asList(new String[] { "", SemanticCategoryEnum.LAST_NAME.name(),
                 SemanticCategoryEnum.FIRST_NAME.name(), "", "", SemanticCategoryEnum.ANSWER.name() });
 
         testSemanticAnalyzer(TEST_RECORDS_TAGADA, null, EXPECTED_CATEGORIES);
 
-        CategoryRegistryManager.getInstance().removeCustomDictionaryHolder("t_custom_dd");
     }
 
     @Test
     public void testTagadaWithCustomRegex() {
-        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder("t_custom_re");
-        builder.tenantID("t_custom_re");
-
+        mockWithTenant("t_custom_re");
+        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
         DQValidator dqValidator = new DQValidator();
         dqValidator.setPatternString("^(true|false)$");
         DQRegEx dqRegEx = new DQRegEx();
@@ -182,13 +183,13 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
         dqCat.setCompleteness(Boolean.TRUE);
         dqCat.setModified(Boolean.TRUE);
         holder.updateCategory(dqCat);
+        dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
 
         final List<String> EXPECTED_CATEGORIES = Arrays.asList(new String[] { "", SemanticCategoryEnum.LAST_NAME.name(),
                 SemanticCategoryEnum.FIRST_NAME.name(), "", "", "the_name" });
 
         testSemanticAnalyzer(TEST_RECORDS_TAGADA, null, EXPECTED_CATEGORIES);
 
-        CategoryRegistryManager.getInstance().removeCustomDictionaryHolder("t_custom_re");
     }
 
     @Test
@@ -196,16 +197,19 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
         // 85% last name
         // 90% city
         // and column name is city
+        mockWithTenant("firstNameToFRCommune");
         testSemanticAnalyzer(TEST_RECORDS_CITY_METADATA, Arrays.asList("", "Last Name"), EXPECTED_FR_COMMUNE_CATEGORY_METADATA);
     }
 
     @Test
     public void metadataLastNameWithPhoneNumber() {
+        mockWithTenant("metadataLastNameWithPhoneNumber");
         testSemanticAnalyzer(TEST_RECORDS_PHONE_METADATA, Arrays.asList("Last Name"), EXPECTED_PHONE_CATEGORY_METADATA);
     }
 
     @Test
     public void semanticTypeNameFuzzyMatching() { // TDQ-14062: Fuzzy matching on the semantic type name
+        mockWithTenant("semanticTypeNameFuzzyMatching");
         // 1. test levenshtein
         testSemanticAnalyzer(TEST_RECORDS_CITY_METADATA, Arrays.asList("", "Lost Names"), EXPECTED_FR_COMMUNE_CATEGORY_METADATA);
         // 2. test tokenization with any order
@@ -217,7 +221,9 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
     @Test
     public void testSetLimit() {
 
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(builder);
+        mockWithTenant("testSetLimit");
+        dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(dictionarySnapshot);
 
         semanticAnalyzer.setLimit(0);
 
@@ -250,9 +256,8 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
     @Test
     public void testRefreshIndex_TDQ14562() {
         final String tenantID = "t_tdq14562";
-        CategoryRegistryManager.setLocalRegistryPath("target/test_crm");
-        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder(tenantID);
-        builder.tenantID(tenantID);
+        mockWithTenant(tenantID);
+        CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
 
         // Run the analysis for a first time
         final List<String> EXPECTED_CATEGORIES_BEFORE_MODIF = Arrays.asList(
@@ -275,7 +280,6 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
         dqCat.setCompleteness(Boolean.TRUE);
         dqCat.setModified(Boolean.TRUE);
         holder.createCategory(dqCat);
-
         // Run the analysis for a second time
 
         // after fixing the issue, the expected category of last column must be "the_name" instead of ""
@@ -284,11 +288,11 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
 
         testSemanticAnalyzer(TEST_RECORDS_TAGADA, null, EXPECTED_CATEGORIES_AFTER_MODIF);
 
-        CategoryRegistryManager.getInstance().removeCustomDictionaryHolder(tenantID);
     }
 
     private void testSemanticAnalyzer(List<String[]> testRecords, List<String> testMetadata, List<String> expectedCategories) {
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(builder);
+        dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(dictionarySnapshot);
 
         Analyzer<Result> analyzer = Analyzers.with(semanticAnalyzer);
 

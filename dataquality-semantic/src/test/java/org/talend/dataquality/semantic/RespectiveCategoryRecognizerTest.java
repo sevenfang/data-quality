@@ -12,14 +12,7 @@
 // ============================================================================
 package org.talend.dataquality.semantic;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
-import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,7 +25,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Before;
+import org.junit.Test;
+import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
+import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
+import org.talend.dataquality.semantic.recognizer.DefaultCategoryRecognizer;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 
 /**
  * created by talend on 2015-07-28 Detailled comment.
@@ -734,7 +736,8 @@ public class RespectiveCategoryRecognizerTest extends CategoryRegistryManagerAbs
 
     @Before
     public void init() throws URISyntaxException, IOException {
-        catRecognizer = CategoryRecognizerBuilder.newBuilder().lucene().build();
+        DictionarySnapshot dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+        catRecognizer = new DefaultCategoryRecognizer(dictionarySnapshot);
     }
 
     // init email list

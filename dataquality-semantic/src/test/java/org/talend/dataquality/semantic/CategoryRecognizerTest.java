@@ -12,13 +12,8 @@
 // ============================================================================
 package org.talend.dataquality.semantic;
 
-import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
-import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -27,8 +22,15 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
+import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
+import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
+import org.talend.dataquality.semantic.recognizer.DefaultCategoryRecognizer;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 
 /**
  * created by talend on 2015-07-28 Detailled comment.
@@ -244,29 +246,8 @@ public class CategoryRecognizerTest extends CategoryRegistryManagerAbstract {
 
     @Before
     public void init() throws URISyntaxException, IOException {
-        catRecognizer = CategoryRecognizerBuilder.newBuilder().lucene().build();
-    }
-
-    public void testProcess() {
-
-        catRecognizer.prepare();
-
-        for (String data : EXPECTED_CAT_ID.keySet()) {
-
-            System.out.println("-------------------------------");
-            String[] catNames = catRecognizer.process(data);
-            System.out.printf("%-30s  \t  %-20s\n", "[" + data + "]", Arrays.toString(catNames));
-
-            Collection<CategoryFrequency> result = catRecognizer.getResult();
-            for (CategoryFrequency frequencyTableItem : result) {
-
-                System.out.println("frequencyTableItem = " + frequencyTableItem.getCategoryId() + " / "
-                        + frequencyTableItem.getFrequency() + " %");
-
-            }
-
-        }
-
+        DictionarySnapshot dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+        catRecognizer = new DefaultCategoryRecognizer(dictionarySnapshot);
     }
 
     @Test

@@ -24,9 +24,12 @@ import org.talend.dataquality.semantic.api.internal.CustomMetadataIndexAccess;
 import org.talend.dataquality.semantic.api.internal.CustomRegexClassifierAccess;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedCategory;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
+import org.talend.dataquality.semantic.index.DictionarySearchMode;
+import org.talend.dataquality.semantic.index.LuceneIndex;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
 
 /**
  * holder of tenant-specific categories, provides access to custom Metadata/DataDict/RegEx.
@@ -35,7 +38,7 @@ public class CustomDictionaryHolder {
 
     private static final Logger LOGGER = Logger.getLogger(CustomDictionaryHolder.class);
 
-    private static final String TALEND = "Talend";
+    public static final String TALEND = "Talend";
 
     private static final String INITIALIZE_ACCESS = "Initialize %s %s access for [%s]";
 
@@ -122,10 +125,14 @@ public class CustomDictionaryHolder {
     /**
      * Getter for regex classifier
      */
-    public UserDefinedClassifier getRegexClassifier() throws IOException {
+    public UserDefinedClassifier getRegexClassifier() {
         // return shared regexClassifier if NULL
         if (regexClassifier == null) {
-            return CategoryRegistryManager.getInstance().getRegexClassifier(false);
+            try {
+                return CategoryRegistryManager.getInstance().getRegexClassifier();
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
         return regexClassifier;
     }
@@ -251,19 +258,18 @@ public class CustomDictionaryHolder {
         category.setDeleted(true);
         ensureMetadataIndexAccess();
         String categoryId = category.getId();
-
+        if (CategoryType.REGEX.equals(category.getType())) {
+            ensureRegexClassifierAccess();
+            customRegexClassifierAccess.deleteRegex(categoryId);
+        }
         if (TALEND.equals(category.getCreator())) {
             customMetadataIndexAccess.insertOrUpdateCategory(category);
-            if (CategoryType.REGEX.equals(category.getType()))
-                customRegexClassifierAccess.deleteRegex(DictionaryUtils.regexClassifierfromDQCategory(category));
-            else if (Boolean.TRUE.equals(category.getModified())) {
+            if (!CategoryType.REGEX.equals(category.getType()) && Boolean.TRUE.equals(category.getModified())) {
                 LOGGER.debug("deleteDocumentsByCategoryId " + categoryId);
                 ensureDataDictIndexAccess();
                 customDataDictIndexAccess.deleteDocumentsByCategoryId(categoryId);
             }
         } else {
-            if (CategoryType.REGEX.equals(category.getType()))
-                customRegexClassifierAccess.deleteRegex(DictionaryUtils.regexClassifierfromDQCategory(category));
             customMetadataIndexAccess.deleteCategory(category);
             LOGGER.debug("deleteDocumentsByCategoryId " + categoryId);
             ensureDataDictIndexAccess();
@@ -414,7 +420,7 @@ public class CustomDictionaryHolder {
      * @return collection of category objects
      */
     public Collection<DQCategory> listCategories() {
-        return getMetadata().values();
+        return listCategories(true);
     }
 
     /**
@@ -596,5 +602,16 @@ public class CustomDictionaryHolder {
             }
         }
         reloadCategoryMetadata();
+    }
+
+    public DictionarySnapshot getDictionarySnapshot() {
+        return new DictionarySnapshot(getMetadata(), //
+                new LuceneIndex(CategoryRegistryManager.getInstance().getSharedDataDictDirectory(),
+                        DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
+                new LuceneIndex(getDataDictDirectory(), DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
+                new LuceneIndex(CategoryRegistryManager.getInstance().getSharedKeywordDirectory(),
+                        DictionarySearchMode.MATCH_SEMANTIC_KEYWORD), //
+                getRegexClassifier()//
+        );
     }
 }

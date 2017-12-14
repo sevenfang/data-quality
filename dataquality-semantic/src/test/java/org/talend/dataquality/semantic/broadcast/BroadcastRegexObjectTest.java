@@ -12,14 +12,15 @@
 // ============================================================================
 package org.talend.dataquality.semantic.broadcast;
 
-import org.junit.Test;
-import org.talend.dataquality.semantic.api.CategoryRegistryManager;
-import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class BroadcastRegexObjectTest {
+import org.junit.Test;
+import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
+
+public class BroadcastRegexObjectTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testCreateAndGet() throws Exception {

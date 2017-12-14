@@ -25,19 +25,16 @@ import org.apache.log4j.Logger;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Metadata;
 import org.talend.dataquality.common.inference.ResizableList;
-import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.exception.DQSemanticRuntimeException;
 import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
 import org.talend.dataquality.semantic.recognizer.CategoryRecognizer;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
 import org.talend.dataquality.semantic.recognizer.DefaultCategoryRecognizer;
-import org.talend.dataquality.semantic.recognizer.DictionaryConstituents;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
 
 /**
  * Semantic type infer executor. <br>
- * 
+ *
  * @see Analyzer
- * 
  */
 public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
@@ -51,7 +48,8 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private final Map<Integer, CategoryRecognizer> columnIdxToCategoryRecognizer = new HashMap<>();
 
-    // Threshold of rows to be handled. in case we only want to analyze a given number of samples. Default value is 10000.
+    // Threshold of rows to be handled. in case we only want to analyze a given number of samples. Default value is
+    // 10000.
     private int limit = 10000;
 
     private int currentCount = 0;
@@ -60,46 +58,19 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     private float weight = DEFAULT_WEIGHT_VALUE;
 
-    private DictionaryConstituents constituents;
+    private DictionarySnapshot dictionarySnapshot;
 
-    public SemanticAnalyzer(DictionaryConstituents constituents) {
-        this.constituents = constituents;
-        metadataMap = new HashMap<>();
-    }
-
-    /**
-     * @param builder the builder for creating lucene index access and regex classifiers
-     */
-    public SemanticAnalyzer(CategoryRecognizerBuilder builder) {
-        this(builder, 10000);
-    }
-
-    /**
-     * @param builder the builder for creating lucene index access and regex classifiers
-     * @param limit the limit of rows to handle
-     */
-    public SemanticAnalyzer(CategoryRecognizerBuilder builder, int limit) {
-        this(builder, limit, DEFAULT_WEIGHT_VALUE);
-    }
-
-    /**
-     * @param builder the builder for creating lucene index access and regex classifiers
-     * @param limit the limit of rows to handle
-     * @param weight the weight of data discovery result for score calculation, default to 0.9, which means the metadata will also
-     * be taken into account for a weight of 0.1
-     */
-    public SemanticAnalyzer(CategoryRecognizerBuilder builder, int limit, float weight) {
-        CategoryRegistryManager.getInstance().reloadCategoriesFromRegistry();
-        this.constituents = builder.getDictionaryConstituents();
-        this.limit = limit;
-        this.weight = weight;
+    public SemanticAnalyzer(DictionarySnapshot dictionarySnapshot) {
+        if (dictionarySnapshot == null)
+            throw new NullPointerException("Dictionary dictionarySnapshot is Null.");
+        this.dictionarySnapshot = dictionarySnapshot;
         metadataMap = new HashMap<>();
     }
 
     /**
      * Set the maximum of records this semantic analyzer is expected to process. Any value <= 0 is considered as
      * "no limit". A value of 1 will only analyze first call to {@link #analyze(String...)}.
-     * 
+     *
      * @param limit A integer that indicate the maximum number of record this analyzer should process.
      */
     public void setLimit(int limit) {
@@ -109,7 +80,8 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
     /**
      * Set the weight of data discovery result for score calculation.
      *
-     * @param weight the weight of data discovery result for score calculation, default to 0.9, which means the metadata will also
+     * @param weight the weight of data discovery result for score calculation, default to 0.9, which means the metadata
+     * will also
      * be taken into account for a weight of 0.1
      */
     public void setWeight(float weight) {
@@ -121,8 +93,8 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         currentCount = 0;
         columnIdxToCategoryRecognizer.clear();
         results.clear();
-        if (constituents != null) {
-            constituents.getCustomDataDict().initIndex();
+        if (dictionarySnapshot != null) {
+            dictionarySnapshot.getCustomDataDict().initIndex();
         }
     }
 
@@ -155,15 +127,9 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         }
         for (int idx = 0; idx < record.length; idx++) {
             try {
-                CategoryRecognizer recognizer;
-                if (constituents == null) {
-                    throw new NullPointerException("Dictionary constituents is Null.");
-                } else {
-                    recognizer = new DefaultCategoryRecognizer(constituents);
-                }
-                columnIdxToCategoryRecognizer.put(idx, recognizer);
+                columnIdxToCategoryRecognizer.put(idx, new DefaultCategoryRecognizer(dictionarySnapshot));
             } catch (IOException e) {
-                throw new IllegalArgumentException("Unable to configure category recognizer with builder.", e);
+                throw new IllegalArgumentException("Unable to configure category recognizer with dictionary snapshot.", e);
             }
         }
     }
@@ -203,7 +169,6 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
         throw new NotImplementedException("Merge function is not implemented.");
     }
 
-    @Override
     public void close() throws Exception {
         for (CategoryRecognizer catRecognizer : columnIdxToCategoryRecognizer.values()) {
             catRecognizer.end();
@@ -212,10 +177,11 @@ public class SemanticAnalyzer implements Analyzer<SemanticType> {
 
     /**
      * Store metadata
-     * 
+     *
      * @param metadata metadata name
      * @param values value associated to the metadata
      */
+
     public void setMetadata(Metadata metadata, List<String> values) {
         metadataMap.put(metadata, values);
     }

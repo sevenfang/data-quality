@@ -11,16 +11,19 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.Version;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.DictionaryUtils;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
-import org.talend.dataquality.semantic.recognizer.CategoryRecognizerBuilder;
+
+import static org.talend.dataquality.semantic.api.CategoryRegistryManager.DICTIONARY_SUBFOLDER_NAME;
+import static org.talend.dataquality.semantic.api.CategoryRegistryManager.METADATA_SUBFOLDER_NAME;
 
 public class IndexRegenerator {
 
     public static void main(String[] args) throws IOException {
-        IndexRegenerator.regenerateCategoryIndex("src/main/resources" + CategoryRecognizerBuilder.DEFAULT_METADATA_PATH);
-        IndexRegenerator.regenerateDictionaryIndex("src/main/resources" + CategoryRecognizerBuilder.DEFAULT_DD_PATH);
+        IndexRegenerator.regenerateCategoryIndex("src/main/resources/" + METADATA_SUBFOLDER_NAME + "/");
+        IndexRegenerator.regenerateDictionaryIndex("src/main/resources/" + DICTIONARY_SUBFOLDER_NAME + "/");
     }
 
     public static void regenerateCategoryIndex(String path) throws IOException {
