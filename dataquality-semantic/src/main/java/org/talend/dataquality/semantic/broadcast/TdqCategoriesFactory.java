@@ -3,6 +3,7 @@ package org.talend.dataquality.semantic.broadcast;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,12 @@ public class TdqCategoriesFactory {
     private static final Logger LOGGER = Logger.getLogger(TdqCategoriesFactory.class);
 
     public static final TdqCategories createEmptyTdqCategories() {
-        return new TdqCategories(null, null, null, null, null);
+        return new TdqCategories( //
+                new BroadcastMetadataObject(Collections.emptyMap()), //
+                new BroadcastIndexObject(Collections.emptyList()), //
+                new BroadcastIndexObject(Collections.emptyList()), //
+                new BroadcastIndexObject(Collections.emptyList()), //
+                new BroadcastRegexObject(new UserDefinedClassifier()));
     }
 
     /**
@@ -30,14 +36,14 @@ public class TdqCategoriesFactory {
      * 
      * @return the serializable object
      */
-    public static final TdqCategories createTdqCategories() {
+    public static final TdqCategories createFullTdqCategories() {
         return createTdqCategories(null);
     }
 
     /**
      * Load categories from local lucene index and produce a TdqCategories object.
      * 
-     * @param categories
+     * @param categoryNames
      * @return the serializable object
      */
     public static final TdqCategories createTdqCategories(Set<String> categoryNames) {
@@ -78,6 +84,6 @@ public class TdqCategoriesFactory {
         } catch (URISyntaxException | IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
-        return null;
+        return createEmptyTdqCategories();
     }
 }
