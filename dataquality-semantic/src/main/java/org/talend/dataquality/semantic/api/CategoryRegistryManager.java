@@ -79,7 +79,7 @@ public class CategoryRegistryManager {
 
     public static final String REGEX_SUBFOLDER_NAME = "regex";
 
-    public static final String REGEX_CATEGRIZER_FILE_NAME = "categorizer.json";
+    public static final String REGEX_CATEGORIZER_FILE_NAME = "categorizer.json";
 
     public static final String SHARED_FOLDER_NAME = "shared";
 
@@ -89,8 +89,8 @@ public class CategoryRegistryManager {
 
     public static final String DEFAULT_TENANT_ID = "t_default";
 
-    public static final String DEFAULT_RE_PATH = File.separator + REGEX_SUBFOLDER_NAME + File.separator
-            + REGEX_CATEGRIZER_FILE_NAME;
+    // must use slash here
+    public static final String DEFAULT_RE_PATH = "/" + REGEX_SUBFOLDER_NAME + "/" + REGEX_CATEGORIZER_FILE_NAME;
 
     private static final Logger LOGGER = Logger.getLogger(CategoryRegistryManager.class);
 
@@ -217,7 +217,7 @@ public class CategoryRegistryManager {
 
         // read local RE categories
         final File regexRegistryFile = new File(localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator
-                + PRODUCTION_FOLDER_NAME + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGRIZER_FILE_NAME);
+                + PRODUCTION_FOLDER_NAME + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGORIZER_FILE_NAME);
         loadBaseRegex(regexRegistryFile);
     }
 
@@ -399,7 +399,7 @@ public class CategoryRegistryManager {
         if (sharedRegexClassifier == null) {
             final File regexRegistryFile = new File(
                     localRegistryPath + File.separator + SHARED_FOLDER_NAME + File.separator + PRODUCTION_FOLDER_NAME
-                            + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGRIZER_FILE_NAME);
+                            + File.separator + REGEX_SUBFOLDER_NAME + File.separator + REGEX_CATEGORIZER_FILE_NAME);
 
             if (!regexRegistryFile.exists()) {
                 loadBaseRegex(regexRegistryFile);
@@ -414,7 +414,12 @@ public class CategoryRegistryManager {
      * get URI of local category metadata
      */
     private URI getMetadataURI() throws URISyntaxException {
-        return this.getClass().getResource("/" + METADATA_SUBFOLDER_NAME + "/").toURI();
+        if (usingLocalCategoryRegistry) {
+            return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, METADATA_SUBFOLDER_NAME).toUri();
+        } else {
+            // must use slash here
+            return this.getClass().getResource("/" + METADATA_SUBFOLDER_NAME + "/").toURI();
+        }
     }
 
     /**
@@ -424,7 +429,8 @@ public class CategoryRegistryManager {
         if (usingLocalCategoryRegistry) {
             return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, DICTIONARY_SUBFOLDER_NAME).toUri();
         } else {
-            return this.getClass().getResource(File.separator + DICTIONARY_SUBFOLDER_NAME + File.separator).toURI();
+            // must use slash here
+            return this.getClass().getResource("/" + DICTIONARY_SUBFOLDER_NAME + "/").toURI();
         }
     }
 
@@ -435,7 +441,8 @@ public class CategoryRegistryManager {
         if (usingLocalCategoryRegistry) {
             return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, KEYWORD_SUBFOLDER_NAME).toUri();
         } else {
-            return this.getClass().getResource(File.separator + KEYWORD_SUBFOLDER_NAME + File.separator).toURI();
+            // must use slash here
+            return this.getClass().getResource("/" + KEYWORD_SUBFOLDER_NAME + "/").toURI();
         }
     }
 
@@ -445,7 +452,7 @@ public class CategoryRegistryManager {
     public URI getRegexURI() throws URISyntaxException {
         if (usingLocalCategoryRegistry) {
             return Paths.get(localRegistryPath, SHARED_FOLDER_NAME, PRODUCTION_FOLDER_NAME, REGEX_SUBFOLDER_NAME,
-                    REGEX_CATEGRIZER_FILE_NAME).toUri();
+                    REGEX_CATEGORIZER_FILE_NAME).toUri();
         } else {
             return this.getClass().getResource(DEFAULT_RE_PATH).toURI();
         }
