@@ -1,7 +1,6 @@
 package org.talend.dataquality.semantic.api;
 
 import static org.junit.Assert.assertEquals;
-import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,10 +12,6 @@ import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.talend.daikon.multitenant.context.TenancyContextHolder;
 import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.classifier.ISubCategory;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
@@ -25,13 +20,10 @@ import org.talend.dataquality.semantic.index.LuceneIndex;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ TenancyContextHolder.class })
 public class CategoryRegistryManagerTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testGetRegexClassifier() throws IOException, URISyntaxException {
-        mockWithTenant("testGetRegexClassifier");
         CategoryRegistryManager crm = CategoryRegistryManager.getInstance();
         final UserDefinedClassifier udc = crm.getRegexClassifier();
         final Set<ISubCategory> classifiers = udc.getClassifiers();
@@ -84,7 +76,6 @@ public class CategoryRegistryManagerTest extends CategoryRegistryManagerAbstract
 
     @Test
     public void testFindMostSimilarValueWithCustomDataDict() throws IOException {
-        mockWithTenant("testFindMostSimilarValueWithCustomDataDict");
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
 
         DQCategory answerCategory = holder.getMetadata().get(SemanticCategoryEnum.ANSWER.getTechnicalId());

@@ -2,7 +2,6 @@ package org.talend.dataquality.semantic.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,17 +14,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.talend.daikon.multitenant.context.TenancyContextHolder;
 import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ TenancyContextHolder.class })
 public class LocalDictionaryCacheTest extends CategoryRegistryManagerAbstract {
 
     Map<String, String[]> EXPECTED_SUGGESTIONS = new LinkedHashMap<String, String[]>() {
@@ -172,7 +165,6 @@ public class LocalDictionaryCacheTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testSuggestValuesFromCustomDataDict() throws IOException {
-        mockWithTenant("testSuggestValuesFromCustomDataDict");
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
 
         DQCategory answerCategory = holder.getMetadata().get(SemanticCategoryEnum.ANSWER.getTechnicalId());

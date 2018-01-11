@@ -387,7 +387,7 @@ public class CustomDictionaryHolder {
      *
      * @param category
      */
-    public void insertOrUpdateRegexCategory(DQCategory category) {
+    private void insertOrUpdateRegexCategory(DQCategory category) {
         ensureRegexClassifierAccess();
         UserDefinedCategory regEx = DictionaryUtils.regexClassifierfromDQCategory(category);
         customRegexClassifierAccess.insertOrUpdateRegex(regEx);
@@ -550,7 +550,7 @@ public class CustomDictionaryHolder {
      *
      * @param category
      */
-    public void republishRegexCategory(DQCategory category) {
+    private void republishRegexCategory(DQCategory category) {
         ensureRepublishRegexClassifierAccess();
         UserDefinedCategory regEx = DictionaryUtils.regexClassifierfromDQCategory(category);
         customRepublishRegexClassifierAccess.insertOrUpdateRegex(regEx);

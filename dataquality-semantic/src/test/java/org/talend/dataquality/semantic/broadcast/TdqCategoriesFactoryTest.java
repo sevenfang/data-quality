@@ -3,7 +3,6 @@ package org.talend.dataquality.semantic.broadcast;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,10 +20,6 @@ import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Bits;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.talend.daikon.multitenant.context.TenancyContextHolder;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.Analyzers.Result;
@@ -42,13 +37,10 @@ import org.talend.dataquality.semantic.statistics.SemanticQualityAnalyzer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ TenancyContextHolder.class })
 public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testCreateFullTdqCategories() throws IOException {
-        mockWithTenant("testCreateTdqCategories");
         Collection<DQCategory> expectedCategories = CategoryRegistryManager.getInstance().listCategories(false);
         TdqCategories cats = TdqCategoriesFactory.createFullTdqCategories();
 
@@ -73,7 +65,6 @@ public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testCreateTdqCategoriesWithModifiedCategories() throws IOException {
-        mockWithTenant("testCreateTdqCategoriesWithModifiedCategories");
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
 
         DQCategory answerCategory = holder.getMetadata().get(SemanticCategoryEnum.COUNTRY_CODE_ISO2.getTechnicalId());
@@ -114,7 +105,6 @@ public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testCreateTdqCategoriesWithSpecifiedDictionaryCategory() throws IOException {
-        mockWithTenant("testCreateTdqCategoriesWithSpecifiedDictionaryCategory");
         TdqCategories cats = TdqCategoriesFactory.createTdqCategories(
                 new HashSet<String>(Arrays.asList(new String[] { SemanticCategoryEnum.STREET_TYPE.name() })));
 
@@ -139,7 +129,6 @@ public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testCreateTdqCategoriesWithSpecifiedRegexCategory() throws IOException {
-        mockWithTenant("testCreateTdqCategoriesWithSpecifiedRegexCategory");
         TdqCategories cats = TdqCategoriesFactory
                 .createTdqCategories(new HashSet<>(Arrays.asList(new String[] { SemanticCategoryEnum.EMAIL.name() })));
 
@@ -158,7 +147,6 @@ public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
 
     @Test
     public void testSerializable() throws Exception {
-        mockWithTenant("testSerializable");
         TdqCategories baseValue = TdqCategoriesFactory
                 .createTdqCategories(new HashSet<>(Arrays.asList(new String[] { SemanticCategoryEnum.EMAIL.name() })));
 
