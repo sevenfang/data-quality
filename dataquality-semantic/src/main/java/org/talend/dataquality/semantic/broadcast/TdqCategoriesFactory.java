@@ -1,16 +1,14 @@
 package org.talend.dataquality.semantic.broadcast;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.model.DQCategory;
@@ -59,31 +57,42 @@ public class TdqCategoriesFactory {
         final BroadcastIndexObject keyword;
         final BroadcastRegexObject regex;
         final BroadcastMetadataObject meta;
-        try {
-            try (Directory ddDir = FSDirectory.open(new File(crm.getDictionaryURI()))) {
-                sharedDictionary = new BroadcastIndexObject(ddDir, selectedCategoryMap.keySet());
-                LOGGER.debug("Returning shared dictionary.");
-            }
+        sharedDictionary = new BroadcastIndexObject(crm.getSharedDataDictDirectory(), selectedCategoryMap.keySet());
+        LOGGER.debug("Returning shared data dictionary.");
 
-            Directory customDataDictDir = crm.getCustomDictionaryHolder().getDataDictDirectory();
-            customDictionary = new BroadcastIndexObject(customDataDictDir, selectedCategoryMap.keySet());
-            LOGGER.debug("Returning custom dictionary.");
+        Directory customDataDictDir = crm.getCustomDictionaryHolder().getDataDictDirectory();
+        customDictionary = new BroadcastIndexObject(customDataDictDir, selectedCategoryMap.keySet());
+        LOGGER.debug("Returning custom data dictionary.");
 
-            try (Directory kwDir = FSDirectory.open(new File(crm.getKeywordURI()))) {
-                keyword = new BroadcastIndexObject(kwDir, selectedCategoryMap.keySet());
-                LOGGER.debug("Returning keywords at path.");
-            }
+        keyword = new BroadcastIndexObject(crm.getSharedKeywordDirectory(), selectedCategoryMap.keySet());
+        LOGGER.debug("Returning shared keyword index.");
 
-            UserDefinedClassifier classifiers = crm.getCustomDictionaryHolder().getRegexClassifier();
-            regex = new BroadcastRegexObject(classifiers, selectedCategoryMap.keySet());
-            LOGGER.debug("Returning regexes.");
+        UserDefinedClassifier classifiers = crm.getCustomDictionaryHolder().getRegexClassifier();
+        regex = new BroadcastRegexObject(classifiers, selectedCategoryMap.keySet());
+        LOGGER.debug("Returning regexes.");
 
-            meta = new BroadcastMetadataObject(selectedCategoryMap);
-            LOGGER.debug("Returning category metadata.");
-            return new TdqCategories(meta, sharedDictionary, customDictionary, keyword, regex);
-        } catch (URISyntaxException | IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return createEmptyTdqCategories();
+        meta = new BroadcastMetadataObject(selectedCategoryMap);
+        LOGGER.debug("Returning category metadata.");
+        return new TdqCategories(meta, sharedDictionary, customDictionary, keyword, regex);
+    }
+
+    /**
+     * Load the shared categories and produce a TdqCategories object.
+     *
+     * @return the TdqCategories object containing all shared categories which are used for validation
+     */
+    public static final TdqCategories createSharedTdqCategories() {
+        final CategoryRegistryManager crm = CategoryRegistryManager.getInstance();
+        Map<String, DQCategory> selectedCategoryMap = crm.getSharedCategoryMetadata().entrySet().stream() //
+                // keep only the categories which are used for validation
+                .filter(entry -> Boolean.TRUE.equals(entry.getValue().getCompleteness())) //
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+        return new TdqCategories( //
+                new BroadcastMetadataObject(selectedCategoryMap), //
+                new BroadcastIndexObject(crm.getSharedDataDictDirectory(), selectedCategoryMap.keySet()), //
+                new BroadcastIndexObject(Collections.emptyList()), // custom data dictionary not needed
+                new BroadcastIndexObject(crm.getSharedKeywordDirectory(), selectedCategoryMap.keySet()), //
+                new BroadcastRegexObject(crm.getRegexClassifier(), selectedCategoryMap.keySet()));
     }
 }
