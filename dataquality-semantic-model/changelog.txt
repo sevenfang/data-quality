@@ -1,3 +1,6 @@
+V4.0.2 2018-01-15
+	- TDQ-14703 use only one topic on Kafka
+
 V4.0.1 2017-12-08
 	- TDQ-14481 multi tenant index
 	- TDQ-14484 broadcast dictionary to cluster
