@@ -13,6 +13,7 @@
 package org.talend.dataquality.semantic.datamasking;
 
 import static org.junit.Assert.assertEquals;
+import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,14 +24,22 @@ import java.util.Random;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.talend.dataquality.semantic.AllSemanticTests;
+import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.CustomDictionaryHolder;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
 
-public class ValueDataMaskerTest {
+@PrepareForTest({ CustomDictionaryHolder.class, CategoryRegistryManager.class })
+public class ValueDataMaskerTest extends CategoryRegistryManagerAbstract {
+
+    @InjectMocks
+    private CustomDictionaryHolder holder;
 
     private static final Map<String[], String> EXPECTED_MASKED_VALUES = new LinkedHashMap<String[], String>() {
 
@@ -47,10 +56,13 @@ public class ValueDataMaskerTest {
 
             // 1. FIRST_NAME
             put(new String[] { "", SemanticCategoryEnum.FIRST_NAME.name(), "string" }, "");
-            put(new String[] { "John", SemanticCategoryEnum.FIRST_NAME.name(), "string" }, "DIANA");
+            put(new String[] { "John", SemanticCategoryEnum.FIRST_NAME.name(), "string" }, "Vkfz");// Rsgy
+            put(new String[] { "PRUDENCE", SemanticCategoryEnum.FIRST_NAME.name(), "string", }, "DIANA");
+            put(new String[] { "XUE", SemanticCategoryEnum.FIRST_NAME.name(), "string", }, "DIANA");
 
             // 2. LAST_NAME
-            put(new String[] { "Dupont", SemanticCategoryEnum.LAST_NAME.name(), "string" }, "RANKIN");
+            put(new String[] { "Dupont", SemanticCategoryEnum.LAST_NAME.name(), "string" }, "Vkfzzp");
+            put(new String[] { "SMITH", SemanticCategoryEnum.LAST_NAME.name(), "string" }, "RANKIN");
 
             // 3. EMAIL
             put(new String[] { "sdkjs@talend.com", MaskableCategoryEnum.EMAIL.name(), "string" }, "XXXXX@talend.com");
@@ -59,21 +71,21 @@ public class ValueDataMaskerTest {
             // 4. PHONE
             put(new String[] { "3333456789", MaskableCategoryEnum.US_PHONE.name(), "string" }, "3333818829");
             // if we put two 1 at the fifth and sixth position, it's not a US valid number, so we replace all the digit
-            put(new String[] { "3333116789", MaskableCategoryEnum.US_PHONE.name(), "string" }, "2873888808");
-            put(new String[] { "321938", MaskableCategoryEnum.FR_PHONE.name(), "string" }, "459494");
-            put(new String[] { "++044dso44aa", MaskableCategoryEnum.DE_PHONE.name(), "string" }, "++287dso38aa");
-            put(new String[] { "666666666", MaskableCategoryEnum.UK_PHONE.name(), "string" }, "666371758");
-            put(new String[] { "777777777abc", MaskableCategoryEnum.UK_PHONE.name(), "string" }, "775767051abc");
+            put(new String[] { "3333116789", MaskableCategoryEnum.US_PHONE.name(), "string" }, "2515165500");
+            put(new String[] { "321938", MaskableCategoryEnum.FR_PHONE.name(), "string" }, "251516");
+            put(new String[] { "++044dso44aa", MaskableCategoryEnum.DE_PHONE.name(), "string" }, "++251zps55qg");
+            put(new String[] { "666666666", MaskableCategoryEnum.UK_PHONE.name(), "string" }, "251516550");
+            put(new String[] { "777777777abc", MaskableCategoryEnum.UK_PHONE.name(), "string" }, "251516550gaq");
             put(new String[] { "(301) 231-9473 x 2364", MaskableCategoryEnum.US_PHONE.name(), "string" },
                     "(301) 231-9452 x 1404");
             put(new String[] { "(563) 557-7600 Ext. 2890", MaskableCategoryEnum.US_PHONE.name(), "string" },
-                    "(563) 557-7618 Ext. 3290");
+                    "(251) 516-5500 Aqa. 7033");
 
             // 5. JOB_TITLE
             put(new String[] { "CEO", SemanticCategoryEnum.JOB_TITLE.name(), "string" }, "Aviation Inspector");
 
             // 6. ADDRESS_LINE
-            put(new String[] { "9 Rue Pagès", MaskableCategoryEnum.ADDRESS_LINE.name(), "string" }, "6 Rue XXXXX");
+            put(new String[] { "9 Rue Pagès", MaskableCategoryEnum.ADDRESS_LINE.name(), "string" }, "3 Kfz Zpsbb");
 
             // 7 POSTAL_CODE
             put(new String[] { "37218-1324", MaskableCategoryEnum.US_POSTAL_CODE.name(), "string" }, "32515-1655");
@@ -92,16 +104,16 @@ public class ValueDataMaskerTest {
             put(new String[] { "4300 1232 8732 8318", MaskableCategoryEnum.VISACARD.name(), "string" }, "4325 1516 5500 0249");
 
             // 11 SSN
-            put(new String[] { "728931789", MaskableCategoryEnum.US_SSN.name(), "string" }, "528-73-8888");
+            put(new String[] { "728931789", MaskableCategoryEnum.US_SSN.name(), "string" }, "325151655");
             put(new String[] { "17612 38293 28232", MaskableCategoryEnum.FR_SSN.name(), "string" }, "2210622388880 15");
-            put(new String[] { "634217823", MaskableCategoryEnum.UK_SSN.name(), "string" }, "RB 87 38 88 D");
+            put(new String[] { "634217823", MaskableCategoryEnum.UK_SSN.name(), "string" }, "325151655");
 
             // Company
             put(new String[] { "Talend", SemanticCategoryEnum.COMPANY.name(), "string" }, "G. R. Thanga Maligai");
             // FR Commune
             put(new String[] { "Amancey", SemanticCategoryEnum.FR_COMMUNE.name(), "string" }, "Flexbourg");
             // Organization
-            put(new String[] { "Kiva", SemanticCategoryEnum.ORGANIZATION.name(), "string" }, "International Council for Science");
+            put(new String[] { "Kiva", SemanticCategoryEnum.ORGANIZATION.name(), "string" }, "Vkfz");
 
             // EMPTY
             put(new String[] { " ", "UNKNOWN", "integer" }, " ");
@@ -136,7 +148,6 @@ public class ValueDataMaskerTest {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    @Test
     public void testProcess() throws InstantiationException, IllegalAccessException {
 
         for (String[] input : EXPECTED_MASKED_VALUES.keySet()) {
@@ -149,48 +160,10 @@ public class ValueDataMaskerTest {
             masker.getFunction().setRandom(new Random(AllSemanticTests.RANDOM_SEED));
             masker.getFunction().setKeepEmpty(true);
             String maskedValue = masker.maskValue(inputValue);
-            System.out.println(maskedValue);
+            // System.out.println(maskedValue + " expect is [" + EXPECTED_MASKED_VALUES.get(input) + "] result is "
+            // + maskedValue.equals(EXPECTED_MASKED_VALUES.get(input)));
             assertEquals("Test faild on [" + inputValue + "]", EXPECTED_MASKED_VALUES.get(input), maskedValue);
-
         }
-
-        // Assert.assertNotEquals(city, masker.process(city));
-        // masker should generate a city name
-        // Assert the masked value is in a list of city names
-
-        // categories to mask
-        // First names, last names, email, IP address (v4, v6), localization, GPS coordinates, phone
-        // Job title , street, address, zipcode, organization, company, full name, credit card number, account number,
-        //
-
-        // for these categories, here are the default functions to use:
-        // first name -> another first name (from a fixed list loaded from a data file in a resource folder)
-        // last name -> another last name (from a fixed list)
-        // email -> mask local part (MaskEmail function)
-        // phone -> keep 3 first digits and replace last digits
-        // Job title -> another job title (from a fixed list)
-        // street -> use MaskAddress
-        // zipCode -> replace All digits
-        // organization -> another organization (from a fixed list)
-        // company -> another company (from a fixed list)
-        // credit card -> generate a new one
-        // account number -> generate a new one
-        //
-        // Assertions: masked data must never be identical to original data (don't use random seed for the random
-        // generator to check that)
-        //
-
-        // data types to mask
-        // date, string, numeric
-
-        // create a ValueDataMasker for data that have no semantic category
-        // use ValueDataMasker masker = SemanticCategoryMaskerFactory.createMasker(dataType);
-
-        // here are the default functions to use for the different types:
-        // date -> DateVariance with parameter 61 (meaning two months)
-        // string -> use ReplaceAll
-        // numeric -> use NumericVariance
-
     }
 
     private static final Map<String[], String> EXPECTED_MASKED_VALUES_EXIST = new LinkedHashMap<String[], String>() {
@@ -199,10 +172,10 @@ public class ValueDataMaskerTest {
 
         {
             // custom dictionary
-            put(new String[] { "true", SemanticCategoryEnum.ANSWER.name(), "string" }, "Sí");
-            put(new String[] { "false", SemanticCategoryEnum.ANSWER.name(), "string" }, "Sí");
-            put(new String[] { "TRUE", SemanticCategoryEnum.ANSWER.name(), "string" }, "Sí");
-            put(new String[] { "FALSE", SemanticCategoryEnum.ANSWER.name(), "string" }, "Sí");
+            put(new String[] { "true", SemanticCategoryEnum.ANSWER.name(), "string" }, "true");
+            put(new String[] { "false", SemanticCategoryEnum.ANSWER.name(), "string" }, "true");
+            put(new String[] { "TRUE", SemanticCategoryEnum.ANSWER.name(), "string" }, "VKFZ");
+            put(new String[] { "FALSE", SemanticCategoryEnum.ANSWER.name(), "string" }, "VKFZZ");
         }
     };
 
@@ -214,9 +187,12 @@ public class ValueDataMaskerTest {
      */
     @Test
     public void testProcessModifyExistCategory() throws InstantiationException, IllegalAccessException {
-        CategoryRegistryManager.setLocalRegistryPath("target/test_crm");
+        String mockedTenantID = this.getClass().getSimpleName() + "_ModifiedIndex";
+        MockitoAnnotations.initMocks(this);
+        mockWithTenant(mockedTenantID);
+        CategoryRegistryManager.setUsingLocalCategoryRegistry(true);
         CategoryRegistryManager instance = CategoryRegistryManager.getInstance();
-        CustomDictionaryHolder holder = instance.getCustomDictionaryHolder("t_mask_data");
+        CustomDictionaryHolder holder = instance.getCustomDictionaryHolder(mockedTenantID);
 
         DQCategory answerCategory = holder.getMetadata().get(SemanticCategoryEnum.ANSWER.getTechnicalId());
         DQCategory categoryClone = SerializationUtils.clone(answerCategory); // make a clone instead of modifying the shared
@@ -235,16 +211,13 @@ public class ValueDataMaskerTest {
             String semanticCategory = input[1];
             String dataType = input[2];
 
-            System.out.print("[" + semanticCategory + "]\n\t" + inputValue + " => ");
             final ValueDataMasker masker = new ValueDataMasker(semanticCategory, dataType);
             masker.getFunction().setRandom(new Random(AllSemanticTests.RANDOM_SEED));
             masker.getFunction().setKeepEmpty(true);
             String maskedValue = masker.maskValue(inputValue);
-            System.out.println(maskedValue);
             assertEquals("Test faild on [" + inputValue + "]", EXPECTED_MASKED_VALUES_EXIST.get(input), maskedValue);
-
         }
-
+        holder.deleteDataDictDocuments(Collections.singletonList(newDoc));
         CategoryRegistryManager.reset();
     }
 

@@ -1,13 +1,13 @@
 package org.talend.dataquality.datamasking.functions;
 
-import org.talend.dataquality.datamasking.generic.GenerateUniqueRandomPatterns;
-import org.talend.dataquality.datamasking.generic.fields.AbstractField;
-import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import org.talend.dataquality.datamasking.generic.GenerateUniqueRandomPatterns;
+import org.talend.dataquality.datamasking.generic.fields.AbstractField;
+import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
 
 /**
  * Created by jteuladedenantes on 21/09/16.
@@ -36,29 +36,33 @@ public abstract class AbstractGenerateUniquePhoneNumber extends Function<String>
     @Override
     protected String doGenerateMaskedField(String str) {
 
-        if (str == null)
+        if (str == null) {
             return null;
+        }
 
         String strWithoutSpaces = removeFormatInString(str);
         // check if the pattern is valid
         if (strWithoutSpaces.isEmpty() || strWithoutSpaces.length() < phoneNumberPattern.getFieldsCharsLength()) {
-            if (keepInvalidPattern)
+            if (keepInvalidPattern) {
                 return str;
-            else
+            } else {
                 return replaceNumeric.doGenerateMaskedField(str);
+            }
         }
 
         StringBuilder result = doValidGenerateMaskedField(strWithoutSpaces);
         if (result == null) {
-            if (keepInvalidPattern)
+            if (keepInvalidPattern) {
                 return str;
-            else
+            } else {
                 return replaceNumeric.doGenerateMaskedField(str);
+            }
         }
-        if (keepFormat)
+        if (keepFormat) {
             return insertFormatInString(str, result);
-        else
+        } else {
             return result.toString();
+        }
     }
 
     protected List<AbstractField> createFieldsListFromPattern() {
@@ -95,11 +99,14 @@ public abstract class AbstractGenerateUniquePhoneNumber extends Function<String>
 
     @Override
     protected String insertFormatInString(String strWithFormat, StringBuilder resWithoutFormat) {
-        if (strWithFormat == null || resWithoutFormat == null)
+        if (strWithFormat == null || resWithoutFormat == null) {
             return strWithFormat;
-        for (int i = 0; i < strWithFormat.length(); i++)
-            if (!Character.isDigit(strWithFormat.charAt(i)))
+        }
+        for (int i = 0; i < strWithFormat.length(); i++) {
+            if (!Character.isDigit(strWithFormat.charAt(i))) {
                 resWithoutFormat.insert(i, strWithFormat.charAt(i));
+            }
+        }
         return resWithoutFormat.toString();
     }
 

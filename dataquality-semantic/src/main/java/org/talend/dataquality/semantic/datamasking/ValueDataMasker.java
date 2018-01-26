@@ -16,6 +16,13 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.talend.dataquality.datamasking.functions.Function;
+import org.talend.dataquality.datamasking.semantic.ReplaceCharacterHelper;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.model.CategoryType;
+import org.talend.dataquality.semantic.model.DQCategory;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
+import org.talend.dataquality.semantic.statistics.SemanticQualityAnalyzer;
 
 /**
  * API of data masking action using semantic domain information.
@@ -25,6 +32,10 @@ public class ValueDataMasker implements Serializable {
     private static final long serialVersionUID = 7071792900542293289L;
 
     private Function<String> function;
+
+    private DQCategory category;
+
+    private SemanticQualityAnalyzer semanticQualityAnalyzer = null;
 
     Function<String> getFunction() {
         return function;
@@ -49,6 +60,11 @@ public class ValueDataMasker implements Serializable {
      */
     public ValueDataMasker(String semanticCategory, String dataType, List<String> params) {
         function = SemanticMaskerFunctionFactory.createMaskerFunctionForSemanticCategory(semanticCategory, dataType, params);
+        category = CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
+        if (category != null && CategoryType.DICT.equals(category.getType())) {
+            DictionarySnapshot dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+            semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionarySnapshot, new String[] {});
+        }
     }
 
     /**
@@ -58,7 +74,10 @@ public class ValueDataMasker implements Serializable {
      * @return the masked value
      */
     public String maskValue(String input) {
+        if (semanticQualityAnalyzer != null && !semanticQualityAnalyzer.isValid(category, input)) {
+            return ReplaceCharacterHelper.replaceCharacters(input, function.getRandom());
+        }
+        // when category is null or input is valid
         return function.generateMaskedRow(input);
     }
-
 }

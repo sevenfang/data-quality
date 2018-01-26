@@ -137,8 +137,9 @@ public abstract class Function<T> implements Serializable {
                     LOGGER.debug(e2);
                 }
             }
-            for (int i = 0; i < parameters.length; i++)
+            for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = parameters[i].trim();
+            }
 
         }
         setKeepNull(keepNullValues);
@@ -149,10 +150,12 @@ public abstract class Function<T> implements Serializable {
 
     protected String clean(String extraParameter) {
         StringBuilder res = new StringBuilder(extraParameter.trim());
-        while (res.length() > 0 && res.charAt(0) == ',')
+        while (res.length() > 0 && res.charAt(0) == ',') {
             res.deleteCharAt(0);
-        while (res.length() > 0 && res.charAt(res.length() - 1) == ',')
+        }
+        while (res.length() > 0 && res.charAt(res.length() - 1) == ',') {
             res.deleteCharAt(res.length() - 1);
+        }
         return res.toString();
     }
 
@@ -161,8 +164,9 @@ public abstract class Function<T> implements Serializable {
             return null;
         }
 
-        if (t != null && keepEmpty && String.valueOf(t).trim().isEmpty())
+        if (t != null && keepEmpty && String.valueOf(t).trim().isEmpty()) {
             return t;
+        }
 
         return doGenerateMaskedField(t);
     }
@@ -173,12 +177,15 @@ public abstract class Function<T> implements Serializable {
      * @return the res with spaces
      */
     protected String insertFormatInString(String strWithSpaces, StringBuilder resWithoutSpaces) {
-        if (strWithSpaces == null || resWithoutSpaces == null)
+        if (strWithSpaces == null || resWithoutSpaces == null) {
             return strWithSpaces;
-        for (int i = 0; i < strWithSpaces.length(); i++)
+        }
+        for (int i = 0; i < strWithSpaces.length(); i++) {
             if (strWithSpaces.charAt(i) == ' ' || strWithSpaces.charAt(i) == '/' || strWithSpaces.charAt(i) == '-'
-                    || strWithSpaces.charAt(i) == '.')
+                    || strWithSpaces.charAt(i) == '.') {
                 resWithoutSpaces.insert(i, strWithSpaces.charAt(i));
+            }
+        }
         return resWithoutSpaces.toString();
     }
 
