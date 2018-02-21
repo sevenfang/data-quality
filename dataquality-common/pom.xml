@@ -12,6 +12,12 @@
 	<description>Data Quality Common Library is the low level library containing interfaces and common utility classes.</description>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+
 		<!-- apache commons -->
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -38,10 +44,9 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
-	</dependencies>
+    </dependencies>
 </project>
