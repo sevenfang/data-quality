@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.Analyzers.Result;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
 import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
@@ -41,6 +42,8 @@ import org.talend.dataquality.statistics.type.DataTypeOccurences;
 
 public class AnalyzerPerformanceTest {
 
+    private static final String TARGET_TEST_CRM_PATH = "target/test_crm";
+
     private static Logger log = LoggerFactory.getLogger(AnalyzerPerformanceTest.class);
 
     private static DictionarySnapshot dictionarySnapshot;
@@ -56,6 +59,7 @@ public class AnalyzerPerformanceTest {
 
     @BeforeClass
     public static void setupBuilder() throws URISyntaxException {
+        CategoryRegistryManager.setLocalRegistryPath(TARGET_TEST_CRM_PATH);
         dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
     }
 
