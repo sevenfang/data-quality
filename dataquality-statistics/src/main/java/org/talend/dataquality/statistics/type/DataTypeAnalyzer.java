@@ -12,13 +12,20 @@
 // ============================================================================
 package org.talend.dataquality.statistics.type;
 
+import static org.talend.dataquality.statistics.datetime.CustomDateTimePatternManager.isMatchCustomPatterns;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.ResizableList;
 import org.talend.dataquality.semantic.recognizer.LFUCache;
+import org.talend.dataquality.statistics.datetime.SystemDateTimePatternManager;
 
 /**
  * Type inference executor which provide several methods computing the types.<br>
@@ -26,7 +33,7 @@ import org.talend.dataquality.semantic.recognizer.LFUCache;
  * 1. {{@link #init()}, called once.<br>
  * 2. {{@link Analyzer#analyze(String...)} , called as many iterations as required.<br>
  * 3. {{@link #getResult()} , called once.<br>
- * 
+ *
  * <b>Important note:</b> This class is <b>NOT</b> thread safe.
  *
  */
@@ -34,12 +41,14 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
 
     private static final long serialVersionUID = 373694310453353502L;
 
-    private final ResizableList<DataTypeOccurences> dataTypes = new ResizableList<>(DataTypeOccurences.class);
+    private final ResizableList<DataTypeOccurences> dataTypeResults = new ResizableList<>(DataTypeOccurences.class);
+
+    private final ResizableList<SortedList> frequentDatePatterns = new ResizableList<>(SortedList.class);
 
     /** Optional custom date patterns. */
     protected List<String> customDateTimePatterns = new ArrayList<>();
 
-    private final LFUCache<String, DataTypeEnum> knownDataTypeCache = new LFUCache<>(10, 1000, 0.01f);
+    private final ResizableList<LFUCache> knownDataTypeCaches = new ResizableList<>(LFUCache.class);
 
     /**
      * Default empty constructor.
@@ -50,7 +59,7 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
 
     /**
      * Create a DataTypeAnalyzer with the given custom date patterns.
-     * 
+     *
      * @param customDateTimePatterns the patterns to use.
      */
     public DataTypeAnalyzer(List<String> customDateTimePatterns) {
@@ -58,13 +67,15 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
     }
 
     public void init() {
-        dataTypes.clear();
+        dataTypeResults.clear();
+        frequentDatePatterns.clear();
+        knownDataTypeCaches.clear();
     }
 
     /**
      * Analyze record of Array of string type, this method is used in scala library which not support parameterized
      * array type.
-     * 
+     *
      * @param record
      * @return
      */
@@ -82,21 +93,52 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
         if (record == null) {
             return true;
         }
-        dataTypes.resize(record.length);
+        dataTypeResults.resize(record.length);
+        frequentDatePatterns.resize(record.length);
+        knownDataTypeCaches.resize(record.length);
         for (int i = 0; i < record.length; i++) {
-            final DataTypeOccurences dataType = dataTypes.get(i);
-
+            final DataTypeOccurences dataType = dataTypeResults.get(i);
+            final LFUCache<String, DataTypeEnum> knownDataTypeCache = knownDataTypeCaches.get(i);
             final String value = record[i];
             final DataTypeEnum knownDataType = knownDataTypeCache.get(value);
             if (knownDataType != null) {
                 dataType.increment(knownDataType);
             } else {
-                DataTypeEnum type = TypeInferenceUtils.getDataType(value, customDateTimePatterns);
+                DataTypeEnum type = TypeInferenceUtils.getNativeDataType(value);
+                //STRING means we didn't find any native data types
+                if (DataTypeEnum.STRING.equals(type))
+                    type = analyzeDateTimeValue(value, frequentDatePatterns.get(i));
                 knownDataTypeCache.put(value, type);
                 dataType.increment(type);
             }
         }
         return true;
+    }
+
+    private DataTypeEnum analyzeDateTimeValue(String value, SortedList<Pair<Pattern, String>> orderedPatterns) {
+        DataTypeEnum type = DataTypeEnum.STRING;
+        for (int j = 0; j < orderedPatterns.size() && DataTypeEnum.STRING.equals(type); j++) {
+            Pair<Pattern, String> cachedPattern = orderedPatterns.get(j).getLeft();
+            if (cachedPattern.getLeft().matcher(value).find() && SystemDateTimePatternManager.isMatchDateTimePattern(value,
+                    cachedPattern.getRight(), Locale.getDefault())) {
+                orderedPatterns.increment(j);
+                type = DataTypeEnum.DATE;
+            }
+        }
+        if (DataTypeEnum.STRING.equals(type)) {
+            // use custom patterns first
+            if (isMatchCustomPatterns(value, customDateTimePatterns, Locale.US))
+                type = DataTypeEnum.DATE;
+            else {
+                Optional<Pair<Pattern, String>> foundPattern = SystemDateTimePatternManager.findOneDatePattern(value);
+                if (foundPattern.isPresent()) {
+                    orderedPatterns.addNewValue(foundPattern.get());
+                    type = DataTypeEnum.DATE;
+                } else if (SystemDateTimePatternManager.isTime(value))
+                    type = DataTypeEnum.TIME;
+            }
+        }
+        return type;
     }
 
     public void end() {
@@ -110,7 +152,7 @@ public class DataTypeAnalyzer implements Analyzer<DataTypeOccurences> {
      * @return A map for <b>each</b> column. Each map contains the type occurrence count.
      */
     public List<DataTypeOccurences> getResult() {
-        return dataTypes;
+        return dataTypeResults;
     }
 
     @Override

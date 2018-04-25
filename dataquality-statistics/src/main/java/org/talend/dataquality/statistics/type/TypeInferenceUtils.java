@@ -220,6 +220,26 @@ public class TypeInferenceUtils {
     }
 
     public static DataTypeEnum getDataType(String value, List<String> customDateTimePatterns) {
+        DataTypeEnum dataTypeEnum = getNativeDataType(value);
+        //STRING means we didn't find any native data types
+        if (DataTypeEnum.STRING.equals(dataTypeEnum)) {
+            if (isDate(value, customDateTimePatterns)) {
+                // 5. detect date
+                dataTypeEnum = DataTypeEnum.DATE;
+            } else if (isTime(value)) {
+                // 6. detect date
+                dataTypeEnum = DataTypeEnum.TIME;
+            }
+        }
+        return dataTypeEnum;
+    }
+
+    /**
+     * discovery for native/basic data types
+     * @param value to discover
+     * @return the discovered data type
+     */
+    public static DataTypeEnum getNativeDataType(String value) {
         if (TypeInferenceUtils.isEmpty(value)) {
             // 1. detect empty
             return DataTypeEnum.EMPTY;
@@ -232,15 +252,8 @@ public class TypeInferenceUtils {
         } else if (TypeInferenceUtils.isDouble(value)) {
             // 4. detect double
             return DataTypeEnum.DOUBLE;
-        } else if (isDate(value, customDateTimePatterns)) {
-            // 5. detect date
-            return DataTypeEnum.DATE;
-        } else if (isTime(value)) {
-            // 6. detect date
-            return DataTypeEnum.TIME;
         }
         // will return string when no matching
         return DataTypeEnum.STRING;
     }
-
 }

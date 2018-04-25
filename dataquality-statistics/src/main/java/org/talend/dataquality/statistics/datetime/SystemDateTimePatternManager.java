@@ -29,11 +29,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,20 +106,21 @@ public class SystemDateTimePatternManager {
      * @return true if the value is a date.
      */
     public static boolean isDate(String value) {
-        if (StringUtils.isEmpty(value)) {
-            return false;
-        }
-        // The length of date strings must not be less than 6, and must not exceed 64.
-        if (value.length() < 6 || value.length() > 64) {
-            return false;
-        }
+        if (checkDatesPreconditions(value))
+            return findOneDateTimePattern(DATE_PATTERN_GROUP_LIST, value).isPresent();
+        return false;
+    }
 
-        // TDQ-14894: Improve Date discovery by listing the separators
-        if (!PATTERN_FILTER_DATE.matcher(value).find()) {
-            return false;
-        }
-
-        return isDateTime(DATE_PATTERN_GROUP_LIST, value);
+    /**
+     * Whether the given string value is a date or not and the pattern associated
+     *
+     * @param value to check
+     * @return the pair pattern, regex if it's a regex, null otherwise
+     */
+    public static Optional<Pair<Pattern, String>> findOneDatePattern(String value) {
+        if (checkDatesPreconditions(value))
+            return findOneDateTimePattern(DATE_PATTERN_GROUP_LIST, value);
+        return Optional.empty();
     }
 
     /**
@@ -127,54 +130,53 @@ public class SystemDateTimePatternManager {
      * @return true if the value is type "Time", false otherwise.
      */
     public static boolean isTime(String value) {
-        if (StringUtils.isEmpty(value)) {
-            return false;
-        }
         // The length of date strings must not be less than 4, and must not exceed 24.
-        if (value.length() < 4 || value.length() > 24) {
-            return false;
-        }
-        return isDateTime(TIME_PATTERN_GROUP_LIST, value);
+        return StringUtils.isNotEmpty(value) && value.length() >= 4 && value.length() <= 24 && checkEnoughDigits(value)
+                && findOneDateTimePattern(TIME_PATTERN_GROUP_LIST, value).isPresent();
     }
 
-    private static boolean isDateTime(List<Map<Pattern, String>> patternGroupList, String value) {
-        if (StringUtils.isNotEmpty(value)) {
-            // at least 3 digit
-            boolean hasEnoughDigits = false;
-            int digitCount = 0;
-            for (int i = 0; i < value.length(); i++) {
-                char ch = value.charAt(i);
-                if (ch >= '0' && ch <= '9') {
-                    digitCount++;
-                    if (digitCount > 2) {
-                        hasEnoughDigits = true;
-                        break;
-                    }
-                }
-            }
-            if (!hasEnoughDigits) {
-                return false;
-            }
+    /**
+     * Not empty
+     * The length of date strings must not be less than 6, and must not exceed 64.
+     * TDQ-14894: Improve Date discovery by listing the separators
+     * @param value
+     * @return true is the value valids the preconditions
+     */
+    private static boolean checkDatesPreconditions(String value) {
+        return (StringUtils.isNotEmpty(value) && value.length() >= 6 && value.length() <= 64
+                && PATTERN_FILTER_DATE.matcher(value).find() && checkEnoughDigits(value));
+    }
 
-            // Check the value with a list of regex patterns
-            for (Map<Pattern, String> patternMap : patternGroupList) {
-                for (Entry<Pattern, String> entry : patternMap.entrySet()) {
-                    Pattern parser = entry.getKey();
-                    try {
-                        if (parser.matcher(value).find()) {
-                            String dateFormat = entry.getValue();
-                            if (isMatchDateTimePattern(value, dateFormat, SYSTEM_LOCALE)) {
-                                return true;
-                            }
-                        }
-                    } catch (Exception e) {
-                        LOGGER.debug(e.getMessage(), e);
-                        // ignore
-                    }
+    /**
+     * The value must have at least 3 digits
+     * @param value
+     * @return true is the value contains at least 3 digits
+     */
+    private static boolean checkEnoughDigits(String value) {
+        int digitCount = 0;
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            if (ch >= '0' && ch <= '9') {
+                digitCount++;
+                if (digitCount > 2) {
+                    return true;
                 }
             }
         }
         return false;
+    }
+
+    private static Optional<Pair<Pattern, String>> findOneDateTimePattern(List<Map<Pattern, String>> patternGroupList,
+            String value) {
+        // Check the value with a list of regex patterns
+        for (Map<Pattern, String> patternMap : patternGroupList) {
+            for (Entry<Pattern, String> entry : patternMap.entrySet()) {
+                Pattern parser = entry.getKey();
+                if (parser.matcher(value).find() && isMatchDateTimePattern(value, entry.getValue(), SYSTEM_LOCALE))
+                    return Optional.of(Pair.of(parser, entry.getValue()));
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -264,7 +266,7 @@ public class SystemDateTimePatternManager {
         return false;
     }
 
-    static boolean isMatchDateTimePattern(String value, String pattern, Locale locale) {
+    public static boolean isMatchDateTimePattern(String value, String pattern, Locale locale) {
         if (pattern == null) {
             return false;
         }
