@@ -12,8 +12,9 @@
 // ============================================================================
 package org.talend.dataquality.semantic.classifier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.talend.dataquality.semantic.model.CategoryType;
 
 /**
@@ -241,8 +242,14 @@ public enum SemanticCategoryEnum {
     private CategoryType categoryType;
 
     private boolean completeness;
+    
+    private static Set<String> DEFAULT_CATEGORY_NAMES = new HashSet<>();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemanticCategoryEnum.class);
+    static {
+        for (SemanticCategoryEnum sce : SemanticCategoryEnum.values()) {
+            DEFAULT_CATEGORY_NAMES.add(sce.name());
+        }
+    }
 
     /**
      * SemanticCategoryEnum constructor.
@@ -291,11 +298,6 @@ public enum SemanticCategoryEnum {
         if ("".equals(catId)) {
             return UNKNOWN;
         }
-        try {
-            return valueOf(catId);
-        } catch (IllegalArgumentException e) {
-            LOGGER.debug(e.getMessage(), e);
-            return null;
-        }
+        return (DEFAULT_CATEGORY_NAMES.contains(catId)) ? valueOf(catId) : null;
     }
 }
