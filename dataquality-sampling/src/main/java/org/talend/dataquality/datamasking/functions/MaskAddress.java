@@ -73,4 +73,35 @@ public class MaskAddress extends Function<String> {
             keys.add(element);
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.dataquality.datamasking.functions.Function#resetParameterTo(java.lang.String)
+     */
+    @Override
+    protected void resetParameterTo(String errorMessage) {
+        parameters = new String[] { errorMessage };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.dataquality.datamasking.functions.Function#isNeedCheckPath()
+     */
+    @Override
+    protected boolean isNeedCheckPath() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.dataquality.datamasking.functions.Function#isBothValidForFileOrNot()
+     */
+    @Override
+    protected boolean isBothValidForFileOrNot() {
+        return true;
+    }
+
 }
