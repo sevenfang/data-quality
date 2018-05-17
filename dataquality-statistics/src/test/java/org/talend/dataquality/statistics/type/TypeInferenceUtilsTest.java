@@ -222,13 +222,20 @@ public class TypeInferenceUtilsTest {
     public void testIsDateWithCustomAndWrongLocale() throws Exception {
         String date = "Feb.12.2014=";
         assertFalse(TypeInferenceUtils.isDate(date));
-        assertTrue(TypeInferenceUtils.isDate(date, Collections.singletonList("MMM.dd.yyyy="), Locale.FRANCE));
+        assertFalse(TypeInferenceUtils.isDate(date, Collections.singletonList("MMM.dd.yyyy="), Locale.FRANCE));
+        assertTrue(TypeInferenceUtils.isDate(date, Collections.singletonList("MMM.dd.yyyy="), Locale.US));
     }
 
     @Test
     public void testIsDateddMMMyyyy() {
         String dateStr = "15-Sep-2014";
         assertTrue(TypeInferenceUtils.isDate(dateStr));
+    }
+
+    @Test
+    public void testIsJapaneseDateddMMMyyyy() {
+        assertTrue(TypeInferenceUtils.isDate("22-五月-1999"));
+        assertFalse(TypeInferenceUtils.isDate("22-明天-1999"));
     }
 
     private List<String> loadData(String path) throws IOException {

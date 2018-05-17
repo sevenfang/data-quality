@@ -98,12 +98,7 @@ public class CustomDateTimePatternManagerTest {
 
                 String[] sampleLine = line.trim().split("\t");
                 String sample = sampleLine[0];
-                String locale = sampleLine[1];
-                locale = locale.replaceAll("_", "-");
-                Locale local = Locale.forLanguageTag(locale);
 
-                // SystemDateTimePatternManager.renewCache();
-                setFinalStatic(SystemDateTimePatternManager.class.getDeclaredField("SYSTEM_LOCALE"), local);
                 setFinalStatic(SystemDateTimePatternManager.class.getDeclaredField("dateTimeFormatterCache"),
                         new HashMap<String, DateTimeFormatter>());
 
@@ -189,46 +184,6 @@ public class CustomDateTimePatternManagerTest {
     }
 
     @Test
-    public void testDateWithLocaleFR() {
-        // simulate a JVM
-        Locale.setDefault(Locale.FRANCE);
-
-        final List<String> pattern = Collections.<String> singletonList("MMMM d ?? yyyy");
-        final String[] dates = new String[] { "January 9 ?? 1970", // EN
-                "janvier 9 ?? 1970", // FR
-                "Januar 9 ?? 1970", // DE
-                "一月 9 ?? 1970", // CN
-        };
-        final boolean[] EXPECTED_IS_DATE_DEFAULT = new boolean[] { true, false, false, false };
-        final boolean[] EXPECTED_IS_DATE_US = new boolean[] { true, false, false, false };
-        final boolean[] EXPECTED_IS_DATE_FR = new boolean[] { true, true, false, false };
-        final boolean[] EXPECTED_IS_DATE_DE = new boolean[] { true, false, true, false };
-        final boolean[] EXPECTED_IS_DATE_CN = new boolean[] { true, false, false, true };
-        // final String[] EXPECTED_PATTERN_STRING = new String[] { "", };
-
-        StringBuilder sb = new StringBuilder("\n");
-        sb.append("-------------- JVM Locale: " + Locale.getDefault().toString() + " ------\n");
-        sb.append("Input \\ UserLocale\tN/A\tEN\tFR\tDE\tCN\n");
-        for (int i = 0; i < dates.length; i++) {
-            sb.append(dates[i]).append("   \t");
-            sb.append(CustomDateTimePatternManager.isDate(dates[i], pattern)).append("\t");
-            sb.append(CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.US)).append("\t");
-            sb.append(CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.FRANCE)).append("\t");
-            sb.append(CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.GERMANY)).append("\t");
-            sb.append(CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.CHINA)).append("\t");
-            sb.append("\n");
-
-            assertEquals(EXPECTED_IS_DATE_DEFAULT[i], CustomDateTimePatternManager.isDate(dates[i], pattern));
-            assertEquals(EXPECTED_IS_DATE_US[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.US));
-            assertEquals(EXPECTED_IS_DATE_FR[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.FRANCE));
-            assertEquals(EXPECTED_IS_DATE_DE[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.GERMANY));
-            assertEquals(EXPECTED_IS_DATE_CN[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.CHINA));
-        }
-
-        LOGGER.info(sb.toString());
-    }
-
-    @Test
     public void testDateWithLocaleDE() {
         // simulate a JVM
         Locale.setDefault(Locale.GERMANY);
@@ -241,9 +196,9 @@ public class CustomDateTimePatternManagerTest {
         };
         final boolean[] EXPECTED_IS_DATE_DEFAULT = new boolean[] { true, false, false, false };
         final boolean[] EXPECTED_IS_DATE_US = new boolean[] { true, false, false, false };
-        final boolean[] EXPECTED_IS_DATE_FR = new boolean[] { true, true, false, false };
-        final boolean[] EXPECTED_IS_DATE_DE = new boolean[] { true, false, true, false };
-        final boolean[] EXPECTED_IS_DATE_CN = new boolean[] { true, false, false, true };
+        final boolean[] EXPECTED_IS_DATE_FR = new boolean[] { false, true, false, false };
+        final boolean[] EXPECTED_IS_DATE_DE = new boolean[] { false, false, true, false };
+        final boolean[] EXPECTED_IS_DATE_CN = new boolean[] { false, false, false, true };
         // final String[] EXPECTED_PATTERN_STRING = new String[] { "", };
 
         StringBuilder sb = new StringBuilder("\n");
@@ -258,11 +213,16 @@ public class CustomDateTimePatternManagerTest {
             sb.append(CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.CHINA)).append("\t");
             sb.append("\n");
 
-            assertEquals(EXPECTED_IS_DATE_DEFAULT[i], CustomDateTimePatternManager.isDate(dates[i], pattern));
-            assertEquals(EXPECTED_IS_DATE_US[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.US));
-            assertEquals(EXPECTED_IS_DATE_FR[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.FRANCE));
-            assertEquals(EXPECTED_IS_DATE_DE[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.GERMANY));
-            assertEquals(EXPECTED_IS_DATE_CN[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.CHINA));
+            assertEquals("The validity of the date " + dates[i] + " is expected to be " + EXPECTED_IS_DATE_DEFAULT[i],
+                    EXPECTED_IS_DATE_DEFAULT[i], CustomDateTimePatternManager.isDate(dates[i], pattern));
+            assertEquals("The validity of the date " + dates[i] + " is expected to be " + EXPECTED_IS_DATE_US[i],
+                    EXPECTED_IS_DATE_US[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.US));
+            assertEquals("The validity of the date " + dates[i] + " is expected to be " + EXPECTED_IS_DATE_FR[i],
+                    EXPECTED_IS_DATE_FR[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.FRANCE));
+            assertEquals("The validity of the date " + dates[i] + " is expected to be " + EXPECTED_IS_DATE_DE[i],
+                    EXPECTED_IS_DATE_DE[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.GERMANY));
+            assertEquals("The validity of the date " + dates[i] + " is expected to be " + EXPECTED_IS_DATE_CN[i],
+                    EXPECTED_IS_DATE_CN[i], CustomDateTimePatternManager.isDate(dates[i], pattern, Locale.CHINA));
         }
 
         LOGGER.info(sb.toString());
@@ -270,7 +230,7 @@ public class CustomDateTimePatternManagerTest {
 
     @Test
     public void testSpecialCases() {
-        assertEquals(Collections.singleton("MMMM d yyyy"),
+        assertEquals(new HashSet<>(Arrays.asList("MMM d yyyy", "MMMM d yyyy")),
                 CustomDateTimePatternManager.replaceByDateTimePattern("July 14 2015", "M/d/yy H:m"));
 
     }

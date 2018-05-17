@@ -14,6 +14,7 @@ package org.talend.dataquality.statistics.datetime;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,42 +50,48 @@ public class SystemDateTimePatternManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemDateTimePatternManager.class);
 
-    private static Locale DEFAULT_LOCALE = Locale.US;
+    private static final List<Map<Pattern, String>> DATE_PATTERN_GROUP_LIST = new ArrayList<>();
 
-    private static Locale SYSTEM_LOCALE = Locale.getDefault();
+    private static final List<Map<Pattern, String>> TIME_PATTERN_GROUP_LIST = new ArrayList<>();
 
-    private static List<Map<Pattern, String>> DATE_PATTERN_GROUP_LIST = new ArrayList<Map<Pattern, String>>();
-
-    private static List<Map<Pattern, String>> TIME_PATTERN_GROUP_LIST = new ArrayList<Map<Pattern, String>>();
-
-    private static Map<String, DateTimeFormatter> dateTimeFormatterCache = new HashMap<String, DateTimeFormatter>();
+    private static final Map<String, DateTimeFormatter> dateTimeFormatterCache = new HashMap<>();
 
     private static final String PATTERN_SUFFIX_ERA = "G"; //$NON-NLS-1$
 
-    private static final Pattern PATTERN_FILTER_DATE = Pattern.compile("[ \\-]\\d|\\d[./+W\\u5E74]\\d|^\\d{8}$"); //'\u5E74' stands for '年'
+    private static final Pattern PATTERN_FILTER_DATE//
+            = Pattern.compile("[ \\-]\\d|\\d[./+W\\u5E74]\\d|^\\d{8}$"); // '\u5E74' stands for '年'
+
+    private static final Set<Locale> LOCALES = getDistinctLanguagesLocales();
 
     static {
-        try {
-            // Load date patterns
-            loadPatterns("DateRegexesGrouped.txt", DATE_PATTERN_GROUP_LIST);
-            // Load time patterns
-            loadPatterns("TimeRegexes.txt", TIME_PATTERN_GROUP_LIST);
-        } catch (IOException e) {
-            LOGGER.error("Unable to get date patterns.", e);
-        }
-
+        // Load date patterns
+        loadPatterns("DateRegexesGrouped.txt", DATE_PATTERN_GROUP_LIST);
+        // Load time patterns
+        loadPatterns("TimeRegexes.txt", TIME_PATTERN_GROUP_LIST);
     }
 
-    private static void loadPatterns(String patternFileName, List<Map<Pattern, String>> patternParsers) throws IOException {
+    private static Set<Locale> getDistinctLanguagesLocales() {
+        Set<Locale> locales = new LinkedHashSet<>();
+        // we add these specific languages first because they are the most frequent.
+        for (String lang : new String[] { "en", "fr", "de", "it", "es", "ja", "zh" }) {
+            locales.add(Locale.forLanguageTag(lang));
+        }
+        for (Locale locale : DateFormat.getAvailableLocales()) {
+            locales.add(Locale.forLanguageTag(locale.getLanguage()));
+        }
+        return locales;
+    }
+
+    private static void loadPatterns(String patternFileName, List<Map<Pattern, String>> patternParsers) {
         InputStream stream = SystemDateTimePatternManager.class.getResourceAsStream(patternFileName);
         try {
             List<String> lines = IOUtils.readLines(stream, "UTF-8");
-            Map<Pattern, String> currentGroupMap = new LinkedHashMap<Pattern, String>();
+            Map<Pattern, String> currentGroupMap = new LinkedHashMap<>();
             patternParsers.add(currentGroupMap);
             for (String line : lines) {
                 if (!"".equals(line.trim())) { // Not empty
                     if (line.startsWith("--")) { // group separator
-                        currentGroupMap = new LinkedHashMap<Pattern, String>();
+                        currentGroupMap = new LinkedHashMap<>();
                         patternParsers.add(currentGroupMap);
                     } else {
                         String[] lineArray = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
@@ -117,7 +125,7 @@ public class SystemDateTimePatternManager {
      * @param value to check
      * @return the pair pattern, regex if it's a regex, null otherwise
      */
-    public static Optional<Pair<Pattern, String>> findOneDatePattern(String value) {
+    public static Optional<Pair<Pattern, DateTimeFormatter>> findOneDatePattern(String value) {
         if (checkDatesPreconditions(value))
             return findOneDateTimePattern(DATE_PATTERN_GROUP_LIST, value);
         return Optional.empty();
@@ -139,6 +147,7 @@ public class SystemDateTimePatternManager {
      * Not empty
      * The length of date strings must not be less than 6, and must not exceed 64.
      * TDQ-14894: Improve Date discovery by listing the separators
+     * 
      * @param value
      * @return true is the value valids the preconditions
      */
@@ -149,6 +158,7 @@ public class SystemDateTimePatternManager {
 
     /**
      * The value must have at least 3 digits
+     * 
      * @param value
      * @return true is the value contains at least 3 digits
      */
@@ -166,14 +176,17 @@ public class SystemDateTimePatternManager {
         return false;
     }
 
-    private static Optional<Pair<Pattern, String>> findOneDateTimePattern(List<Map<Pattern, String>> patternGroupList,
+    private static Optional<Pair<Pattern, DateTimeFormatter>> findOneDateTimePattern(List<Map<Pattern, String>> patternGroupList,
             String value) {
         // Check the value with a list of regex patterns
         for (Map<Pattern, String> patternMap : patternGroupList) {
             for (Entry<Pattern, String> entry : patternMap.entrySet()) {
                 Pattern parser = entry.getKey();
-                if (parser.matcher(value).find() && isMatchDateTimePattern(value, entry.getValue(), SYSTEM_LOCALE))
-                    return Optional.of(Pair.of(parser, entry.getValue()));
+                if (parser.matcher(value).find()) {
+                    Optional<DateTimeFormatter> dateTimeFormatter = validateWithPatternInAnyLocale(value, entry.getValue());
+                    return dateTimeFormatter.isPresent() ? Optional.of(Pair.of(parser, dateTimeFormatter.get()))
+                            : Optional.empty();
+                }
             }
         }
         return Optional.empty();
@@ -251,7 +264,7 @@ public class SystemDateTimePatternManager {
         return formatter;
     }
 
-    private static boolean validateWithDateTimeFormatter(String value, DateTimeFormatter formatter) {
+    public static boolean isMatchDateTimePattern(String value, DateTimeFormatter formatter) {
         if (formatter != null) {
             try {
                 final TemporalAccessor temporal = formatter.parse(value);
@@ -266,32 +279,16 @@ public class SystemDateTimePatternManager {
         return false;
     }
 
-    public static boolean isMatchDateTimePattern(String value, String pattern, Locale locale) {
-        if (pattern == null) {
-            return false;
-        }
+    static boolean isMatchDateTimePattern(String value, String pattern, Locale locale) {
+        return isMatchDateTimePattern(value, getDateTimeFormatterByPattern(pattern, locale));
+    }
 
-        // firstly, try with user-defined locale
-        Locale correctLocale = locale;
-        // TDQ-13936 Guess locale by the end of value when the pattern is "yyyy-MM-dd G"
-        if (pattern.endsWith(PATTERN_SUFFIX_ERA)) {
-            Locale guessLocale = ChronologyParameterManager.guessLocaleByEra(value);
-            if (!DEFAULT_LOCALE.equals(guessLocale)) {
-                correctLocale = guessLocale;
-            }
+    private static Optional<DateTimeFormatter> validateWithPatternInAnyLocale(String value, String pattern) {
+        for (Locale locale : LOCALES) {
+            DateTimeFormatter dateTimeFormatterByPattern = getDateTimeFormatterByPattern(pattern, locale);
+            if (isMatchDateTimePattern(value, dateTimeFormatterByPattern))
+                return Optional.of(dateTimeFormatterByPattern);
         }
-        final DateTimeFormatter formatter = getDateTimeFormatterByPattern(pattern, correctLocale);
-        if (validateWithDateTimeFormatter(value, formatter)) {
-            return true;
-        } else {
-            if (!DEFAULT_LOCALE.equals(correctLocale)) {
-                // try with LOCALE_US if user defined locale is not US
-                final DateTimeFormatter formatterUS = getDateTimeFormatterByPattern(pattern, Locale.US);
-                if (validateWithDateTimeFormatter(value, formatterUS)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return Optional.empty();
     }
 }
