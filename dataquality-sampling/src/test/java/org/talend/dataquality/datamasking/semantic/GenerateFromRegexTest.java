@@ -96,9 +96,9 @@ public class GenerateFromRegexTest {
     @Test
     public void testDoGenerateMaskedFieldStringCase3() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.setRandom(new Random(12345));
         String regexStr = "(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}"; //$NON-NLS-1$
         regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(new Random(12345));
         String maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         Pattern compile = Pattern.compile("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}"); //$NON-NLS-1$
         Matcher matcher = compile.matcher(maskResult);
@@ -106,8 +106,8 @@ public class GenerateFromRegexTest {
 
         // use same seed should get same result
         regexFunction = new GenerateFromRegex();
-        regexFunction.setRandom(new Random(12345));
         regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(new Random(12345));
         String secondMaskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         Assert.assertEquals("maskResult is correct result", maskResult, secondMaskResult); //$NON-NLS-1$
     }
@@ -120,9 +120,9 @@ public class GenerateFromRegexTest {
     @Test
     public void testDoGenerateMaskedFieldStringCase4() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.setRandom(new Random(12345));
         String regexStr = "^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$"; //$NON-NLS-1$
         regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(new Random(12345));
         String maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         Pattern compile = Pattern.compile("^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$"); //$NON-NLS-1$
         Matcher matcher = compile.matcher(maskResult);
@@ -130,33 +130,33 @@ public class GenerateFromRegexTest {
 
         // more than one ^ and $
         regexFunction = new GenerateFromRegex();
-        regexFunction.setRandom(new Random(12345));
         regexStr = "^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$$"; //$NON-NLS-1$
         regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(new Random(12345));
         maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         compile = Pattern.compile("^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$"); //$NON-NLS-1$
         matcher = compile.matcher(maskResult);
         Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
 
         regexFunction = new GenerateFromRegex();
-        regexFunction.setRandom(new Random(12345));
         regexStr = "^^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$\\$$"; //$NON-NLS-1$
         regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(new Random(12345));
         maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         compile = Pattern.compile("^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$\\$$"); //$NON-NLS-1$
         matcher = compile.matcher(maskResult);
         Assert.assertFalse("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
-        Assert.assertEquals("maskResult is correct result: ^^+339 79-75 90.07$$$$$", "^^+339 79-75 90.07$$$$$", maskResult); //$NON-NLS-1$
+        Assert.assertEquals("maskResult is correct result: ^^+3339302 63 00$$$$$", "^^+3339302 63 00$$$$$", maskResult); //$NON-NLS-1$ //$NON-NLS-2$
 
         regexFunction = new GenerateFromRegex();
-        regexFunction.setRandom(new Random(12345));
         regexStr = "\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$"; //$NON-NLS-1$
         regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(new Random(12345));
         maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         compile = Pattern.compile("\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$"); //$NON-NLS-1$
         matcher = compile.matcher(maskResult);
         Assert.assertFalse("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
-        Assert.assertEquals("maskResult is correct result: ^^^^^^00333-4908-75 09$$$$$$", "^^^^^^00333-4908-75 09$$$$$$", //$NON-NLS-1$
+        Assert.assertEquals("maskResult is correct result: ^^^^^^+33 4.31 02 3475$$$$$$", "^^^^^^+33 4.31 02 3475$$$$$$", //$NON-NLS-1$
                 maskResult);
     }
 
