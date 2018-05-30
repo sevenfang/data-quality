@@ -35,6 +35,10 @@ public class GenerateFromRegex extends Function<String> {
 
     private long seed = 100l;
 
+    private Pattern startPattern = Pattern.compile("[\\^]*+", Pattern.CASE_INSENSITIVE);
+
+    private Pattern endPattern = Pattern.compile("[\\$]*$", Pattern.CASE_INSENSITIVE);
+
     /*
      * (non-Javadoc)
      * 
@@ -75,7 +79,7 @@ public class GenerateFromRegex extends Function<String> {
      * @param extraParameter
      * @return valid pattern string
      */
-    private String removeInvalidCharacter(String extraParameter) {
+    protected String removeInvalidCharacter(String extraParameter) {
         String patternStr = stringStartTrim(extraParameter, "\\^"); //$NON-NLS-1$
         patternStr = stringEndTrim(patternStr, "\\$"); //$NON-NLS-1$
         patternStr = patternStr + "$"; //$NON-NLS-1$
@@ -90,16 +94,15 @@ public class GenerateFromRegex extends Function<String> {
      * @return
      */
     private String stringStartTrim(String stream, String trim) {
-        if (stream == null || stream.length() == 0 || trim == null || trim.length() == 0) {
+        if (StringUtils.isEmpty(stream) || StringUtils.isEmpty(trim)) {
             return stream;
         }
         // The end location which need to remove str
         int end;
         String result = stream;
-        String regPattern = "[" + trim + "]*+"; //$NON-NLS-1$ //$NON-NLS-2$
-        Pattern pattern = Pattern.compile(regPattern, Pattern.CASE_INSENSITIVE);
+
         // remove characters
-        Matcher matcher = pattern.matcher(stream);
+        Matcher matcher = startPattern.matcher(stream);
         if (matcher.lookingAt()) {
             end = matcher.end();
             result = result.substring(end);
@@ -116,19 +119,17 @@ public class GenerateFromRegex extends Function<String> {
      * @return
      */
     private String stringEndTrim(String stream, String trim) {
-        if (stream == null || stream.length() == 0 || trim == null || trim.length() == 0) {
+        if (StringUtils.isEmpty(stream) || StringUtils.isEmpty(trim)) {
             return stream;
         }
         // The start location which need to remove str
-        int strat;
+        int start;
         String result = stream;
-        String regPattern = "[" + trim + "]*$"; //$NON-NLS-1$//$NON-NLS-2$
-        Pattern pattern = Pattern.compile(regPattern, Pattern.CASE_INSENSITIVE);
         // remove characters from tail
-        Matcher matcher = pattern.matcher(stream);
+        Matcher matcher = endPattern.matcher(stream);
         if (matcher.find()) {
-            strat = matcher.start();
-            result = result.substring(0, strat);
+            start = matcher.start();
+            result = result.substring(0, start);
         }
         // return result after deal
         return result;
@@ -150,11 +151,12 @@ public class GenerateFromRegex extends Function<String> {
     }
 
     public static boolean isValidPattern(String patternString) {
-        if (patternString != null && patternString.contains("")) { //$NON-NLS-1$
-            for (String keyWord : invalidKw) {
-                if (patternString.contains(keyWord)) {
-                    return false;
-                }
+        if (patternString == null) {
+            return false;
+        }
+        for (String keyWord : invalidKw) {
+            if (patternString.contains(keyWord)) {
+                return false;
             }
         }
         return Generex.isValidPattern(patternString);
@@ -167,15 +169,6 @@ public class GenerateFromRegex extends Function<String> {
      */
     protected long getSeed() {
         return this.seed;
-    }
-
-    /**
-     * Sets the seed.
-     * 
-     * @param seed the seed to set
-     */
-    protected void setSeed(long seed) {
-        this.seed = seed;
     }
 
 }

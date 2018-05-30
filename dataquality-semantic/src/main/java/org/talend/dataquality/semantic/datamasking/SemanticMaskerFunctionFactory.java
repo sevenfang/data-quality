@@ -26,6 +26,7 @@ import org.talend.dataquality.datamasking.semantic.ReplaceCharactersWithGenerati
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.model.CategoryType;
+import org.talend.dataquality.semantic.model.DQCategory;
 
 public class SemanticMaskerFunctionFactory {
 
@@ -57,8 +58,7 @@ public class SemanticMaskerFunctionFactory {
         }
 
         if (function == null) {
-            org.talend.dataquality.semantic.model.DQCategory category = CategoryRegistryManager.getInstance()
-                    .getCategoryMetadataByName(semanticCategory);
+            DQCategory category = CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
             if (category != null) {
                 if (CategoryType.DICT.equals(category.getType())) {
                     function = new GenerateFromDictionaries();

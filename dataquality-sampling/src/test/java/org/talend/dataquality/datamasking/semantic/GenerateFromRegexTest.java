@@ -179,6 +179,24 @@ public class GenerateFromRegexTest {
         // (?=pattern) case
         isValidPattern = GenerateFromRegex.isValidPattern("^(?=01000|99999)(0[1-9]\\d{3}|[1-9]\\d{4})$");
         Assert.assertFalse("'(?=pattern)' is not support by this API by now", isValidPattern);
+        isValidPattern = GenerateFromRegex.isValidPattern(null);
+        Assert.assertFalse("null is not support by this API by now", isValidPattern);
+        isValidPattern = GenerateFromRegex.isValidPattern("");
+        Assert.assertTrue("empty should be support by this API by now", isValidPattern);
     }
 
+    /**
+     * Test method for {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#removeInvalidCharacter(String)}.
+     */
+    @Test
+    public void testremoveInvalidCharacterString() {
+        GenerateFromRegex generateFromRegex = new GenerateFromRegex();
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000000; i++) {
+            generateFromRegex.removeInvalidCharacter("^^^^^^^^^^^^aaaaa^^^^aaa$$$$aaa$$$aaa$$$$$$$$$$$$$");
+        }
+        long endTime = System.currentTimeMillis();
+        Assert.assertTrue("All of action don't should spent more than 2 second. But in fact it is "
+                + ((endTime - startTime) / 1000.0) + "s", endTime - startTime < 2000);
+    }
 }
