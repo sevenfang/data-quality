@@ -188,7 +188,8 @@ public class GenerateFromRegexTest {
     /**
      * Test method for {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#removeInvalidCharacter(String)}.
      */
-    @Test
+    // @Test
+    // We commont this case because we don't want it execute every time.
     public void testremoveInvalidCharacterString() {
         GenerateFromRegex generateFromRegex = new GenerateFromRegex();
         long startTime = System.currentTimeMillis();
