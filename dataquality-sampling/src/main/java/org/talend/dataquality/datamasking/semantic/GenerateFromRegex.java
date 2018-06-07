@@ -33,8 +33,6 @@ public class GenerateFromRegex extends Function<String> {
 
     private static final String[] invalidKw = { "(?:", "(?!", "(?=", "[[:space:]]", "[[:digit:]]", "\\u" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 
-    private long seed = 100l;
-
     private Pattern startPattern = Pattern.compile("[\\^]*+", Pattern.CASE_INSENSITIVE);
 
     private Pattern endPattern = Pattern.compile("[\\$]*$", Pattern.CASE_INSENSITIVE);
@@ -143,7 +141,6 @@ public class GenerateFromRegex extends Function<String> {
     @Override
     public void setRandom(Random rand) {
         SecureRandom secureRandom = new SecureRandom();
-        secureRandom.setSeed(getSeed());
         super.setRandom(rand == null ? secureRandom : rand);
         if (generex != null) {
             generex.setSeed(rnd.nextLong());
@@ -160,15 +157,6 @@ public class GenerateFromRegex extends Function<String> {
             }
         }
         return Generex.isValidPattern(patternString);
-    }
-
-    /**
-     * Getter for seed.
-     * 
-     * @return the seed
-     */
-    protected long getSeed() {
-        return this.seed;
     }
 
 }
