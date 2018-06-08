@@ -95,21 +95,24 @@ public class GenerateFromRegexTest {
      */
     @Test
     public void testDoGenerateMaskedFieldStringCase3() {
-        GenerateFromRegex regexFunction = new GenerateFromRegex();
-        String regexStr = "(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}"; //$NON-NLS-1$
-        regexFunction.parse(regexStr, true, null);
-        regexFunction.setRandom(new Random(12345));
-        String maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
-        Pattern compile = Pattern.compile("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}"); //$NON-NLS-1$
-        Matcher matcher = compile.matcher(maskResult);
-        Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
+        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "08 38 9302 63", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
+        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new Random(), true); //$NON-NLS-1$ //$NON-NLS-2$
+        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new SecureRandom(), true); //$NON-NLS-1$ //$NON-NLS-2$
+        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", null, true); //$NON-NLS-1$ //$NON-NLS-2$
+    }
 
-        // use same seed should get same result
-        regexFunction = new GenerateFromRegex();
+    private void patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue) {
+        GenerateFromRegex regexFunction = new GenerateFromRegex();
         regexFunction.parse(regexStr, true, null);
-        regexFunction.setRandom(new Random(12345));
-        String secondMaskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
-        Assert.assertEquals("maskResult is correct result", maskResult, secondMaskResult); //$NON-NLS-1$
+        regexFunction.setRandom(random);
+        String maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
+        Pattern compile = Pattern.compile(regexStr);
+        Matcher matcher = compile.matcher(maskResult);
+
+        Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches() == assertTrue); //$NON-NLS-1$
+        if (!"*".equals(assertResult)) { //$NON-NLS-1$
+            Assert.assertEquals("maskResult is correct result: " + assertResult, assertResult, maskResult); //$NON-NLS-1$
+        }
     }
 
     /**
@@ -119,45 +122,13 @@ public class GenerateFromRegexTest {
      */
     @Test
     public void testDoGenerateMaskedFieldStringCase4() {
-        GenerateFromRegex regexFunction = new GenerateFromRegex();
-        String regexStr = "^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$"; //$NON-NLS-1$
-        regexFunction.parse(regexStr, true, null);
-        regexFunction.setRandom(new Random(12345));
-        String maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
-        Pattern compile = Pattern.compile("^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$"); //$NON-NLS-1$
-        Matcher matcher = compile.matcher(maskResult);
-        Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
-
+        patternJudgeResult("^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$", "08 38 9302 63", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
         // more than one ^ and $
-        regexFunction = new GenerateFromRegex();
-        regexStr = "^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$$"; //$NON-NLS-1$
-        regexFunction.parse(regexStr, true, null);
-        regexFunction.setRandom(new Random(12345));
-        maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
-        compile = Pattern.compile("^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$"); //$NON-NLS-1$
-        matcher = compile.matcher(maskResult);
-        Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
-
-        regexFunction = new GenerateFromRegex();
-        regexStr = "^^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$\\$$"; //$NON-NLS-1$
-        regexFunction.parse(regexStr, true, null);
-        regexFunction.setRandom(new Random(12345));
-        maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
-        compile = Pattern.compile("^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$\\$$"); //$NON-NLS-1$
-        matcher = compile.matcher(maskResult);
-        Assert.assertFalse("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
-        Assert.assertEquals("maskResult is correct result: ^^+3339302 63 00$$$$$", "^^+3339302 63 00$$$$$", maskResult); //$NON-NLS-1$ //$NON-NLS-2$
-
-        regexFunction = new GenerateFromRegex();
-        regexStr = "\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$"; //$NON-NLS-1$
-        regexFunction.parse(regexStr, true, null);
-        regexFunction.setRandom(new Random(12345));
-        maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
-        compile = Pattern.compile("\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$"); //$NON-NLS-1$
-        matcher = compile.matcher(maskResult);
-        Assert.assertFalse("maskResult is correct result:" + maskResult, matcher.matches()); //$NON-NLS-1$
-        Assert.assertEquals("maskResult is correct result: ^^^^^^+33 4.31 02 3475$$$$$$", "^^^^^^+33 4.31 02 3475$$$$$$", //$NON-NLS-1$
-                maskResult);
+        patternJudgeResult("^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$$", "08 38 9302 63", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
+        patternJudgeResult("^^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$\\$$", "^^+3339302 63 00$$$$$", //$NON-NLS-1$//$NON-NLS-2$
+                new Random(12345), false);
+        patternJudgeResult("\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$", "^^^^^^+33 4.31 02 3475$$$$$$", //$NON-NLS-1$//$NON-NLS-2$
+                new Random(12345), false);
     }
 
     /**
