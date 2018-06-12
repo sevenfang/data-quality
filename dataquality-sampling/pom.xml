@@ -42,6 +42,16 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Include-Resource>{maven-resources},lib/automaton.jar=lib/automaton.jar,lib/generex.jar=lib/generex.jar,licenses=licenses</Include-Resource>
+                    </instructions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 	<dependencies>
