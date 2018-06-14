@@ -45,7 +45,7 @@ public abstract class CategoryRegistryManagerAbstract {
 
     @AfterClass
     public static void after() throws IOException {
-        FileUtils.forceDeleteOnExit(new File(TARGET_TEST_CRM_PATH));
+        FileUtils.deleteDirectory(new File(TARGET_TEST_CRM_PATH));
     }
 
     @Before

@@ -23,7 +23,7 @@ public class LuceneIndex {
     public static void createLuceneIndex(String folder) throws IOException {
         final File testFolder = new File(folder);
         if (testFolder.exists()) {
-            FileUtils.forceDeleteOnExit(testFolder);
+            FileUtils.deleteDirectory(testFolder);
         }
         try {
             FSDirectory testDir = FSDirectory.open(testFolder);
