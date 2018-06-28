@@ -12,7 +12,10 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.semantic;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +23,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.functions.KeysLoader;
 
 /**
  * The Function which used to generate data by regex
@@ -99,6 +103,7 @@ public class GenerateFromRegexTest {
         patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new Random(), true); //$NON-NLS-1$ //$NON-NLS-2$
         patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new SecureRandom(), true); //$NON-NLS-1$ //$NON-NLS-2$
         patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", null, true); //$NON-NLS-1$ //$NON-NLS-2$
+        patternJudgeResult("^\\d*[02468]$", "355018403192633499074", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private void patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue) {
@@ -112,6 +117,29 @@ public class GenerateFromRegexTest {
         Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches() == assertTrue); //$NON-NLS-1$
         if (!"*".equals(assertResult)) { //$NON-NLS-1$
             Assert.assertEquals("maskResult is correct result: " + assertResult, assertResult, maskResult); //$NON-NLS-1$
+        }
+    }
+
+    private void patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue, String inputFile)
+            throws NullPointerException, IOException, URISyntaxException {
+        GenerateFromRegex regexFunction = new GenerateFromRegex();
+        regexFunction.parse(regexStr, true, null);
+        regexFunction.setRandom(random);
+        Pattern compile = Pattern.compile(regexStr);
+
+        List<String> aux = KeysLoader.loadKeys(this.getClass().getResource(inputFile).toURI().getPath().trim());
+        String[] parameters = aux.toArray(new String[aux.size()]);
+        for (String inputData : parameters) {
+            if (!compile.matcher(inputData).matches()) {
+                continue;
+            }
+            String maskResult = regexFunction.doGenerateMaskedField(inputData);
+            Matcher matcher = compile.matcher(maskResult);
+
+            Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches() == assertTrue); //$NON-NLS-1$
+            if (!"*".equals(assertResult)) { //$NON-NLS-1$
+                Assert.assertEquals("maskResult is correct result: " + assertResult, assertResult, maskResult); //$NON-NLS-1$
+            }
         }
     }
 
@@ -129,6 +157,21 @@ public class GenerateFromRegexTest {
                 new Random(12345), false);
         patternJudgeResult("\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$", "^^^^^^+33 4.31 02 3475$$$$$$", //$NON-NLS-1$//$NON-NLS-2$
                 new Random(12345), false);
+    }
+
+    /**
+     * Test method for
+     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
+     * case 5 400 items validation
+     * 
+     * @throws URISyntaxException
+     * @throws IOException
+     * @throws NullPointerException
+     */
+    @Test
+    public void testDoGenerateMaskedFieldStringCase5() throws NullPointerException, IOException, URISyntaxException {
+
+        patternJudgeResult("^\\d*[02468]$", "*", new Random(12345), true, "numberData.txt"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -154,6 +197,8 @@ public class GenerateFromRegexTest {
         Assert.assertFalse("null is not support by this API by now", isValidPattern);
         isValidPattern = GenerateFromRegex.isValidPattern("");
         Assert.assertTrue("empty should be support by this API by now", isValidPattern);
+        isValidPattern = GenerateFromRegex.isValidPattern("^\\d*[02468]$");
+        Assert.assertTrue("^\\d*[02468]$ should be support by this API by now", isValidPattern);
     }
 
     /**
