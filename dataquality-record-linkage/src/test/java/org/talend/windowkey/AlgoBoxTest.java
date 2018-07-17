@@ -133,6 +133,7 @@ public class AlgoBoxTest {
         assertEquals(BLANK_STR, AlgoBox.first_N_Char(BLANK_STR, 1));
         assertEquals("n", AlgoBox.first_N_Char(NULL_STR, 1)); //$NON-NLS-1$
         assertEquals(QUO_STR, AlgoBox.first_N_Char(QUO_STR, 1));
+        assertEquals("   ", AlgoBox.first_N_Char("   abc", 3)); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals(MIXTD_SURROGATEPAIR, AlgoBox.first_N_Char(MIXTD_SURROGATEPAIR, 10));
         assertEquals("𠀀𠀐", AlgoBox.first_N_Char(MIXTD_SURROGATEPAIR, 2)); //$NON-NLS-1$
         assertEquals("𠀀𠀐我𠀑a", AlgoBox.first_N_Char(MIXTD_SURROGATEPAIR, 5)); //$NON-NLS-1$
@@ -154,6 +155,8 @@ public class AlgoBoxTest {
         assertEquals(BLANK_STR, AlgoBox.first_N_Char_EW(BLANK_STR, 1));
         assertEquals("n", AlgoBox.first_N_Char_EW(NULL_STR, 1)); //$NON-NLS-1$
         assertEquals(QUO_STR, AlgoBox.first_N_Char_EW(QUO_STR, 1));
+        assertEquals("ab", AlgoBox.first_N_Char_EW("   abc", 2)); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("a", AlgoBox.first_N_Char_EW("   abc", 1)); //$NON-NLS-1$ //$NON-NLS-2$
         // TDQ-15079: Support Chinese　and surrogate pair characters
         assertEquals("拓科", AlgoBox.first_N_Char_EW("拓蓝\r科技", 1)); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("𠀀𠀐𠀑a", AlgoBox.first_N_Char_EW("𠀀𠀐我\t𠀑ab", 2)); //$NON-NLS-1$ //$NON-NLS-2$
