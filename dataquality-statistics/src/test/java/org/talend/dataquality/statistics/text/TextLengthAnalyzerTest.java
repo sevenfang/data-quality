@@ -82,7 +82,7 @@ public class TextLengthAnalyzerTest {
 
     @Test
     public void testAnalyzeSurrogatePair() {
-        String[] data = new String[] { "𠀀", "Avr", "ab" };
+        String[] data = new String[] { "𠀀", "Avr", "ab", "我𠀀𠀐𠀑𠀒" };
         for (String value : data) {
             analyzer.analyze(value);
         }
@@ -90,8 +90,8 @@ public class TextLengthAnalyzerTest {
         // Min
         Assert.assertEquals(0, stats.getMinTextLength(), 1);
         // Max
-        Assert.assertEquals(3, stats.getMaxTextLength(), 0);
+        Assert.assertEquals(5, stats.getMaxTextLength(), 0);
         // Avg
-        Assert.assertEquals(2, stats.getAvgTextLength(), 0);
+        Assert.assertEquals(2.75, stats.getAvgTextLength(), 0);
     }
 }
