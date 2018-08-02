@@ -12,11 +12,16 @@
 // ============================================================================
 package org.talend.dataquality.statistics.datetime;
 
+import org.talend.dataquality.statistics.type.SortedList;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Customized date time pattern manager.
@@ -26,12 +31,15 @@ import java.util.Set;
  */
 public final class CustomDateTimePatternManager {
 
+    @Deprecated
     private static final Locale DEFAULT_LOCALE = Locale.US;
 
+    @Deprecated
     public static boolean isDate(String value, List<String> customPatterns) {
         return isDate(value, customPatterns, DEFAULT_LOCALE);
     }
 
+    @Deprecated
     public static boolean isDate(String value, List<String> customPatterns, Locale locale) {
         // use custom patterns first
         if (isMatchCustomPatterns(value, customPatterns, locale)) {
@@ -41,10 +49,12 @@ public final class CustomDateTimePatternManager {
         return SystemDateTimePatternManager.isDate(value);
     }
 
+    @Deprecated
     public static boolean isTime(String value, List<String> customPatterns) {
         return isTime(value, customPatterns, DEFAULT_LOCALE);
     }
 
+    @Deprecated
     public static boolean isTime(String value, List<String> customPatterns, Locale locale) {
         // use custom patterns first
         if (isMatchCustomPatterns(value, customPatterns, locale)) {
@@ -54,45 +64,60 @@ public final class CustomDateTimePatternManager {
         return SystemDateTimePatternManager.isTime(value);
     }
 
+    @Deprecated
     public static boolean isMatchCustomPatterns(String value, List<String> customPatterns, Locale locale) {
-        for (String pattern : customPatterns) {
-            if (SystemDateTimePatternManager.isMatchDateTimePattern(value, pattern, locale)) {
-                return true;
-            }
-        }
-        return false;
+        return customPatterns.stream()
+                .filter(pattern -> SystemDateTimePatternManager.isMatchDateTimePattern(value, pattern, locale)).findAny()
+                .isPresent();
     }
 
     // for junit only
+    @Deprecated
     static Set<String> replaceByDateTimePattern(String value, String customPattern) {
         return replaceByDateTimePattern(value, customPattern, DEFAULT_LOCALE);
     }
 
+    @Deprecated
     static Set<String> replaceByDateTimePattern(String value, String customPattern, Locale locale) {
         return replaceByDateTimePattern(value, Collections.singletonList(customPattern), locale);
     }
 
+    @Deprecated
     public static Set<String> replaceByDateTimePattern(String value, List<String> customPatterns) {
-        return replaceByDateTimePattern(value, customPatterns, DEFAULT_LOCALE);
+        return replaceByDateTimePattern(value, customPatterns,
+                customPattern -> SystemDateTimePatternManager.isMatchDateTimePattern(value, customPattern));
     }
 
+    @Deprecated
     public static Set<String> replaceByDateTimePattern(String value, List<String> customPatterns, Locale locale) {
-        Set<String> resultPatternSet = new HashSet<String>();
+        return replaceByDateTimePattern(value, customPatterns,
+                customPattern -> SystemDateTimePatternManager.isMatchDateTimePattern(value, customPattern, locale));
+    }
+
+    @Deprecated
+    private static Set<String> replaceByDateTimePattern(String value, List<String> customPatterns,
+            Predicate<String> isMatchDateTimePattern) {
+        Set<String> resultPatternSet = new HashSet<>();
         for (String customPattern : customPatterns) {
-            if (SystemDateTimePatternManager.isMatchDateTimePattern(value, customPattern, locale)) {
+            if (isMatchDateTimePattern.test(customPattern)) {
                 resultPatternSet.add(customPattern);
             }
         }
         // otherwise, replace with system date pattern manager.
-        resultPatternSet.addAll(systemPatternReplace(value));
+        resultPatternSet.addAll(getPatterns(value, new SortedList<>()));
         return resultPatternSet;
     }
 
-    private static Set<String> systemPatternReplace(String value) {
-        Set<String> resultPatternSet = new HashSet<String>();
-        resultPatternSet.addAll(SystemDateTimePatternManager.datePatternReplace(value));
+    /**
+     * Find the patterns for a given value
+     * @param value
+     * @param frequentDatePatternsCache
+     * @return the list of found patterns AND the group with the pattern and the regex for the cache
+     */
+    public static Set<String> getPatterns(String value, SortedList<Map<Pattern, String>> frequentDatePatternsCache) {
+        Set<String> resultPatternSet = SystemDateTimePatternManager.getDatePatterns(value, frequentDatePatternsCache);
         if (resultPatternSet.isEmpty()) {
-            resultPatternSet.addAll(SystemDateTimePatternManager.timePatternReplace(value));
+            resultPatternSet = SystemDateTimePatternManager.getTimePatterns(value);
         }
         return resultPatternSet;
     }

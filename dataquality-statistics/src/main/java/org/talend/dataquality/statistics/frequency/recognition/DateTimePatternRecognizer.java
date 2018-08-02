@@ -15,10 +15,14 @@ package org.talend.dataquality.statistics.frequency.recognition;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.talend.dataquality.statistics.datetime.CustomDateTimePatternManager;
 import org.talend.dataquality.statistics.type.DataTypeEnum;
+import org.talend.dataquality.statistics.type.SortedList;
 
 /**
  * Recognize date types given the predefined date regex pattern.
@@ -29,6 +33,8 @@ import org.talend.dataquality.statistics.type.DataTypeEnum;
 public class DateTimePatternRecognizer extends AbstractPatternRecognizer {
 
     private List<String> customDateTimePatterns = new ArrayList<>();
+
+    private final SortedList<Map<Pattern, String>> frequentDatePatterns = new SortedList<>();
 
     public void addCustomDateTimePattern(String pattern) {
         this.customDateTimePatterns.add(pattern);
@@ -55,14 +61,11 @@ public class DateTimePatternRecognizer extends AbstractPatternRecognizer {
             return result;
         }
         if (stringToRecognize != null && stringToRecognize.length() > 6) {
-            final Set<String> datePatternAfterReplace = CustomDateTimePatternManager.replaceByDateTimePattern(stringToRecognize,
-                    customDateTimePatterns);
-            if (datePatternAfterReplace.isEmpty()) {
-                // Did not recognized.
-                result.setResult(Collections.singleton(stringToRecognize), false);
-            } else {
-                result.setResult(datePatternAfterReplace, true);
-            }
+            final Set<String> datePatternAfterReplace = CustomDateTimePatternManager.getPatterns(stringToRecognize,
+                    frequentDatePatterns);
+
+            result.setResult(CollectionUtils.isNotEmpty(datePatternAfterReplace) ? datePatternAfterReplace
+                    : Collections.singleton(stringToRecognize), CollectionUtils.isNotEmpty(datePatternAfterReplace));
         }
         return result;
     }
