@@ -176,6 +176,11 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
 
         private boolean isSpecial;
 
+        /**
+         * A sequence of combined type of characters if include surrogate pair characters
+         */
+        private boolean isIncludeSurrPair;
+
         PatternExplorer(String patternUnit, String patternSequence, String specialPattern) {
             this.patternUnit = patternUnit;
             this.patternSequence = patternSequence;
@@ -184,11 +189,12 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
 
         private int exploreWithCase(char[] ca, int start) {
             isSpecial = false;
+            isIncludeSurrPair = false;
             int pos = start;
             switch (this) {
             case IDEOGRAPHIC:
                 while (pos < ca.length && Character.isIdeographic(Character.codePointAt(ca, pos))) {
-                    pos++;
+                    pos += increaseIdeographicPos(ca[pos]);
                 }
                 break;
             case NUMERIC:
@@ -218,6 +224,7 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
 
         private int exploreNoCase(char[] ca, int start) {
             isSpecial = false;
+            isIncludeSurrPair = false;
             int pos = start;
             switch (this) {
             case ALPHABETIC:
@@ -227,7 +234,7 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
                 break;
             case IDEOGRAPHIC:
                 while (pos < ca.length && Character.isIdeographic(Character.codePointAt(ca, pos))) {
-                    pos++;
+                    pos += increaseIdeographicPos(ca[pos]);
                 }
                 break;
             case NUMERIC:
@@ -297,11 +304,21 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
             if (isSpecial) {
                 return specialPattern;
             }
-            if (seqLength == 1) {
+            if (seqLength == 1 || (seqLength == 2 && isIncludeSurrPair)) {
                 return patternUnit;
             } else {
                 return patternSequence;
             }
+        }
+
+        private int increaseIdeographicPos(char currentChar) {
+            if (!Character.isSurrogate(currentChar)) {
+                return 1;
+            }
+            // it is a surrogate pair character
+            isIncludeSurrPair = true;
+            return 2;
+
         }
     }
 
