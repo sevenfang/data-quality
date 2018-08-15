@@ -1,0 +1,80 @@
+---
+
+- hosts: all
+  name: Install Talend
+  become: yes
+  vars:
+    talend_install_path: /opt/talend
+    talend_download_path: /opt/talend/download
+    talend_license_path: /opt/talend/license
+
+  tasks:
+    - name: Create Talend install directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: ec2-user
+        group: users
+        mode: 0755
+        recurse: yes
+      with_items:
+        - "{{ talend_install_path }}"
+        - "{{ talend_download_path }}"
+        - "{{ talend_license_path }}"
+
+    - name: Copy Talend installer file
+      copy:
+        src: "../../tmp/{{ installer_file }}"
+        dest: "{{ talend_download_path }}/{{ installer_file }}"
+        owner: ec2-user
+        group: users
+        mode: 0755
+
+    - name: Download Talend installer dist
+      get_url:
+        url: "{{ dist_url }}"
+        url_username: "{{ build_user }}"
+        url_password: "{{ build_password }}"
+        dest: "{{ talend_download_path }}/{{ dist_url | basename }}"
+        checksum: "md5:{{ dist_checksum }}"
+        force_basic_auth: yes
+      register: download_result
+      until: download_result|succeeded
+      retries: 3
+      delay: 15
+      ignore_errors: yes
+
+    - name: Report download error
+      fail:
+        msg: "Unable to download {{ download_result.url }}: {{ download_result.response | default(download_result.msg) }}"
+      when: not download_result|succeeded
+
+    - name: Copy Talend license file
+      copy:
+        src: "../../tmp/{{ license_file }}"
+        dest: "{{ talend_license_path }}/{{ license_file }}"
+        owner: ec2-user
+        group: users
+        mode: 0755
+
+    - name: Generate optionfile for Talend installer
+      template:
+        src: ../../templates/optionfile.j2
+        dest: "{{ talend_download_path }}/optionfile"
+        owner: ec2-user
+        group: users
+        mode: 0755
+
+    - name: Run Talend installer
+      shell: "{{ talend_download_path }}/{{ installer_file }} --optionfile {{ talend_download_path }}/optionfile"
+
+    - name: Start Talend
+      shell: "nohup {{ talend_install_path }}/{{ item }} >/dev/null 2>&1 &"
+      with_items:
+        - "tac/start_tac.sh"
+        - "iam/start_iam.sh"
+        - "kafka/start_zookeeper.sh"
+        - "kafka/start_kafka.sh"
+        - "mongodb/start-mongodb.sh"
+        - "dq_dict/start.sh"
+        - "tds/start_tds.sh"

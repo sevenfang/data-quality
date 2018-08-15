@@ -1,0 +1,8 @@
+mode=unattended
+installType=custom
+
+prefix={{ talend_install_path }}
+licenseFile={{ talend_license_path }}/{{ license_file }}
+
+enable-components=tac, iam, tds
+disable-components=logserv, mdm, cmdline, runtime, jobserver, tdqp, dataprep, sap_rfc, studio, esb, serv

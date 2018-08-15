@@ -1,0 +1,77 @@
+---
+
+- hosts: all
+  name: Install Talend
+  connection: winrm
+  user: Administrator
+  port: 5986
+  vars:
+    talend_install_path: C:\talend
+    talend_download_path: C:\talend\download
+    talend_license_path: C:\talend\license
+
+  tasks:
+    - name: Create Talend install directories
+      win_file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ talend_install_path }}"
+        - "{{ talend_download_path }}"
+        - "{{ talend_license_path }}"
+
+    - name: Copy Talend installer file
+      win_copy:
+        src: "../../tmp/{{ installer_file }}"
+        dest: "{{ talend_download_path }}\\{{ installer_file }}"
+
+    - name: Download Talend installer dist
+      win_shell: |
+        $source = "{{ dist_url }}"
+        $destination = "{{ talend_download_path }}\\{{ dist_url | basename }}"
+        $client = new-object System.Net.WebClient
+        $credCache = new-object System.Net.CredentialCache
+        $creds = new-object System.Net.NetworkCredential("{{ build_user }}", "{{ build_password }}")
+        $credCache.Add("{{ dist_url }}", "Basic", $creds)
+        $client.Credentials = $credCache
+        $client.DownloadFile($source, $destination)
+      args:
+        creates: "{{ talend_download_path }}\\{{ dist_url | basename }}"
+      register: download_result
+      until: download_result|succeeded
+      retries: 3
+      delay: 15
+      ignore_errors: yes
+
+    - name: Report download error
+      fail:
+        msg: "Unable to download {{ download_result.url }}: {{ download_result.response | default(download_result.msg) }}"
+      when: not download_result|succeeded
+
+    - name: Copy Talend license file
+      win_copy:
+        src: "../../tmp/{{ license_file }}"
+        dest: "{{ talend_license_path }}\\{{ license_file }}"
+
+    - name: Generate optionfile for Talend installer
+      win_template:
+        src: ../../templates/optionfile.j2
+        dest: "{{ talend_download_path }}\\optionfile"
+
+    - name: Set JAVA_TOOL_OPTIONS environment variable
+      win_command: |
+        setx /m JAVA_TOOL_OPTIONS " -Dfile.encoding=UTF-8"
+
+    - name: Run Talend installer
+      win_shell: Start-Process -FilePath "{{ talend_download_path }}\\{{ installer_file }}" -ArgumentList "--optionfile {{ talend_download_path }}\\optionfile" -Wait -PassThru
+
+    - name: Start Talend
+      raw: ([wmiclass]"Win32_Process").Create("{{ talend_install_path }}\\{{ item }}")
+      with_items:
+        - "tac\\start_tac.bat"
+        - "iam\\start_iam.bat"
+        - "kafka\\start_zookeeper.bat"
+        - "kafka\\start_kafka.bat"
+        - "mongodb\\start-mongodb.bat"
+        - "dq_dict\\start.bat"
+        - "tds\\start_tds.bat"

@@ -1,0 +1,39 @@
+FROM alpine:3.7
+
+RUN apk add --no-cache \
+  gcc \
+  libffi-dev \
+  openssh-client \
+  openssl-dev \
+  musl-dev \
+  make \
+  python \
+  python-dev \
+  py-pip \
+  py-setuptools \
+  sshpass && \
+  rm -rf /var/cache/apk/*
+
+RUN pip install --upgrade pip
+
+RUN pip install \
+  ansible \
+  pywinrm
+
+RUN mkdir /etc/ansible/ /ansible && \
+    echo "[local]" >> /etc/ansible/hosts && \
+    echo "localhost" >> /etc/ansible/hosts
+
+RUN mkdir -p /ansible/playbooks
+
+ENV ANSIBLE_GATHERING smart
+ENV ANSIBLE_HOST_KEY_CHECKING false
+ENV ANSIBLE_RETRY_FILES_ENABLED false
+ENV ANSIBLE_ROLES_PATH /ansible/playbooks/roles
+ENV ANSIBLE_SSH_PIPELINING True
+ENV PATH /ansible/bin:$PATH
+ENV PYTHONPATH /ansible/lib
+
+WORKDIR /ansible/playbooks
+
+ENTRYPOINT ["ansible-playbook"]

@@ -1,0 +1,66 @@
+---
+
+- hosts: all
+  name: Prepare instance
+  connection: winrm
+  user: Administrator
+  port: 5986
+  vars:
+    java_download_url: http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-windows-x64.exe
+    java_download_file: C:\javaInstaller.exe
+    java_home: C:\java
+    jre_home: C:\java\jre
+
+  tasks:
+    - name: Check if java already installed
+      win_shell: java -version
+      register: java_installed
+      changed_when: java_installed.rc != 0
+      failed_when: false
+
+    - name: Download java
+      win_shell: |
+        $source = "{{ java_download_url }}"
+        $destination = "{{ java_download_file }}"
+        $client = new-object System.Net.WebClient
+        $cookie = "oraclelicense=accept-securebackup-cookie"
+        $client.Headers.Add([System.Net.HttpRequestHeader]::Cookie, $cookie)
+        $client.DownloadFile($source, $destination)
+      register: download_result
+      until: download_result|succeeded
+      retries: 5
+      delay: 30
+      when: java_installed|changed
+      ignore_errors: yes
+
+    - name: Report download error
+      fail:
+        msg: "Unable to download {{ download_result.url }}: {{ download_result.response|default(download_result.msg) }}"
+      when: not download_result|succeeded
+
+    - name: Install java
+      win_shell: |
+        Start-Process -FilePath "{{ java_download_file }}" -ArgumentList "/s INSTALLDIR={{ java_home }} REBOOT=ReallySuppress" -Wait -PassThru
+      when: java_installed|changed
+
+    - name: Clean up java
+      win_file:
+        path: "{{ java_download_file }}"
+        state: absent
+
+    - name: Set JAVA_HOME environment variable
+      win_command: |
+        setx /m JAVA_HOME "{{ java_home }}"
+
+    - name: Set JRE_HOME environment variable
+      win_command: |
+        setx /m JRE_HOME "{{ jre_home }}"
+
+    - name: Add firewall rule to allow internal inbound traffic
+      win_firewall_rule:
+        name: Allow internal traffic
+        direction: in
+        remoteip: 10.0.0.0/8
+        action: allow
+        state: present
+        enabled: yes

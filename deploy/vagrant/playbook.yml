@@ -1,0 +1,102 @@
+---
+
+- hosts: default
+  become: yes
+  vars:
+    java_download_url: http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.rpm
+    maven_download_url: https://archive.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz
+    maven_folder: /opt/apache-maven-3.2.5
+
+  tasks:
+    - name: Install development packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+      - "git"
+      - "vim"
+      - "wget"
+      - "jq"
+
+    - name: Download java rpm
+      get_url:
+        url: "{{ java_download_url }}"
+        dest: "/opt/{{ java_download_url | basename }}"
+        headers: "Cookie:oraclelicense=accept-securebackup-cookie"
+        validate_certs: no
+
+    - name: Install java
+      yum:
+        name: "/opt/{{ java_download_url | basename }}"
+        disable_gpg_check: yes
+        state: present
+
+    - name: Clean up java rpm
+      file:
+        path: "/opt/{{ java_download_url | basename }}"
+        state: absent
+
+    - name: Download and unpack maven
+      unarchive:
+        src: "{{maven_download_url}}"
+        dest: /opt
+        remote_src: yes
+
+    - name: Add maven to PATH variable
+      lineinfile:
+        dest: /etc/profile.d/mvn.sh
+        state: present
+        create: yes
+        line: 'PATH="$PATH:{{ maven_folder }}/bin"'
+
+    - name: Add nodejs repository
+      yum:
+        name: https://rpm.nodesource.com/pub_8.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm
+        state: present
+
+    - name: Install nodejs package
+      yum:
+         name: nodejs
+         state: present
+
+    - name: Add yarn repository
+      yum_repository:
+        name: yarn
+        description: Yarn Repository
+        baseurl: https://dl.yarnpkg.com/rpm/
+        gpgkey: https://dl.yarnpkg.com/rpm/pubkey.gpg
+
+    - name: Install yarn package
+      yum:
+        name: yarn
+        state: present
+
+    - name: Add docker-ce repository
+      yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - x86_64
+        baseurl: https://download-stage.docker.com/linux/centos/7/x86_64/stable
+        gpgkey: https://download-stage.docker.com/linux/centos/gpg
+
+    - name: Install docker-ce
+      yum:
+        name: docker-ce
+        state: present
+
+    - name: Start and enable docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Install docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.14.0/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 0755

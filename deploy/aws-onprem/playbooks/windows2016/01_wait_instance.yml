@@ -1,0 +1,17 @@
+---
+
+- hosts: localhost
+  name: Wait for instance
+  become: false
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Wait for instance to come up
+      delegate_to: "{{ delegate_to_address }}"
+      wait_for:
+        host: "{{ instance_private_dns }}"
+        port: 5986
+        delay: 30
+        timeout: 900
+        state: started
