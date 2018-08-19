@@ -17,7 +17,7 @@ TMP_WORKINGDIR="${MAIN_WORKINGDIR}/tmp"
 DOCKER_USER="$(id -u):$(id -g)"
 SSH_COMMON_ARGS=""
 TERRAFORM_BACKEND_KEY="us-east-1/talend-cloud-test/tdq-onprem-${RESOURCE_NAME}"
-USERCREATION_WORKDIR="${MAIN_WORKINGDIR}/../../data-stewardship-qa/data-stewardship-system-tests/data-stewardship-load-tests/tooling/onprem-user-creation"
+USERCREATION_WORKDIR="${MAIN_WORKINGDIR}/onprem-user-creation"
 WINDOWS_TEMP_PASSWORD="myTempPassword123"
 
 test -z "${ACTION_NAME}" && echo "ERROR: ACTION_NAME is needed as first parameter" && exit 1

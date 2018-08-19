@@ -1,0 +1,24 @@
+{
+  "actionName": "createUser",
+  "userLogin": "owner34@talend.com",
+  "userFirstName": "Owner 34",
+  "userLastName": "tds.talend.com",
+  "userPassword": "owner34",
+  "userRole": [
+    "Administrator",
+    "Designer",
+    "Operation manager"
+  ],
+  "authUser": "{{TAC_LOGIN}}",
+  "authPass": "{{TAC_PASSWORD}}",
+  "mode": "synchronous",
+  "tds": true,
+  "tdsRole": [
+    "Campaign Owner"
+  ],
+  "userType": "DQ",
+  "dqDict": true,
+  "dqDictRole": [
+    "Semantic_types_manager"
+  ]
+}

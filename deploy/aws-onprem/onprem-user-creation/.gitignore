@@ -1,0 +1,4 @@
+deleted-users/
+user-to-delete/*.json
+tmp/
+backup/

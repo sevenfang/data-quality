@@ -1,0 +1,6 @@
+{
+  "actionName": "deleteUser",
+  "authUser": "{{TAC_LOGIN}}",
+  "authPass": "{{TAC_PASSWORD}}",
+  "userLogin": "{{USER_LOGIN}}"
+}

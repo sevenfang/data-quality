@@ -1,0 +1,24 @@
+{
+  "actionName": "createUser",
+  "userLogin": "user42@talend.com",
+  "userFirstName": "User 42",
+  "userLastName": "tds.talend.com",
+  "userPassword": "user42",
+  "userRole": [
+    "Administrator",
+    "Designer",
+    "Operation manager"
+  ],
+  "authUser": "{{TAC_LOGIN}}",
+  "authPass": "{{TAC_PASSWORD}}",
+  "mode": "synchronous",
+  "tds": true,
+  "tdsRole": [
+    "Data Steward"
+  ],
+  "userType": "DQ",
+  "dqDict": true,
+  "dqDictRole": [
+    "Semantic_types_manager"
+  ]
+}

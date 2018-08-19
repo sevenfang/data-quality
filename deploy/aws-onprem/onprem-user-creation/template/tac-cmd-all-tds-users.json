@@ -1,0 +1,6 @@
+{
+  "actionName": "listUsers",
+  "authUser": "security@company.com",
+  "authPass": "admin",
+  "type": "TDS"
+}
