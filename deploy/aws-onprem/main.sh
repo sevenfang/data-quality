@@ -205,7 +205,9 @@ ${ANSIBLE_CMD} playbooks/${RESOURCE_NAME}/02_prepare_instance.yml -i "${instance
   -e "ansible_winrm_server_cert_validation=ignore" \
   -e "ansible_winrm_transport=basic" \
   -e "ansible_winrm_operation_timeout_sec=120" \
-  -e "ansible_winrm_read_timeout_sec=180"
+  -e "ansible_winrm_read_timeout_sec=180" \
+  -e "install_open_jdk=${install_open_jdk}" \
+  -e "install_oracle_jdk=${install_oracle_jdk}"
 
 echo "--- Deploy Talend on prem ---"
 cd ${ANSIBLE_WORKINGDIR}
