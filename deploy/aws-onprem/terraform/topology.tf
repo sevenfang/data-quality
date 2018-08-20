@@ -17,7 +17,7 @@ resource "aws_key_pair" "testonprem_key_pair" {
 resource "aws_instance" "testonprem_instance_suse" {
   count = "1"
   ami = "ami-62bda218"
-  instance_type = "t2.small"
+  instance_type = "t2.xlarge"
   subnet_id = "${data.aws_subnet.build_main_subnet.id}"
   vpc_security_group_ids = ["${data.aws_security_group.default_build_main_sg.id}"]
   associate_public_ip_address = "true"
@@ -43,7 +43,7 @@ resource "aws_instance" "testonprem_instance_suse" {
 resource "aws_instance" "testonprem_instance_windows2016" {
   count = "1"
   ami = "ami-4176943c"
-  instance_type = "t2.small"
+  instance_type = "t2.xlarge"
   subnet_id = "${data.aws_subnet.build_main_subnet.id}"
   vpc_security_group_ids = ["${data.aws_security_group.default_build_main_sg.id}"]
   associate_public_ip_address = "true"

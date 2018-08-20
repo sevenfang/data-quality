@@ -18,7 +18,7 @@
       changed_when: java_installed.rc != 0
       failed_when: false
 
-    - name: Download java
+    - name: Download oracle jdk
       win_shell: |
         $source = "{{ java_download_url }}"
         $destination = "{{ java_download_file }}"
