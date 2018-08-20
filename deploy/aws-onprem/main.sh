@@ -3,7 +3,9 @@
 # Parameters variables
 ACTION_NAME=$1
 RESOURCE_NAME=$2
-BASTION=$3
+JAVA_TYPE=$3
+BASTION=$4
+
 
 # Path variables
 WORKINGDIR="$(pwd)"
@@ -22,6 +24,8 @@ WINDOWS_TEMP_PASSWORD="myTempPassword123"
 
 test -z "${ACTION_NAME}" && echo "ERROR: ACTION_NAME is needed as first parameter" && exit 1
 test -z "${RESOURCE_NAME}" && echo "ERROR: RESOURCE_NAME is needed as second parameter" && exit 1
+test -z "${JAVA_TYPE}" && JAVA_TYPE="oracle_jdk"
+test "$JAVA_TYPE" != "oracle_jdk" && test "$JAVA_TYPE" != "open_jdk" && echo "The java type param should be either oracle_jdk or open_jdk!" && exit 1
 test -z "${BASTION}" && BASTION='localhost'
 test "${BASTION}" != 'localhost' && SSH_COMMON_ARGS="-o ProxyCommand='ssh -W %h:%p ${BASTION}'"
 
@@ -200,14 +204,12 @@ ${ANSIBLE_CMD} playbooks/${RESOURCE_NAME}/01_wait_instance.yml \
 
 echo "--- Prepare instance ---"
 cd ${ANSIBLE_WORKINGDIR}
-${ANSIBLE_CMD} playbooks/${RESOURCE_NAME}/02_prepare_instance.yml -i "${instance_private_dns}," --ssh-common-args "${SSH_COMMON_ARGS}" \
+${ANSIBLE_CMD} playbooks/${RESOURCE_NAME}/02_prepare_instance_${JAVA_TYPE}.yml -i "${instance_private_dns}," --ssh-common-args "${SSH_COMMON_ARGS}" \
   -e "ansible_password=${WINDOWS_TEMP_PASSWORD}" \
   -e "ansible_winrm_server_cert_validation=ignore" \
   -e "ansible_winrm_transport=basic" \
   -e "ansible_winrm_operation_timeout_sec=120" \
   -e "ansible_winrm_read_timeout_sec=180" \
-  -e "install_open_jdk=${install_open_jdk}" \
-  -e "install_oracle_jdk=${install_oracle_jdk}"
 
 echo "--- Deploy Talend on prem ---"
 cd ${ANSIBLE_WORKINGDIR}

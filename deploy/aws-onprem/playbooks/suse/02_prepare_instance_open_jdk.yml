@@ -5,8 +5,6 @@
   become: yes
   vars:
     java_download_url: https://cdn.azul.com/zulu/bin/zulu8.31.0.1-jdk8.0.181-linux.x86_64.rpm
-    install_open_jdk: false
-    install_oracle_jdk: true
 
   tasks:
     - name: Check if java already installed
@@ -14,25 +12,6 @@
       register: java_installed
       changed_when: java_installed.rc != 0
       failed_when: false
-
-    - name: Download oracle java
-      get_url:
-        url: "{{ java_download_url }}"
-        dest: "/opt/{{ java_download_url | basename }}"
-        validate_certs: no
-      register: download_oracle_java_result
-      until: download_oracle_java_result|succeeded
-      retries: 5
-      delay: 30
-      when:
-        - java_installed|changed
-        - install_oracle_jdk
-      ignore_errors: yes
-
-    - name: Report oracle java download error
-      fail:
-        msg: "Unable to download {{ java_download_url }}: {{ download_oracle_java_result.response | default(download_oracle_java_result.msg) }}"
-      when: not download_oracle_java_result|succeeded and install_oracle_jdk
 
     - name: Download open jdk
       get_url:
@@ -43,15 +22,13 @@
       until: download_result|succeeded
       retries: 5
       delay: 30
-      when:
-        - java_installed|changed
-        - install_open_jdk
+      when: java_installed|changed
       ignore_errors: yes
 
-    - name: Report open jdk download error
+    - name: Report download error
       fail:
         msg: "Unable to download {{ java_download_url }}: {{ download_result.response | default(download_result.msg) }}"
-      when: not download_result|succeeded and install_open_jdk
+      when: not download_result|succeeded
 
     - name: Install java
       zypper:

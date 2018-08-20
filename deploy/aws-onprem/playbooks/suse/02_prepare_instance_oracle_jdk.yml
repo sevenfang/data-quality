@@ -1,0 +1,54 @@
+---
+
+- hosts: all
+  name: Prepare instance
+  become: yes
+  vars:
+    java_download_url: http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.rpm
+
+  tasks:
+    - name: Check if java already installed
+      shell: java -version
+      register: java_installed
+      changed_when: java_installed.rc != 0
+      failed_when: false
+
+    - name: Download oracle java
+      get_url:
+        url: "{{ java_download_url }}"
+        dest: "/opt/{{ java_download_url | basename }}"
+        headers: "Cookie:oraclelicense=accept-securebackup-cookie"
+        validate_certs: no
+      register: download_result
+      until: download_result|succeeded
+      retries: 5
+      delay: 30
+      when: java_installed|changed
+      ignore_errors: yes
+
+    - name: Report download error
+      fail:
+        msg: "Unable to download {{ java_download_url }}: {{ download_result.response | default(download_result.msg) }}"
+      when: not download_result|succeeded
+
+    - name: Install java
+      zypper:
+        name: "/opt/{{ java_download_url | basename }}"
+        disable_gpg_check: yes
+        state: present
+      register: zypper_result
+      until: zypper_result|succeeded
+      retries: 5
+      delay: 30
+      when: java_installed|changed
+      ignore_errors: yes
+
+    - name: Report install error
+      fail:
+        msg: "Unable to install java: {{ zypper_result.msg }}"
+      when: not zypper_result|succeeded
+
+    - name: Clean up java
+      file:
+        path: "/opt/{{ java_download_url | basename }}"
+        state: absent
