@@ -51,18 +51,44 @@ public class ValueDataMasker implements Serializable {
     }
 
     /**
+     *
      * ValueDataMasker constructor.
-     * 
+     *
      * @param semanticCategory the semantic domain information
      * @param dataType the data type information
      * @param params extra parameters such as date time pattern list
      */
     public ValueDataMasker(String semanticCategory, String dataType, List<String> params) {
-        function = SemanticMaskerFunctionFactory.createMaskerFunctionForSemanticCategory(semanticCategory, dataType, params);
-        category = CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
+        this(semanticCategory, dataType, params, null);
+
+    }
+
+    /**
+     *
+     * ValueDataMasker constructor.
+     *
+     * @param semanticCategory the semantic domain information
+     * @param dataType the data type information
+     * @param params extra parameters such as date time pattern list
+     * @param dictionarySnapshot the dictionary snapshot
+     */
+    public ValueDataMasker(String semanticCategory, String dataType, List<String> params, DictionarySnapshot dictionarySnapshot) {
+        this.function = SemanticMaskerFunctionFactory.createMaskerFunctionForSemanticCategory(semanticCategory, dataType, params,
+                dictionarySnapshot);
+
+        category = dictionarySnapshot != null ? dictionarySnapshot.getDQCategoryByName(semanticCategory)
+                : CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
+
         if (category != null) {
-            DictionarySnapshot dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
-            semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionarySnapshot, new String[] {});
+            DictionarySnapshot dictionary = dictionarySnapshot != null ? dictionarySnapshot
+                    : new StandardDictionarySnapshotProvider().get();
+            if (category.getCompleteness()) {
+                semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionary, new String[] {});
+            }
+
+            if (this.function instanceof GenerateFromDictionaries) {
+                ((GenerateFromDictionaries) function).setDictionarySnapshot(dictionary);
+            }
         }
     }
 
