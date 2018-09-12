@@ -47,7 +47,6 @@ import org.talend.dataquality.statistics.type.DataTypeEnum;
  * Some examples :
  * <br>
  * <li>"A character is NOT a Word" will have the following pattern : [Char] [word] [word] [WORD] [char] [Word]</li>
- * <li>"someWordsINwORDS" will have the following pattern : [word][Word][WORD][wORD]</li>
  * <li>"Example123@protonmail.com" will have the following pattern : [Word][number]@[word].[word]</li>
  * <li>"anotherExample8@yopmail.com" will have the following pattern : [word][Word][digit]@[word].[word]</li>
  * <li>"袁 花木蘭88" will have the following pattern : [Ideogram] [IdeogramSeq][number]</li>
@@ -112,7 +111,6 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
             result.setResult(Collections.singleton(stringToRecognize), false);
             return result;
         }
-        boolean isComplete = true;
         // convert the string to recognize into a char array, in order to use Character class.
         char[] ca = stringToRecognize.toCharArray();
         // Initialize the patternSeq String builder to a new StringBuilder as it is a new String to Recognize.
@@ -135,11 +133,10 @@ public abstract class TypoUnicodePatternRecognizer extends AbstractPatternRecogn
             }
             if (loopStart == runningPos) {
                 patternSeq.append(ca[loopStart]);
-                isComplete = false;
                 runningPos++;
             }
         }
-        result.setResult(Collections.singleton(patternSeq.toString()), isComplete);
+        result.setResult(Collections.singleton(patternSeq.toString()), true);
         return result;
     }
 
