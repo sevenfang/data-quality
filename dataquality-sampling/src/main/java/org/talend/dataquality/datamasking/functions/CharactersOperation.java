@@ -14,6 +14,8 @@ package org.talend.dataquality.datamasking.functions;
 
 import java.util.Random;
 
+import org.talend.dataquality.common.pattern.TextPatternUtil;
+
 /**
  * @author jteuladedenantes
  * 
@@ -77,29 +79,25 @@ public abstract class CharactersOperation<T> extends Function<T> {
         int strCPCount = str.codePointCount(0, str.length());
         int beginAux = Math.min(Math.max(beginIndex, strCPCount - endNumberToReplace), strCPCount);
         int endAux = Math.max(Math.min(endIndex, strCPCount - endNumberToKeep), 0);
-        sb.append(str.substring(0, str.offsetByCodePoints(0, beginAux)));
-        if (!toRemove)
-            for (char c : str.substring(beginAux, endAux).toCharArray())
-                sb.append(replaceChar(c));
+        sb.append(str, 0, str.offsetByCodePoints(0, beginAux));
+        if (!toRemove) {
+            for (int i = beginAux; i < endAux; i++) {
+                Integer codePoint = str.codePointAt(str.offsetByCodePoints(0, i));
+                sb.append(Character.toChars(replaceChar(codePoint)));
+            }
+        }
         sb.append(str.substring(str.offsetByCodePoints(0, endAux)));
         if (sb.length() == 0)
             return getDefaultOutput();
         return getOutput(sb.toString());
     }
 
-    private char replaceChar(char c) {
-        if (!isGoodType(c))
-            return c;
+    private Integer replaceChar(Integer codePoint) {
+        if (!isGoodType(codePoint))
+            return codePoint;
         if (charToReplace != null)
-            return charToReplace;
-        if (Character.isDigit(c))
-            return Character.forDigit(rnd.nextInt(9), 10);
-        if (Character.isUpperCase(c))
-            return UPPER.charAt(rnd.nextInt(26));
-        if (Character.isLowerCase(c))
-            return LOWER.charAt(rnd.nextInt(26));
-        return c;
-
+            return (int) charToReplace;
+        return TextPatternUtil.replaceCharacter(codePoint, rnd);
     }
 
     /**
@@ -108,7 +106,7 @@ public abstract class CharactersOperation<T> extends Function<T> {
      * @param the character c to ckeck
      * @return true if c type is ok
      */
-    protected boolean isGoodType(char c) {
+    protected boolean isGoodType(Integer codePoint) {
         return true;
     }
 

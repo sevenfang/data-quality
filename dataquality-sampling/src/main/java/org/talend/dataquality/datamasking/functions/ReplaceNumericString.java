@@ -31,7 +31,7 @@ public class ReplaceNumericString extends ReplaceNumeric<String> {
     }
 
     @Override
-    protected boolean isGoodType(char c) {
-        return Character.isDigit(c);
+    protected boolean isGoodType(Integer codePoint) {
+        return Character.isDigit(codePoint);
     }
 }
