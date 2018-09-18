@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DatePatternHelper {
+public class DatePatternHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatePatternHelper.class);
 
@@ -84,5 +84,4 @@ class DatePatternHelper {
         }
         return StringUtils.EMPTY;
     }
-
 }
