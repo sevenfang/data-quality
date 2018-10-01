@@ -13,11 +13,14 @@
 package org.talend.dataquality.datamasking.functions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.utils.MockRandom;
 
 /**
  * @author dprot
@@ -51,11 +54,11 @@ public class GenerateSsnIndianTest {
     public void testCheckFirstDigit() {
         // First digit should not be a '0' in a Indian SSN
         gni.setRandom(new Random());
-        boolean res = true;
-        for (int i = 0; i < 10; ++i) {
+        boolean res;
+        for (int i = 0; i < 10; i++) {
             String tmp = gni.generateMaskedRow(null);
-            res = !(tmp.charAt(0) == '0');
-            assertEquals("wrong number : " + tmp, res, true); //$NON-NLS-1$
+            res = '0' != tmp.charAt(0);
+            assertTrue("wrong number : " + tmp, res); //$NON-NLS-1$
         }
     }
 
@@ -63,6 +66,14 @@ public class GenerateSsnIndianTest {
     public void testNull() {
         gni.keepNull = true;
         output = gni.generateMaskedRow(null);
-        assertEquals(null, output);
+        assertNull(output);
+    }
+
+    @Test
+    public void allDigitCanBeGenerated() {
+        MockRandom random = new MockRandom();
+        gni.setRandom(random);
+        output = gni.generateMaskedRow(null);
+        assertEquals("112345678907", output);
     }
 }
