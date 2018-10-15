@@ -42,6 +42,15 @@ public class ValueDataMasker implements Serializable {
 
     /**
      * ValueDataMasker constructor.
+     *
+     * @param function the embedded data masking function
+     */
+    public ValueDataMasker(Function<String> function) {
+        this.function = function;
+    }
+
+    /**
+     * ValueDataMasker constructor.
      * 
      * @param semanticCategory the semantic domain information
      * @param dataType the data type information
@@ -60,7 +69,6 @@ public class ValueDataMasker implements Serializable {
      */
     public ValueDataMasker(String semanticCategory, String dataType, List<String> params) {
         this(semanticCategory, dataType, params, null);
-
     }
 
     /**
@@ -76,6 +84,10 @@ public class ValueDataMasker implements Serializable {
         this.function = SemanticMaskerFunctionFactory.createMaskerFunctionForSemanticCategory(semanticCategory, dataType, params,
                 dictionarySnapshot);
 
+        initCategory(semanticCategory, dictionarySnapshot);
+    }
+
+    private void initCategory(String semanticCategory, DictionarySnapshot dictionarySnapshot) {
         category = dictionarySnapshot != null ? dictionarySnapshot.getDQCategoryByName(semanticCategory)
                 : CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
 
@@ -103,6 +115,19 @@ public class ValueDataMasker implements Serializable {
             return ReplaceCharacterHelper.replaceCharacters(input, function.getRandom());
         }
         // when category is null or input is valid
-        return function.generateMaskedRow(input);
+        try {
+            return function.generateMaskedRow(input);
+        } catch (RuntimeException e) {
+            return ReplaceCharacterHelper.replaceCharacters(input, function.getRandom());
+        }
+    }
+
+    /**
+     * update the extra param for function
+     *
+     * @param extraParam
+     */
+    public void resetExtraParameter(String extraParam) {
+        function.parse(extraParam, true, null);
     }
 }
