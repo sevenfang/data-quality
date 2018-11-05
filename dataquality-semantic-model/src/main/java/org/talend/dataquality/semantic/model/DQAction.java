@@ -7,6 +7,13 @@ public class DQAction {
 
     private Action action;
 
+    public DQAction() {
+    }
+
+    public DQAction(Action action) {
+        this.action = action;
+    }
+
     public Action getAction() {
         return action;
     }

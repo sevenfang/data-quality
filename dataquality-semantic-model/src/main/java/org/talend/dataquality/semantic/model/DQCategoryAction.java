@@ -16,10 +16,24 @@ import java.util.List;
 
 public class DQCategoryAction extends DQAction {
 
+    public DQCategoryAction() {
+    }
+
+    public DQCategoryAction(Action action, List<DQCategory> categories) {
+        super(action);
+        this.categories = categories;
+    }
+
+    /**
+     * TODO look not used, may be removed
+     */
     private String id;
 
     private List<DQCategory> categories;
 
+    /**
+     * TODO look not used, may be removed
+     */
     private String context;
 
     public String getId() {

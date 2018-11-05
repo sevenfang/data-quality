@@ -16,10 +16,24 @@ import java.util.List;
 
 public class DQDocumentAction extends DQAction {
 
+    public DQDocumentAction() {
+    }
+
+    public DQDocumentAction(Action action, List<DQDocument> documents) {
+        super(action);
+        this.documents = documents;
+    }
+
+    /**
+     * TODO look not used, may be removed
+     */
     private String id;
 
     private List<DQDocument> documents;
 
+    /**
+     * TODO look not used, may be removed
+     */
     private String context;
 
     public String getId() {
