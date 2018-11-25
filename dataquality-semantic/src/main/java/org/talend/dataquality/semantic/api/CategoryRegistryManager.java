@@ -496,6 +496,14 @@ public class CategoryRegistryManager {
         return cdh;
     }
 
+    public synchronized void delete(String tenantID) {
+        CustomDictionaryHolder cdh = customDictionaryHolderMap.get(tenantID);
+        if (cdh != null) {
+            LOGGER.info("Delete CustomDictionaryHolder for [" + tenantID + "]");
+            cdh.delete();
+            customDictionaryHolderMap.remove(tenantID);
+        }
+    }
     /**
      * @param input the input value
      * @param categoryName the category name

@@ -99,7 +99,7 @@ public class CustomDictionaryHolder {
         return tenantID;
     }
 
-    private String getIndexFolderPath(boolean isProduction, String indexName) {
+    public String getIndexFolderPath(boolean isProduction, String indexName) {
         return CategoryRegistryManager.getLocalRegistryPath() + File.separator + tenantID + File.separator
                 + (isProduction ? PRODUCTION_FOLDER_NAME : REPUBLISH_FOLDER_NAME) + File.separator + indexName;
     }
