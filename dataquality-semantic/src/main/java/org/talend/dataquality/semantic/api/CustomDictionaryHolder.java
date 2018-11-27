@@ -136,7 +136,6 @@ public class CustomDictionaryHolder {
     }
 
     private synchronized void ensureMetadataIndexAccess() {
-        if (customMetadataIndexAccess == null) {
             LOGGER.info(String.format(INITIALIZE_ACCESS, CUSTOM, METADATA_SUBFOLDER_NAME, tenantID));
             String metadataIndexPath = getIndexFolderPath(true, METADATA_SUBFOLDER_NAME);
             File folder = new File(metadataIndexPath);
@@ -149,12 +148,10 @@ public class CustomDictionaryHolder {
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-        }
     }
 
     private synchronized void ensureDocumentDictIndexAccess() {
         ensureMetadataIndexAccess();
-        if (customDocumentIndexAccess == null) {
             LOGGER.info(String.format(INITIALIZE_ACCESS, CUSTOM, DICTIONARY_SUBFOLDER_NAME, tenantID));
             String dataDictIndexPath = getIndexFolderPath(true, DICTIONARY_SUBFOLDER_NAME);
             File folder = new File(dataDictIndexPath);
@@ -167,11 +164,9 @@ public class CustomDictionaryHolder {
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-        }
     }
 
     private synchronized void ensureRepublishDataDictIndexAccess() {
-        if (customRepublishDataDictIndexAccess == null) {
             LOGGER.info(String.format(INITIALIZE_ACCESS, REPUBLISH_FOLDER_NAME, DICTIONARY_SUBFOLDER_NAME, tenantID));
             String dataDictIndexPath = getIndexFolderPath(false, DICTIONARY_SUBFOLDER_NAME);
             File folder = new File(dataDictIndexPath);
@@ -183,12 +178,9 @@ public class CustomDictionaryHolder {
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-        }
     }
 
     private synchronized void ensureRepublishMetadataIndexAccess() {
-        if (customRepublishMetadataIndexAccess == null) {
-
             LOGGER.info(String.format(INITIALIZE_ACCESS, REPUBLISH_FOLDER_NAME, METADATA_SUBFOLDER_NAME, tenantID));
             String dataDictIndexPath = getIndexFolderPath(false, METADATA_SUBFOLDER_NAME);
             File folder = new File(dataDictIndexPath);
@@ -199,7 +191,6 @@ public class CustomDictionaryHolder {
                 customRepublishMetadataIndexAccess = new CustomMetadataIndexAccess(FSDirectory.open(folder));
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
-            }
         }
     }
 
@@ -616,6 +607,17 @@ public class CustomDictionaryHolder {
                         DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
                 new LuceneIndex(getDataDictDirectory(), DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
                 new LuceneIndex(CategoryRegistryManager.getInstance().getSharedKeywordDirectory(),
+                        DictionarySearchMode.MATCH_SEMANTIC_KEYWORD), //
+                getRegexClassifier()//
+        );
+    }
+
+    public DictionarySnapshot getDictionarySnapshot(CategoryRegistryManager categoryRegistryManager) {
+        return new DictionarySnapshot(getMetadata(), //
+                new LuceneIndex(categoryRegistryManager.getSharedDataDictDirectory(),
+                        DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
+                new LuceneIndex(getDataDictDirectory(), DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
+                new LuceneIndex(categoryRegistryManager.getSharedKeywordDirectory(),
                         DictionarySearchMode.MATCH_SEMANTIC_KEYWORD), //
                 getRegexClassifier()//
         );

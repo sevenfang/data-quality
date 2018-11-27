@@ -341,28 +341,22 @@ public class CategoryRegistryManager {
      * Getter for sharedDataDictDirectory.
      */
     public Directory getSharedDataDictDirectory() {
-        if (sharedDataDictDirectory == null) {
             try {
-                sharedDataDictDirectory = ClassPathDirectory.open(getDictionaryURI());
+                return ClassPathDirectory.open(getDictionaryURI());
             } catch (URISyntaxException e) {
-                LOGGER.error(e.getMessage(), e);
+                throw new RuntimeException("... it's an error !");
             }
-        }
-        return sharedDataDictDirectory;
     }
 
     /**
      * Getter for sharedKeywordDirectory.
      */
     public Directory getSharedKeywordDirectory() {
-        if (sharedKeywordDirectory == null) {
             try {
-                sharedKeywordDirectory = ClassPathDirectory.open(getKeywordURI());
+                return ClassPathDirectory.open(getKeywordURI());
             } catch (URISyntaxException e) {
-                LOGGER.error(e.getMessage(), e);
+                throw new RuntimeException("... it's an error !");
             }
-        }
-        return sharedKeywordDirectory;
     }
 
     /**
