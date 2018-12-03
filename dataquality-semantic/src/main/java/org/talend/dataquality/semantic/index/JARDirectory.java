@@ -62,6 +62,7 @@ public class JARDirectory extends Directory {
         FileSystem fileSystem;
 
         String jarFileName;
+
     }
 
     /**

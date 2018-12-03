@@ -136,61 +136,61 @@ public class CustomDictionaryHolder {
     }
 
     private synchronized void ensureMetadataIndexAccess() {
-            LOGGER.info(String.format(INITIALIZE_ACCESS, CUSTOM, METADATA_SUBFOLDER_NAME, tenantID));
-            String metadataIndexPath = getIndexFolderPath(true, METADATA_SUBFOLDER_NAME);
-            File folder = new File(metadataIndexPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            try {
-                customMetadataIndexAccess = new CustomMetadataIndexAccess(FSDirectory.open(folder));
-                metadata = customMetadataIndexAccess.readCategoryMedatada();
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+        LOGGER.info(String.format(INITIALIZE_ACCESS, CUSTOM, METADATA_SUBFOLDER_NAME, tenantID));
+        String metadataIndexPath = getIndexFolderPath(true, METADATA_SUBFOLDER_NAME);
+        File folder = new File(metadataIndexPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        try {
+            customMetadataIndexAccess = new CustomMetadataIndexAccess(FSDirectory.open(folder));
+            metadata = customMetadataIndexAccess.readCategoryMedatada();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     private synchronized void ensureDocumentDictIndexAccess() {
         ensureMetadataIndexAccess();
-            LOGGER.info(String.format(INITIALIZE_ACCESS, CUSTOM, DICTIONARY_SUBFOLDER_NAME, tenantID));
-            String dataDictIndexPath = getIndexFolderPath(true, DICTIONARY_SUBFOLDER_NAME);
-            File folder = new File(dataDictIndexPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            try {
-                dataDictDirectory = FSDirectory.open(folder);
-                customDocumentIndexAccess = new CustomDocumentIndexAccess(dataDictDirectory);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+        LOGGER.info(String.format(INITIALIZE_ACCESS, CUSTOM, DICTIONARY_SUBFOLDER_NAME, tenantID));
+        String dataDictIndexPath = getIndexFolderPath(true, DICTIONARY_SUBFOLDER_NAME);
+        File folder = new File(dataDictIndexPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        try {
+            dataDictDirectory = FSDirectory.open(folder);
+            customDocumentIndexAccess = new CustomDocumentIndexAccess(dataDictDirectory);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     private synchronized void ensureRepublishDataDictIndexAccess() {
-            LOGGER.info(String.format(INITIALIZE_ACCESS, REPUBLISH_FOLDER_NAME, DICTIONARY_SUBFOLDER_NAME, tenantID));
-            String dataDictIndexPath = getIndexFolderPath(false, DICTIONARY_SUBFOLDER_NAME);
-            File folder = new File(dataDictIndexPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            try {
-                customRepublishDataDictIndexAccess = new CustomDocumentIndexAccess(FSDirectory.open(folder));
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+        LOGGER.info(String.format(INITIALIZE_ACCESS, REPUBLISH_FOLDER_NAME, DICTIONARY_SUBFOLDER_NAME, tenantID));
+        String dataDictIndexPath = getIndexFolderPath(false, DICTIONARY_SUBFOLDER_NAME);
+        File folder = new File(dataDictIndexPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        try {
+            customRepublishDataDictIndexAccess = new CustomDocumentIndexAccess(FSDirectory.open(folder));
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     private synchronized void ensureRepublishMetadataIndexAccess() {
-            LOGGER.info(String.format(INITIALIZE_ACCESS, REPUBLISH_FOLDER_NAME, METADATA_SUBFOLDER_NAME, tenantID));
-            String dataDictIndexPath = getIndexFolderPath(false, METADATA_SUBFOLDER_NAME);
-            File folder = new File(dataDictIndexPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            try {
-                customRepublishMetadataIndexAccess = new CustomMetadataIndexAccess(FSDirectory.open(folder));
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+        LOGGER.info(String.format(INITIALIZE_ACCESS, REPUBLISH_FOLDER_NAME, METADATA_SUBFOLDER_NAME, tenantID));
+        String dataDictIndexPath = getIndexFolderPath(false, METADATA_SUBFOLDER_NAME);
+        File folder = new File(dataDictIndexPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        try {
+            customRepublishMetadataIndexAccess = new CustomMetadataIndexAccess(FSDirectory.open(folder));
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -617,8 +617,7 @@ public class CustomDictionaryHolder {
                 new LuceneIndex(categoryRegistryManager.getSharedDataDictDirectory(),
                         DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
                 new LuceneIndex(getDataDictDirectory(), DictionarySearchMode.MATCH_SEMANTIC_DICTIONARY), //
-                new LuceneIndex(categoryRegistryManager.getSharedKeywordDirectory(),
-                        DictionarySearchMode.MATCH_SEMANTIC_KEYWORD), //
+                new LuceneIndex(categoryRegistryManager.getSharedKeywordDirectory(), DictionarySearchMode.MATCH_SEMANTIC_KEYWORD), //
                 getRegexClassifier()//
         );
     }

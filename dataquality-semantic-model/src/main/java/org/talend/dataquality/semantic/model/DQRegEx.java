@@ -12,8 +12,13 @@
 // ============================================================================
 package org.talend.dataquality.semantic.model;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
+
 import java.io.Serializable;
 
+@Data
+@Accessors(fluent = true)
 public class DQRegEx implements Serializable {
 
     private static final long serialVersionUID = -4979286653307821967L;

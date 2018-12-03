@@ -341,22 +341,22 @@ public class CategoryRegistryManager {
      * Getter for sharedDataDictDirectory.
      */
     public Directory getSharedDataDictDirectory() {
-            try {
-                return ClassPathDirectory.open(getDictionaryURI());
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("... it's an error !");
-            }
+        try {
+            return ClassPathDirectory.open(getDictionaryURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("... it's an error !");
+        }
     }
 
     /**
      * Getter for sharedKeywordDirectory.
      */
     public Directory getSharedKeywordDirectory() {
-            try {
-                return ClassPathDirectory.open(getKeywordURI());
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("... it's an error !");
-            }
+        try {
+            return ClassPathDirectory.open(getKeywordURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("... it's an error !");
+        }
     }
 
     /**
@@ -498,6 +498,7 @@ public class CategoryRegistryManager {
             customDictionaryHolderMap.remove(tenantID);
         }
     }
+
     /**
      * @param input the input value
      * @param categoryName the category name

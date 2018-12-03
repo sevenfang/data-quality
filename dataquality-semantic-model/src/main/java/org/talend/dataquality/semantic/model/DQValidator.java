@@ -12,8 +12,13 @@
 // ============================================================================
 package org.talend.dataquality.semantic.model;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
+
 import java.io.Serializable;
 
+@Data
+@Accessors(fluent = true)
 public class DQValidator implements Serializable {
 
     private static final long serialVersionUID = 2265314886790764196L;

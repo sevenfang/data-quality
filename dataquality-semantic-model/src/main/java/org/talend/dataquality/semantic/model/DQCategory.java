@@ -17,7 +17,11 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(fluent = true)
 public class DQCategory implements Serializable {
 
     private static final long serialVersionUID = 4593691452129397269L;
