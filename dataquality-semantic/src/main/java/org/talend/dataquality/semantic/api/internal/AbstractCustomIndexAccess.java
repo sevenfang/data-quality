@@ -98,7 +98,7 @@ public class AbstractCustomIndexAccess implements AutoCloseable {
                 writer.commit();
             }
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            throw new RuntimeException("commitChanges failed", e);
         }
     }
 

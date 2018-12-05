@@ -59,7 +59,7 @@ public class CustomMetadataIndexAccess extends AbstractCustomIndexAccess {
             Document luceneDoc = DictionaryUtils.categoryToDocument(category);
             getWriter().addDocument(luceneDoc);
         } catch (IOException | NullPointerException e) {
-            LOGGER.error(e.getMessage(), e);
+            throw new RuntimeException("Error...", e);
         }
     }
 
