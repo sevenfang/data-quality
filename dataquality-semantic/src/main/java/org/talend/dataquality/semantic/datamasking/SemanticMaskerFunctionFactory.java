@@ -12,10 +12,6 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.dataquality.datamasking.FunctionFactory;
@@ -33,6 +29,10 @@ import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 public class SemanticMaskerFunctionFactory {
 
@@ -63,10 +63,11 @@ public class SemanticMaskerFunctionFactory {
             DQCategory category = dictionarySnapshot != null ? dictionarySnapshot.getDQCategoryByName(semanticCategory)
                     : CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
             if (category != null) {
-                if (CategoryType.DICT.equals(category.getType())) {
+                CategoryType categoryType = category.getType();
+                if (CategoryType.DICT.equals(categoryType)) {
                     function = new GenerateFromDictionaries();
                     function.parse(category.getId(), true, null);
-                } else if (CategoryType.REGEX.equals(category.getType())) {
+                } else if (CategoryType.REGEX.equals(categoryType)) {
                     final UserDefinedClassifier udc = dictionarySnapshot != null ? dictionarySnapshot.getRegexClassifier()
                             : CategoryRegistryManager.getInstance().getRegexClassifier();
                     final String patternString = udc.getPatternStringByCategoryId(category.getId());
@@ -74,6 +75,9 @@ public class SemanticMaskerFunctionFactory {
                         function = new GenerateFromRegex();
                         function.parse(patternString, true, null);
                     }
+                } else if (CategoryType.COMPOUND.equals(categoryType)) {
+                    function = new GenerateFromCompound();
+                    function.parse(category.getId(), true, null);
                 }
             }
         }
