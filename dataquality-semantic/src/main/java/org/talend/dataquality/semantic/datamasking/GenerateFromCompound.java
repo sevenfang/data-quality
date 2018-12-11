@@ -59,9 +59,7 @@ public class GenerateFromCompound extends Function<String> {
         DQCategory cat = dictionarySnapshot.getMetadata().get(semanticCategoryId);
 
         setKeepNull(keepNullValues);
-        if (rand != null) {
-            setRandom(rand);
-        }
+        setRandom(rand);
 
         if (valuesInDictionaries == null && dictionarySnapshot != null) {
             valuesInDictionaries = new HashMap<>();
@@ -74,23 +72,30 @@ public class GenerateFromCompound extends Function<String> {
 
     private void initDictionaries(DQCategory cat) {
         cat.getChildren().forEach(child -> {
-            CategoryType childType = child.getType();
+            DQCategory completeChild = dictionarySnapshot.getMetadata().get(child.getId());
+            CategoryType childType = completeChild.getType();
 
             switch (childType) {
             case DICT:
-                DQCategory childMetadata = dictionarySnapshot.getMetadata().get(child.getId());
-                if (childMetadata != null) {
+                if (completeChild != null) {
                     List<String> values = new ArrayList<>();
-                    if (!childMetadata.getModified()) {
-                        values.addAll(getValuesFromIndex(dictionarySnapshot.getSharedDataDict(), childMetadata.getId()));
+                    if (!completeChild.getModified()) {
+                        values.addAll(getValuesFromIndex(dictionarySnapshot.getSharedDataDict(), completeChild.getId()));
                     } else {
-                        values.addAll(getValuesFromIndex(dictionarySnapshot.getCustomDataDict(), childMetadata.getId()));
+                        values.addAll(getValuesFromIndex(dictionarySnapshot.getCustomDataDict(), completeChild.getId()));
                     }
                     valuesInDictionaries.put(child.getId(), values);
                 }
                 break;
             case REGEX:
                 String pattern = dictionarySnapshot.getRegexClassifier().getPatternStringByCategoryId(child.getId());
+
+                if (pattern.charAt(0) == '^')
+                    pattern = pattern.substring(1);
+
+                if (pattern.charAt(pattern.length() - 1) == '$')
+                    pattern = pattern.substring(0, pattern.length() - 1);
+
                 regexs.put(child.getId(), pattern);
                 generexs.put(child.getId(), new Generex(pattern, rnd));
                 break;

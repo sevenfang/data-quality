@@ -43,18 +43,6 @@ public class GenerateFromDictionaries extends Function<String> {
 
     @Override
     protected String doGenerateMaskedField(String t) {
-        if (valuesInDictionaries == null && dictionarySnapshot != null) {
-            DQCategory cat = dictionarySnapshot.getMetadata().get(semanticCategoryId);
-            valuesInDictionaries = new ArrayList<>();
-            if (cat != null) {
-                if (!cat.getModified()) {
-                    valuesInDictionaries.addAll(getValuesFromIndex(dictionarySnapshot.getSharedDataDict()));
-                } else {
-                    valuesInDictionaries.addAll(getValuesFromIndex(dictionarySnapshot.getCustomDataDict()));
-                }
-            }
-        }
-
         if (!valuesInDictionaries.isEmpty()) {
             return valuesInDictionaries.get(rnd.nextInt(valuesInDictionaries.size()));
         } else {
@@ -74,9 +62,20 @@ public class GenerateFromDictionaries extends Function<String> {
         this.semanticCategoryId = semanticCategoryId;
 
         setKeepNull(keepNullValues);
-        if (rand != null) {
-            setRandom(rand);
+        setRandom(rand);
+
+        if (valuesInDictionaries == null && dictionarySnapshot != null) {
+            DQCategory cat = dictionarySnapshot.getMetadata().get(semanticCategoryId);
+            valuesInDictionaries = new ArrayList<>();
+            if (cat != null) {
+                if (!cat.getModified()) {
+                    valuesInDictionaries.addAll(getValuesFromIndex(dictionarySnapshot.getSharedDataDict()));
+                } else {
+                    valuesInDictionaries.addAll(getValuesFromIndex(dictionarySnapshot.getCustomDataDict()));
+                }
+            }
         }
+
     }
 
     public void setDictionarySnapshot(DictionarySnapshot dictionarySnapshot) {

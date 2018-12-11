@@ -29,6 +29,7 @@ import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 
 import java.util.Date;
 import java.util.List;
@@ -65,9 +66,13 @@ public class SemanticMaskerFunctionFactory {
             if (category != null) {
                 CategoryType categoryType = category.getType();
                 String extraParameter = category.getId();
+
                 switch (categoryType) {
                 case DICT:
                     function = new GenerateFromDictionaries();
+                    DictionarySnapshot snapshot = dictionarySnapshot != null ? dictionarySnapshot
+                            : new StandardDictionarySnapshotProvider().get();
+                    ((GenerateFromDictionaries) function).setDictionarySnapshot(snapshot);
                     break;
                 case REGEX:
                     final UserDefinedClassifier udc = dictionarySnapshot != null ? dictionarySnapshot.getRegexClassifier()
@@ -80,9 +85,13 @@ public class SemanticMaskerFunctionFactory {
                     break;
                 case COMPOUND:
                     function = new GenerateFromCompound();
+                    DictionarySnapshot snapshotCompound = dictionarySnapshot != null ? dictionarySnapshot
+                            : new StandardDictionarySnapshotProvider().get();
+                    ((GenerateFromCompound) function).setDictionarySnapshot(snapshotCompound);
                     break;
                 }
-                function.parse(extraParameter, true, null);
+                if (function != null)
+                    function.parse(extraParameter, true, null);
             }
         }
 

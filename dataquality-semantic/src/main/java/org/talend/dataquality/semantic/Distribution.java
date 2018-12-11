@@ -7,6 +7,7 @@ import org.apache.commons.math3.util.MathArrays;
 import org.apache.commons.math3.util.Pair;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,8 +20,8 @@ public class Distribution<T> implements Serializable {
 
     private final List<T> singletons;
 
-    public Distribution(List<Pair<T, Double>> pmf, long seed) {
-        this(pmf, new Random(seed));
+    public Distribution(List<Pair<T, Double>> pmf) {
+        this(pmf, new SecureRandom());
     }
 
     public Distribution(List<Pair<T, Double>> pmf, Random rnd) {
