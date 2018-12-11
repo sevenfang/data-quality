@@ -64,21 +64,25 @@ public class SemanticMaskerFunctionFactory {
                     : CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
             if (category != null) {
                 CategoryType categoryType = category.getType();
-                if (CategoryType.DICT.equals(categoryType)) {
+                String extraParameter = category.getId();
+                switch (categoryType) {
+                case DICT:
                     function = new GenerateFromDictionaries();
-                    function.parse(category.getId(), true, null);
-                } else if (CategoryType.REGEX.equals(categoryType)) {
+                    break;
+                case REGEX:
                     final UserDefinedClassifier udc = dictionarySnapshot != null ? dictionarySnapshot.getRegexClassifier()
                             : CategoryRegistryManager.getInstance().getRegexClassifier();
                     final String patternString = udc.getPatternStringByCategoryId(category.getId());
                     if (GenerateFromRegex.isValidPattern(patternString)) {
                         function = new GenerateFromRegex();
-                        function.parse(patternString, true, null);
+                        extraParameter = patternString;
                     }
-                } else if (CategoryType.COMPOUND.equals(categoryType)) {
+                    break;
+                case COMPOUND:
                     function = new GenerateFromCompound();
-                    function.parse(category.getId(), true, null);
+                    break;
                 }
+                function.parse(extraParameter, true, null);
             }
         }
 

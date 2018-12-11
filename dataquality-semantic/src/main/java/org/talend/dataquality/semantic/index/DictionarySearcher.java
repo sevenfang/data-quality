@@ -346,6 +346,10 @@ public class DictionarySearcher extends AbstractDictionarySearcher {
         return topDocs;
     }
 
+    public List<Document> listDocumentsByCategoryId(String catId) {
+        return listDocumentsByCategoryId(catId, 0, Integer.MAX_VALUE);
+    }
+
     public List<Document> listDocumentsByCategoryId(String catId, int offset, int n) {
         try {
             final IndexSearcher searcher = mgr.acquire();
