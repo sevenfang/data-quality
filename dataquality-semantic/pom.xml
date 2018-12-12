@@ -74,6 +74,13 @@
 			<version>1.5.1</version>
 		</dependency>
 
+		<!--used by GenerateFromRegex-->
+		<dependency>
+			<groupId>com.github.mifmif</groupId>
+			<artifactId>generex</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+
 		<!-- logging stuff -->
 		<dependency>
 			<groupId>log4j</groupId>

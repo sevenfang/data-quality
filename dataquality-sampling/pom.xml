@@ -121,12 +121,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		 <!--used by GenerateFromRegex-->
-        <dependency>
-            <groupId>com.github.mifmif</groupId>
-            <artifactId>generex</artifactId>
-            <version>1.0.2</version>
-         </dependency>
 		<dependency>
 		    <groupId>dk.brics</groupId>
 		    <artifactId>automaton</artifactId>

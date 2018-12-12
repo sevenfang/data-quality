@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.talend.dataquality.datamasking.FunctionType;
 import org.talend.dataquality.datamasking.functions.Function;
-import org.talend.dataquality.datamasking.semantic.GenerateFromRegex;
 import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.CustomDictionaryHolder;

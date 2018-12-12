@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
+
 /**
  * data masking of a column with the content of compound semantic type
  */
@@ -89,13 +91,7 @@ public class GenerateFromCompound extends Function<String> {
                 break;
             case REGEX:
                 String pattern = dictionarySnapshot.getRegexClassifier().getPatternStringByCategoryId(child.getId());
-
-                if (pattern.charAt(0) == '^')
-                    pattern = pattern.substring(1);
-
-                if (pattern.charAt(pattern.length() - 1) == '$')
-                    pattern = pattern.substring(0, pattern.length() - 1);
-
+                pattern = removeInvalidCharacter(pattern);
                 regexs.put(child.getId(), pattern);
                 generexs.put(child.getId(), new Generex(pattern, rnd));
                 break;
@@ -135,6 +131,7 @@ public class GenerateFromCompound extends Function<String> {
             result = values.get(rnd.nextInt(values.size()));
         } else if (regexs.containsKey(key)) {
             result = generexs.get(key).random();
+            result = result.substring(0, result.length() - 1);
         }
 
         return result;
