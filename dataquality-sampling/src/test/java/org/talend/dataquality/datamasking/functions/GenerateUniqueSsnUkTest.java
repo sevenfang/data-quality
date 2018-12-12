@@ -13,11 +13,14 @@
 package org.talend.dataquality.datamasking.functions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FormatPreservingMethod;
 
 /**
  * @author jteuladedenantes
@@ -32,6 +35,7 @@ public class GenerateUniqueSsnUkTest {
     @Before
     public void setUp() throws Exception {
         gnu.setRandom(new Random(42));
+        gnu.setSecret(FormatPreservingMethod.BASIC.name(), "");
         gnu.setKeepFormat(true);
     }
 
@@ -45,12 +49,14 @@ public class GenerateUniqueSsnUkTest {
     @Test
     public void testGood1() {
         output = gnu.generateMaskedRow("AL 486934 D");
+        assertTrue(gnu.isValid(output));
         assertEquals("TG 807846 D", output);
     }
 
     @Test
     public void testGood2() {
         output = gnu.generateMaskedRow("PP132459A ");
+        assertTrue(gnu.isValid(output));
         assertEquals("NJ207147A ", output);
     }
 
@@ -59,7 +65,7 @@ public class GenerateUniqueSsnUkTest {
         gnu.setKeepInvalidPattern(false);
         // without a number
         output = gnu.generateMaskedRow("PP13259A");
-        assertEquals(null, output);
+        assertNull(output);
     }
 
     @Test
@@ -67,7 +73,7 @@ public class GenerateUniqueSsnUkTest {
         gnu.setKeepInvalidPattern(false);
         // with the forbidden letter D
         output = gnu.generateMaskedRow("LO 486934 A");
-        assertEquals(null, output);
+        assertNull(output);
     }
 
     @Test
@@ -75,6 +81,6 @@ public class GenerateUniqueSsnUkTest {
         gnu.setKeepInvalidPattern(false);
         // with the forbidden letters NK
         output = gnu.generateMaskedRow("NK 486934 B");
-        assertEquals(null, output);
+        assertNull(output);
     }
 }

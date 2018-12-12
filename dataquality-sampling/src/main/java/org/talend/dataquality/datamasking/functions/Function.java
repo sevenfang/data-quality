@@ -26,7 +26,7 @@ import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
  * created by jgonzalez on 18 juin 2015. This class is an abstract class that
- * all other functions extends. All the methods and fiels that all functions
+ * all other functions extend. All the methods and fields that all functions
  * share are stored here.
  *
  */
@@ -154,20 +154,14 @@ public abstract class Function<T> implements Serializable {
     }
 
     /**
-     * 
      * Judge whether current function need to check parameter as a path
-     * 
-     * @return
      */
     protected boolean isNeedCheckPath() {
         return false;
     }
 
     /**
-     * 
      * Judge whether the parameter can be both file and value
-     * 
-     * @return
      */
     protected boolean isBothValidForFileOrNot() {
         return false;
@@ -252,6 +246,10 @@ public abstract class Function<T> implements Serializable {
 
     protected T doGenerateMaskedFieldConsistent(T t) {
         throw new NotImplementedException();
+    }
+
+    public void setSecret(String method, String secret) {
+        throw new UnsupportedOperationException("The class " + this.getClass() + " should not use a secret.");
     }
 
     protected int nextRandomDigit() {

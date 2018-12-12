@@ -8,28 +8,32 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.talend.dataquality.datamasking.functions.Function;
+import org.talend.dataquality.datamasking.functions.AbstractGenerateWithSecret;
 import org.talend.dataquality.datamasking.generic.fields.AbstractField;
 import org.talend.dataquality.datamasking.generic.fields.FieldDate;
 import org.talend.dataquality.datamasking.generic.fields.FieldEnum;
 import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
+import org.talend.dataquality.datamasking.generic.patterns.AbstractGeneratePattern;
+import org.talend.dataquality.datamasking.generic.patterns.GenerateUniqueRandomPatterns;
+import org.talend.dataquality.datamasking.utils.crypto.BasicSpec;
 import org.talend.dataquality.sampling.exception.DQRuntimeException;
 
 /**
  *
  */
-public class BijectiveSubstitutionFunction extends Function<String> {
+public class BijectiveSubstitutionFunction extends AbstractGenerateWithSecret {
 
     private static final long serialVersionUID = 8900059408697610292L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BijectiveSubstitutionFunction.class);
 
-    private GenerateUniqueRandomPatterns uniqueGenericPattern;
+    private AbstractGeneratePattern uniqueGenericPattern;
 
     public BijectiveSubstitutionFunction(List<FieldDefinition> fieldDefinitionList) throws IOException {
 
@@ -117,7 +121,7 @@ public class BijectiveSubstitutionFunction extends Function<String> {
     @Override
     public void setRandom(Random rand) {
         super.setRandom(rand);
-        uniqueGenericPattern.setKey(rand.nextInt() % 10000 + 1000);
+        secretMng.setKey(rand.nextInt() % BasicSpec.BASIC_KEY_BOUND + BasicSpec.BASIC_KEY_OFFSET);
     }
 
     @Override
@@ -165,10 +169,8 @@ public class BijectiveSubstitutionFunction extends Function<String> {
             currentPos += length;
         }
 
-        StringBuilder result = uniqueGenericPattern.generateUniqueString(strs);
-        if (result == null) {
-            return null;
-        }
-        return result;
+        Optional<StringBuilder> result = uniqueGenericPattern.generateUniqueString(strs, secretMng);
+
+        return result.orElse(null);
     }
 }

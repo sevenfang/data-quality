@@ -3,26 +3,27 @@ package org.talend.dataquality.datamasking.functions;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
-import org.talend.dataquality.datamasking.generic.GenerateUniqueRandomPatterns;
+import org.talend.dataquality.datamasking.generic.patterns.GenerateUniqueRandomPatterns;
 import org.talend.dataquality.datamasking.generic.fields.AbstractField;
 import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
+import org.talend.dataquality.datamasking.generic.patterns.AbstractGeneratePattern;
 
 /**
  * Created by jteuladedenantes on 21/09/16.
  */
-public abstract class AbstractGenerateUniquePhoneNumber extends Function<String> {
+public abstract class AbstractGenerateUniquePhoneNumber extends AbstractGenerateWithSecret {
 
     private static final long serialVersionUID = -3495285699226639929L;
 
-    protected GenerateUniqueRandomPatterns phoneNumberPattern;
+    protected AbstractGeneratePattern phoneNumberPattern;
 
     private ReplaceNumericString replaceNumeric = new ReplaceNumericString();
 
     public AbstractGenerateUniquePhoneNumber() {
         List<AbstractField> fields = createFieldsListFromPattern();
-
         phoneNumberPattern = new GenerateUniqueRandomPatterns(fields);
     }
 
@@ -30,7 +31,7 @@ public abstract class AbstractGenerateUniquePhoneNumber extends Function<String>
     public void setRandom(Random rand) {
         super.setRandom(rand);
         replaceNumeric.parse(null, false, rand);
-        phoneNumberPattern.setKey(rand.nextInt(Integer.MAX_VALUE - 1000000) + 1000000);
+        secretMng.setKey(super.rnd.nextInt(Integer.MAX_VALUE - 1000000) + 1000000);
     }
 
     @Override
@@ -76,14 +77,13 @@ public abstract class AbstractGenerateUniquePhoneNumber extends Function<String>
         // read the input str
         List<String> strs = new ArrayList<String>();
 
-        strs.add(str.substring(str.length() - getDigitsNumberToMask(), str.length()));
+        strs.add(str.substring(str.length() - getDigitsNumberToMask()));
 
-        StringBuilder result = phoneNumberPattern.generateUniqueString(strs);
-        if (result == null) {
-            return null;
-        }
-        result.insert(0, str.substring(0, str.length() - getDigitsNumberToMask()));
-        return result;
+        Optional<StringBuilder> result = phoneNumberPattern.generateUniqueString(strs, secretMng);
+
+        result.ifPresent(number -> number.insert(0, str.substring(0, str.length() - getDigitsNumberToMask())));
+
+        return result.orElse(null);
     }
 
     /**
