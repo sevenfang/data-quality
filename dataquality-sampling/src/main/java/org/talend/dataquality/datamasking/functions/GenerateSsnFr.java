@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
-import java.math.BigInteger;
+import org.talend.dataquality.datamasking.utils.ssn.UtilsSsnFr;
 
 /**
  * The first character has a range of (1, 99). The second character has a range of (1, 12). The third character has a
@@ -24,39 +24,48 @@ public class GenerateSsnFr extends Function<String> {
 
     private static final long serialVersionUID = 8845031997964609626L;
 
-    private static final BigInteger MOD97 = new BigInteger("97"); //$NON-NLS-1$
-
     @Override
     protected String doGenerateMaskedField(String str) {
         StringBuilder result = new StringBuilder(EMPTY_STRING);
         result.append(rnd.nextInt(2) + 1);
-        int yy = rnd.nextInt(99) + 1;
-        if (yy < 10) {
-            result.append("0"); //$NON-NLS-1$
-        }
-        result.append(yy);
-        int mm = rnd.nextInt(12) + 1;
-        if (mm < 10) {
-            result.append("0"); //$NON-NLS-1$
-        }
-        result.append(mm);
-        int ll = rnd.nextInt(95) + 1;
-        if (ll < 10) {
-            result.append("0"); //$NON-NLS-1$
-        }
-        result.append(ll);
-        for (int i = 0; i < 6; ++i) {
-            result.append(nextRandomDigit());
-        }
 
-        BigInteger ssn = new BigInteger(result.toString());
-        int controlKey = 97 - ssn.mod(MOD97).intValue();
+        int year = rnd.nextInt(99) + 1;
+        if (year < 10) {
+            result.append("0"); //$NON-NLS-1$
+        }
+        result.append(year);
 
-        result.append(" "); //$NON-NLS-1$
-        if (controlKey < 10)
-            result.append("0");
-        result.append(controlKey);
+        int month = rnd.nextInt(12) + 1;
+        if (month < 10) {
+            result.append("0"); //$NON-NLS-1$
+        }
+        result.append(month);
+
+        int dept = rnd.nextInt(UtilsSsnFr.getNumberOfFrenchDepartments());
+        result.append(UtilsSsnFr.getFrenchDepartments().get(dept));
+
+        // Commune
+        result.append(generateTripleN(990));
+
+        // Rank of birth
+        result.append(generateTripleN(999));
+
+        // Add the security key specified for french SSN
+        String controlKey = UtilsSsnFr.computeFrenchKey(result);
+        result.append(" ").append(controlKey);
 
         return result.toString();
+    }
+
+    private StringBuilder generateTripleN(int bound) {
+        StringBuilder sb = new StringBuilder();
+        int number = rnd.nextInt(bound) + 1;
+        if (number < 10) {
+            sb.append("00");
+        } else if (number < 100) {
+            sb.append(0);
+        }
+        sb.append(number);
+        return sb;
     }
 }
