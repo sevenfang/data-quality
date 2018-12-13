@@ -12,17 +12,15 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
+import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
+
 import java.security.SecureRandom;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.datamasking.functions.Function;
 
 import com.mifmif.common.regex.Generex;
-
-import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
 
 /**
  * Generate masking data from regex str

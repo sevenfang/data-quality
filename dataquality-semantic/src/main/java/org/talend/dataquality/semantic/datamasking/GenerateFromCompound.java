@@ -12,17 +12,7 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
-import com.mifmif.common.regex.Generex;
-import org.apache.commons.math3.util.Pair;
-import org.apache.lucene.document.Document;
-import org.talend.dataquality.datamasking.functions.Function;
-import org.talend.dataquality.semantic.Distribution;
-import org.talend.dataquality.semantic.index.DictionarySearcher;
-import org.talend.dataquality.semantic.index.Index;
-import org.talend.dataquality.semantic.index.LuceneIndex;
-import org.talend.dataquality.semantic.model.CategoryType;
-import org.talend.dataquality.semantic.model.DQCategory;
-import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +24,18 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
+import org.apache.commons.math3.util.Pair;
+import org.apache.lucene.document.Document;
+import org.talend.dataquality.datamasking.functions.Function;
+import org.talend.dataquality.semantic.Distribution;
+import org.talend.dataquality.semantic.index.DictionarySearcher;
+import org.talend.dataquality.semantic.index.Index;
+import org.talend.dataquality.semantic.index.LuceneIndex;
+import org.talend.dataquality.semantic.model.CategoryType;
+import org.talend.dataquality.semantic.model.DQCategory;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+
+import com.mifmif.common.regex.Generex;
 
 /**
  * data masking of a column with the content of compound semantic type

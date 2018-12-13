@@ -43,7 +43,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Include-Resource>{maven-resources},lib/automaton.jar=lib/automaton.jar,lib/generex.jar=lib/generex.jar,lib/format-preserving-encryption.jar=lib/format-preserving-encryption.jar,licenses=licenses</Include-Resource>
+                        <Include-Resource>{maven-resources},lib/format-preserving-encryption.jar=lib/format-preserving-encryption.jar,licenses=licenses</Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>

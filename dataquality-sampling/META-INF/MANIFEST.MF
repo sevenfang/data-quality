@@ -5,7 +5,6 @@ Bundle-SymbolicName: org.talend.dataquality.sampling
 Bundle-Version: 6.2.0.SNAPSHOT
 Bundle-Vendor: .Talend SA.
 Export-Package: org.talend.dataquality.datamasking,
- org.talend.dataquality.datamasking.utils,
  org.talend.dataquality.datamasking.utils.crypto,
  org.talend.dataquality.datamasking.functions,
  org.talend.dataquality.datamasking.generic,
