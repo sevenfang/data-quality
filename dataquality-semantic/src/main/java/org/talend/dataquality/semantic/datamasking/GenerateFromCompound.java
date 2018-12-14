@@ -44,8 +44,6 @@ public class GenerateFromCompound extends Function<String> {
 
     private Map<String, List<String>> valuesInDictionaries;
 
-    private Map<String, String> regexs;
-
     private Map<String, Generex> generexs;
 
     private DictionarySnapshot dictionarySnapshot;
@@ -66,14 +64,13 @@ public class GenerateFromCompound extends Function<String> {
 
         if (valuesInDictionaries == null && dictionarySnapshot != null) {
             valuesInDictionaries = new HashMap<>();
-            regexs = new HashMap<>();
             generexs = new HashMap<>();
-            initDictionaries(cat);
+            initSemanticTypes(cat);
             processDistribution();
         }
     }
 
-    private void initDictionaries(DQCategory cat) {
+    private void initSemanticTypes(DQCategory cat) {
         cat.getChildren().forEach(child -> {
             DQCategory completeChild = dictionarySnapshot.getMetadata().get(child.getId());
             CategoryType childType = completeChild.getType();
@@ -93,11 +90,10 @@ public class GenerateFromCompound extends Function<String> {
             case REGEX:
                 String pattern = dictionarySnapshot.getRegexClassifier().getPatternStringByCategoryId(child.getId());
                 pattern = removeInvalidCharacter(pattern);
-                regexs.put(child.getId(), pattern);
                 generexs.put(child.getId(), new Generex(pattern, rnd));
                 break;
             case COMPOUND:
-                initDictionaries(child);
+                initSemanticTypes(child);
                 break;
             }
         });
@@ -110,15 +106,15 @@ public class GenerateFromCompound extends Function<String> {
         Collection<List<String>> values = valuesInDictionaries.values();
         if (values.size() > 0) {
             largestDict = values.stream().max(Comparator.comparing(List::size)).get().size();
-            nbElem = values.stream().mapToInt(List::size).sum() + regexs.size() * largestDict;
+            nbElem = values.stream().mapToInt(List::size).sum() + generexs.size() * largestDict;
         } else {
             largestDict = 1;
-            nbElem = regexs.size();
+            nbElem = generexs.size();
         }
 
         List<Pair<String, Double>> probabilities = new ArrayList<>();
         valuesInDictionaries.forEach((key, value) -> probabilities.add(new Pair(key, ((double) value.size() / nbElem))));
-        regexs.forEach((key, value) -> probabilities.add(new Pair(key, (double) largestDict / nbElem)));
+        generexs.forEach((key, value) -> probabilities.add(new Pair(key, (double) largestDict / nbElem)));
 
         distribution = new Distribution(probabilities, rnd);
     }
@@ -130,7 +126,7 @@ public class GenerateFromCompound extends Function<String> {
         if (valuesInDictionaries.containsKey(key)) {
             List<String> values = valuesInDictionaries.get(key);
             result = values.get(rnd.nextInt(values.size()));
-        } else if (regexs.containsKey(key)) {
+        } else if (generexs.containsKey(key)) {
             result = generexs.get(key).random();
             result = result.substring(0, result.length() - 1);
         }
