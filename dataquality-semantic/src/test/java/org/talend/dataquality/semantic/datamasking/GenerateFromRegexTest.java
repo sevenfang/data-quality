@@ -209,4 +209,18 @@ public class GenerateFromRegexTest {
         Assert.assertTrue("^\\d*[02468]$ should be support by this API by now", isValidPattern);
     }
 
+    @Test
+    public void smallRegex() {
+        String pattern = "(.{1,6})( *, *(.{1,6})){0,2}";
+        Assert.assertTrue(GenerateFromRegex.isValidPattern(pattern));
+
+    }
+
+    @Test
+    public void largeRegex() {
+        String pattern = "(.{1,6})( *, *(.{1,6})){0,25}";
+        Assert.assertFalse(GenerateFromRegex.isValidPattern(pattern));
+
+    }
+
 }

@@ -17,6 +17,13 @@ import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidChar
 import java.security.SecureRandom;
 import java.util.Random;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.datamasking.functions.Function;
 
@@ -90,7 +97,24 @@ public class GenerateFromRegex extends Function<String> {
                 return false;
             }
         }
-        return Generex.isValidPattern(patternString);
+        return Generex.isValidPattern(patternString) && isComputable(patternString);
+    }
+
+    private static boolean isComputable(String patternString) {
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        Future future = executor.submit(() -> {
+            new Generex(patternString);
+        });
+
+        try {
+            future.get(1, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return false;
+        }
+
+        return true;
     }
 
 }
