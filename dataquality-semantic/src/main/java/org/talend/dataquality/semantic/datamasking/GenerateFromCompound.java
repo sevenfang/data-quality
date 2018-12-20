@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
+import static org.talend.dataquality.semantic.model.CategoryType.DICT;
+import static org.talend.dataquality.semantic.model.CategoryType.REGEX;
 import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import org.apache.commons.math3.util.Pair;
 import org.apache.lucene.document.Document;
 import org.talend.dataquality.datamasking.functions.Function;
 import org.talend.dataquality.semantic.Distribution;
+import org.talend.dataquality.semantic.datamasking.model.CategoryValues;
 import org.talend.dataquality.semantic.index.DictionarySearcher;
 import org.talend.dataquality.semantic.index.Index;
 import org.talend.dataquality.semantic.index.LuceneIndex;
@@ -42,11 +45,7 @@ import com.mifmif.common.regex.Generex;
  */
 public class GenerateFromCompound extends Function<String> {
 
-    private Map<String, List<String>> valuesInDictionaries;
-
-    private Map<String, Generex> generexs;
-
-    private DictionarySnapshot dictionarySnapshot;
+    private List<CategoryValues> categoryValues = null;
 
     private Distribution distribution;
 
@@ -57,64 +56,46 @@ public class GenerateFromCompound extends Function<String> {
 
     @Override
     public void parse(String semanticCategoryId, boolean keepNullValues, Random rand) {
-        DQCategory cat = dictionarySnapshot.getMetadata().get(semanticCategoryId);
 
         setKeepNull(keepNullValues);
         setRandom(rand);
 
-        if (valuesInDictionaries == null && dictionarySnapshot != null) {
-            valuesInDictionaries = new HashMap<>();
-            generexs = new HashMap<>();
-            initSemanticTypes(cat);
+        if (categoryValues != null) {
             processDistribution();
         }
-    }
-
-    private void initSemanticTypes(DQCategory cat) {
-        cat.getChildren().forEach(child -> {
-            DQCategory completeChild = dictionarySnapshot.getMetadata().get(child.getId());
-            CategoryType childType = completeChild.getType();
-
-            switch (childType) {
-            case DICT:
-                if (completeChild != null) {
-                    List<String> values = new ArrayList<>();
-                    if (!completeChild.getModified()) {
-                        values.addAll(getValuesFromIndex(dictionarySnapshot.getSharedDataDict(), completeChild.getId()));
-                    } else {
-                        values.addAll(getValuesFromIndex(dictionarySnapshot.getCustomDataDict(), completeChild.getId()));
-                    }
-                    valuesInDictionaries.put(child.getId(), values);
-                }
-                break;
-            case REGEX:
-                String pattern = dictionarySnapshot.getRegexClassifier().getPatternStringByCategoryId(child.getId());
-                pattern = removeInvalidCharacter(pattern);
-                generexs.put(child.getId(), new Generex(pattern, rnd));
-                break;
-            case COMPOUND:
-                initSemanticTypes(child);
-                break;
-            }
-        });
     }
 
     private void processDistribution() {
         int largestDict;
         int nbElem;
 
-        Collection<List<String>> values = valuesInDictionaries.values();
+        List<List<String>> values = new ArrayList<>();
+
+        for (CategoryValues category : categoryValues) {
+            if (DICT.equals(category.getType())) {
+                values.add((List<String>) category.getValue()); //can't use stream because of cast
+            }
+        }
+
+        long nbRegex = categoryValues.stream().filter(cat -> REGEX.equals(cat.getType())).count();
         if (values.size() > 0) {
             largestDict = values.stream().max(Comparator.comparing(List::size)).get().size();
-            nbElem = values.stream().mapToInt(List::size).sum() + generexs.size() * largestDict;
+            nbElem = (int) (values.stream().mapToInt(List::size).sum() + nbRegex * largestDict);
         } else {
             largestDict = 1;
-            nbElem = generexs.size();
+            nbElem = (int) nbRegex;
         }
 
         List<Pair<String, Double>> probabilities = new ArrayList<>();
-        valuesInDictionaries.forEach((key, value) -> probabilities.add(new Pair(key, ((double) value.size() / nbElem))));
-        generexs.forEach((key, value) -> probabilities.add(new Pair(key, (double) largestDict / nbElem)));
+
+        categoryValues.forEach(categoryValues -> {
+
+            if (DICT.equals(categoryValues.getType()))
+                probabilities.add(
+                        new Pair(categoryValues.getCategoryId(), ((double) ((List) categoryValues.getValue()).size() / nbElem)));
+            else if (REGEX.equals(categoryValues.getType()))
+                probabilities.add(new Pair(categoryValues.getCategoryId(), (double) largestDict / nbElem));
+        });
 
         distribution = new Distribution(probabilities, rnd);
     }
@@ -123,24 +104,23 @@ public class GenerateFromCompound extends Function<String> {
         String result = EMPTY_STRING;
 
         String key = (String) distribution.sample();
-        if (valuesInDictionaries.containsKey(key)) {
-            List<String> values = valuesInDictionaries.get(key);
-            result = values.get(rnd.nextInt(values.size()));
-        } else if (generexs.containsKey(key)) {
-            result = generexs.get(key).random();
+        CategoryValues cats = categoryValues.stream().filter(cat -> key.equals(cat.getCategoryId())).findAny().get();
+
+        CategoryType type = cats.getType();
+
+        if (DICT.equals(type)) {
+            List values = (List) cats.getValue();
+            result = (String) values.get(rnd.nextInt(values.size()));
+        } else if (REGEX.equals(type)) {
+            result = ((Generex) cats.getValue()).random();
+
             result = result.substring(0, result.length() - 1);
         }
 
         return result;
     }
 
-    private List<String> getValuesFromIndex(Index index, String categoryId) {
-        List<Document> listLuceneDocs = ((LuceneIndex) index).getSearcher().listDocumentsByCategoryId(categoryId);
-        return listLuceneDocs.stream().flatMap(doc -> Arrays.asList(doc.getValues(DictionarySearcher.F_RAW)).stream())
-                .collect(Collectors.toList());
-    }
-
-    public void setDictionarySnapshot(DictionarySnapshot dictionarySnapshot) {
-        this.dictionarySnapshot = dictionarySnapshot;
+    public void setCategoryValues(List<CategoryValues> categoryValues) {
+        this.categoryValues = categoryValues;
     }
 }

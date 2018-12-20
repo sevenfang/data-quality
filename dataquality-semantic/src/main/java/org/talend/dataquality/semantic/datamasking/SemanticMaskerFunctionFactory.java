@@ -29,6 +29,7 @@ import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
 import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
+import org.talend.dataquality.semantic.validator.GenerateValidator;
 
 import java.util.Date;
 import java.util.List;
@@ -83,10 +84,16 @@ public class SemanticMaskerFunctionFactory {
                     }
                     break;
                 case COMPOUND:
-                    function = new GenerateFromCompound();
+
                     DictionarySnapshot snapshotCompound = dictionarySnapshot != null ? dictionarySnapshot
                             : new StandardDictionarySnapshotProvider().get();
-                    ((GenerateFromCompound) function).setDictionarySnapshot(snapshotCompound);
+
+                    List types = GenerateValidator.initSemanticTypes(snapshotCompound, category, null);
+                    if (types.size() > 0) {
+                        function = new GenerateFromCompound();
+                        ((GenerateFromCompound) function).setCategoryValues(types);
+                    }
+
                     break;
                 }
                 if (function != null)
