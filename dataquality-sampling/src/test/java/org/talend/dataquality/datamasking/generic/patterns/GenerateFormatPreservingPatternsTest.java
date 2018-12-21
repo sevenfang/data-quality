@@ -21,7 +21,11 @@ import org.talend.dataquality.datamasking.generic.fields.FieldEnum;
 import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -105,6 +109,15 @@ public class GenerateFormatPreservingPatternsTest {
         }
         assertNotNull(result);
         assertEquals(expected, result.toString());
+    }
+
+    @Test
+    public void severalRadix() {
+        for (int i = Character.MIN_RADIX; i <= Character.MAX_RADIX; i++) {
+            pattern = new GenerateFormatPreservingPatterns(i, pattern.getFields());
+            StringBuilder output = pattern.generateUniquePattern(Arrays.asList("U", "KI", "45", "12"), secretMng);
+            assertNotNull("Masking did not work with radix value of : " + i, output);
+        }
     }
 
     @Test

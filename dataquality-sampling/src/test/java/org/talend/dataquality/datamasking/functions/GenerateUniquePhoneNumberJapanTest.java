@@ -1,7 +1,5 @@
 package org.talend.dataquality.datamasking.functions;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Locale;
 import java.util.Random;
 
@@ -11,6 +9,9 @@ import org.junit.Test;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import org.talend.dataquality.datamasking.FormatPreservingMethod;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by jteuladedenantes on 22/09/16.
@@ -28,7 +29,36 @@ public class GenerateUniquePhoneNumberJapanTest {
     @Before
     public void setUp() throws Exception {
         gnj.setRandom(new Random(56));
+        gnj.setSecret(FormatPreservingMethod.BASIC.name(), "");
         gnj.setKeepFormat(true);
+    }
+
+    @Test
+    public void testKeepInvalidPatternTrue() {
+        gnj.setKeepInvalidPattern(true);
+        output = gnj.generateMaskedRow("AHDBNSKD");
+        assertEquals("AHDBNSKD", output);
+    }
+
+    @Test
+    public void outputsNullWhenInputNull() {
+        gnj.setKeepInvalidPattern(false);
+        output = gnj.generateMaskedRow(null);
+        assertNull(output);
+    }
+
+    @Test
+    public void outputsNullWhenInputEmpty() {
+        gnj.setKeepInvalidPattern(false);
+        output = gnj.generateMaskedRow("");
+        assertNull(output);
+    }
+
+    @Test
+    public void outputsNullWhenInputInvalid() {
+        gnj.setKeepInvalidPattern(false);
+        output = gnj.generateMaskedRow("AHDBNSKD");
+        assertNull(output);
     }
 
     @Test
@@ -45,14 +75,16 @@ public class GenerateUniquePhoneNumberJapanTest {
     }
 
     @Test
-    public void testInvalid() {
-        // without a number
-        output = gnj.generateMaskedRow("35686");
-        assertEquals("34647", output);
-        gnj.setKeepInvalidPattern(true);
-        // with a letter
-        output = gnj.generateMaskedRow("35686");
-        assertEquals("35686", output);
+    public void unreproducibleWhenNoPasswordSet() {
+        String input = "49-92 8 7895";
+        gnj.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF.name(), "");
+        String result1 = gnj.generateMaskedRow(input);
+
+        gnj.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF.name(), "");
+        String result2 = gnj.generateMaskedRow(input);
+
+        assertNotEquals(String.format("The result should not be reproducible when no password is set. Input value is %s.", input),
+                result1, result2);
     }
 
     @Test

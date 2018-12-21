@@ -12,15 +12,13 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.dataquality.datamasking.FormatPreservingMethod;
+
+import static org.junit.Assert.*;
 
 /**
  * @author jteuladedenantes
@@ -43,6 +41,27 @@ public class GenerateUniqueSsnUsTest {
         gnu.setKeepEmpty(true);
         output = gnu.generateMaskedRow("");
         assertEquals("", output); //$NON-NLS-1$
+    }
+
+    @Test
+    public void testKeepInvalidPatternTrue() {
+        gnu.setKeepInvalidPattern(true);
+        output = gnu.generateMaskedRow("AHDBNSKD");
+        assertEquals("AHDBNSKD", output);
+    }
+
+    @Test
+    public void outputsNullWhenInputNull() {
+        gnu.setKeepInvalidPattern(false);
+        output = gnu.generateMaskedRow(null);
+        assertNull(output);
+    }
+
+    @Test
+    public void outputsNullWhenInputEmpty() {
+        gnu.setKeepInvalidPattern(false);
+        output = gnu.generateMaskedRow("");
+        assertNull(output);
     }
 
     @Test
@@ -81,5 +100,18 @@ public class GenerateUniqueSsnUsTest {
         // with the forbidden number 00
         output = gnu.generateMaskedRow("153 00 4862");
         assertNull(output);
+    }
+
+    @Test
+    public void unreproducibleWhenNoPasswordSet() {
+        String input = "153 65 4862";
+        gnu.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF.name(), "");
+        String result1 = gnu.generateMaskedRow(input);
+
+        gnu.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF.name(), "");
+        String result2 = gnu.generateMaskedRow(input);
+
+        assertNotEquals(String.format("The result should not be reproducible when no password is set. Input value is %s.", input),
+                result1, result2);
     }
 }
