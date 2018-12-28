@@ -12,8 +12,16 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
-import static org.talend.dataquality.semantic.model.CategoryType.DICT;
-import static org.talend.dataquality.semantic.model.CategoryType.REGEX;
+import com.mifmif.common.regex.Generex;
+import org.apache.commons.math3.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.talend.dataquality.datamasking.functions.Function;
+import org.talend.dataquality.semantic.Distribution;
+import org.talend.dataquality.semantic.datamasking.model.CategoryValues;
+import org.talend.dataquality.semantic.model.CategoryType;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.statistics.SemanticQualityAnalyzer;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,21 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import org.apache.commons.math3.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.talend.dataquality.datamasking.functions.DateVariance;
-import org.talend.dataquality.datamasking.functions.Function;
-import org.talend.dataquality.datamasking.semantic.DateFunctionAdapter;
-import org.talend.dataquality.datamasking.semantic.FluctuateNumericString;
-import org.talend.dataquality.datamasking.semantic.ReplaceCharactersWithGeneration;
-import org.talend.dataquality.semantic.Distribution;
-import org.talend.dataquality.semantic.datamasking.model.CategoryValues;
-import org.talend.dataquality.semantic.model.CategoryType;
-
-import com.mifmif.common.regex.Generex;
-import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
-import org.talend.dataquality.semantic.statistics.SemanticQualityAnalyzer;
+import static org.talend.dataquality.semantic.model.CategoryType.DICT;
+import static org.talend.dataquality.semantic.model.CategoryType.REGEX;
 
 /**
  * data masking of a column with the content of compound semantic type
@@ -47,8 +42,6 @@ public class GenerateFromCompound extends Function<String> {
     private List<CategoryValues> categoryValues = null;
 
     private DictionarySnapshot dictionarySnapshot = null;
-
-    private String dataType;
 
     @Override
     protected String doGenerateMaskedField(String value) {
@@ -72,20 +65,19 @@ public class GenerateFromCompound extends Function<String> {
         Optional<List<CategoryValues>> result = Optional.empty();
 
         for (CategoryValues category : categoryValues) {
-            if (DICT.equals(category.getType())) {
+            CategoryType type = category.getType();
+            if (DICT.equals(type)) {
                 SemanticQualityAnalyzer analyzer = new SemanticQualityAnalyzer(dictionarySnapshot,
                         new String[] { category.getName() });
                 if (analyzer.isValid(dictionarySnapshot.getDQCategoryByName(category.getName()), value))
                     categoryValuesResult.add(category); //can't use stream because of cast
+            } else if (REGEX.equals(type)) {
+                if (value.matches((String) category.getValue()))
+                    categoryValuesResult.add(category);
             }
         }
 
-        categoryValues.stream().filter(cat -> REGEX.equals(cat.getType())).forEach(cat -> {
-            if (value.matches((String) cat.getValue()))
-                categoryValuesResult.add(cat);
-        });
-
-        if (categoryValuesResult.size() > 0)
+        if (!categoryValuesResult.isEmpty())
             result = Optional.of(categoryValuesResult);
 
         return result;
@@ -110,7 +102,7 @@ public class GenerateFromCompound extends Function<String> {
         }
 
         long nbRegex = categories.stream().filter(cat -> REGEX.equals(cat.getType())).count();
-        if (values.size() > 0) {
+        if (!values.isEmpty()) {
             largestDict = values.stream().max(Comparator.comparing(List::size)).get().size();
             nbElem = (int) (values.stream().mapToInt(List::size).sum() + nbRegex * largestDict);
         } else {

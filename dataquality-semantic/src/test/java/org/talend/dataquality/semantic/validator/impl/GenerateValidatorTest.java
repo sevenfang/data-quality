@@ -75,7 +75,7 @@ public class GenerateValidatorTest {
                 null);
 
         assertEquals(1, values.size());
-        assertTrue(values.get(0).getValue() instanceof Generex);
+        assertTrue(values.get(0).getValue() instanceof String);
     }
 
     private DQCategory createCategoryWithChildDict() {
