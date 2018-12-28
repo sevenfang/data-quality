@@ -111,12 +111,16 @@ public class SurvivorShipAlgorithmParams {
 
     public class SurvivorshipFunction {
 
-        String survivorShipKey;
+        private String survivorShipKey;
 
-        SurvivorShipAlgorithmEnum survivorShipAlgorithmEnum;
+        private SurvivorShipAlgorithmEnum survivorShipAlgorithmEnum;
+
+        private String referenceColumnName;
+
+        private Integer referenceColumnIndex;
 
         // Will be usefull when the function is SurvivorShipAlgorithmEnum.MOST_TRUSTED_SOURCE.
-        String parameter;
+        private String parameter;
 
         /**
          * Getter for survivorShipFunction.
@@ -170,6 +174,42 @@ public class SurvivorShipAlgorithmParams {
          */
         public void setSurvivorShipKey(String survivorShipKey) {
             this.survivorShipKey = survivorShipKey;
+        }
+
+        /**
+         * Getter for referenceColumnName.
+         * 
+         * @return the referenceColumnName
+         */
+        public String getReferenceColumnName() {
+            return this.referenceColumnName;
+        }
+
+        /**
+         * Sets the referenceColumnName.
+         * 
+         * @param referenceColumnName the referenceColumnName to set
+         */
+        public void setReferenceColumnName(String referenceColumnName) {
+            this.referenceColumnName = referenceColumnName;
+        }
+
+        /**
+         * Getter for referenceColumnIndex.
+         * 
+         * @return the referenceColumnIndex
+         */
+        public Integer getReferenceColumnIndex() {
+            return this.referenceColumnIndex;
+        }
+
+        /**
+         * Sets the referenceColumnIndex.
+         * 
+         * @param referenceColumnIndex the referenceColumnIndex to set
+         */
+        public void setReferenceColumnIndex(Integer referenceColumnIndex) {
+            this.referenceColumnIndex = referenceColumnIndex;
         }
 
     }
