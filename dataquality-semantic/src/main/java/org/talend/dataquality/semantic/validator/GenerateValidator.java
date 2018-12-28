@@ -40,6 +40,7 @@ public class GenerateValidator {
                     }
                     CategoryValues catValue = new CategoryValues();
                     catValue.setCategoryId(child.getId());
+                    catValue.setName(completeChild.getName());
                     catValue.setType(CategoryType.DICT);
                     catValue.setValue(values);
 
@@ -52,13 +53,14 @@ public class GenerateValidator {
                 if (GenerateFromRegex.isValidPattern(pattern)) {
                     CategoryValues catValue = new CategoryValues();
                     catValue.setCategoryId(child.getId());
+                    catValue.setName(completeChild.getName());
                     catValue.setType(CategoryType.REGEX);
-                    catValue.setValue(new Generex(pattern, finalRnd));
+                    catValue.setValue(pattern);
                     categoryValues.add(catValue);
                 }
                 break;
             case COMPOUND:
-                categoryValues.addAll(initSemanticTypes(dictionarySnapshot, child, finalRnd));
+                categoryValues.addAll(initSemanticTypes(dictionarySnapshot, completeChild, finalRnd));
                 break;
             }
         });

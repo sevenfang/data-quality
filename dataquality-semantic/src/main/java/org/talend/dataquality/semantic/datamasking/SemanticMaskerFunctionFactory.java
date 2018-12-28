@@ -92,6 +92,7 @@ public class SemanticMaskerFunctionFactory {
                     if (types.size() > 0) {
                         function = new GenerateFromCompound();
                         ((GenerateFromCompound) function).setCategoryValues(types);
+                        ((GenerateFromCompound) function).setDictionarySnapshot(snapshotCompound);
                     }
 
                     break;

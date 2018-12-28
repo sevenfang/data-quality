@@ -6,6 +6,8 @@ public class CategoryValues {
 
     private String categoryId;
 
+    private String name;
+
     private CategoryType type;
 
     private Object value;
@@ -16,6 +18,14 @@ public class CategoryValues {
 
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public CategoryType getType() {
