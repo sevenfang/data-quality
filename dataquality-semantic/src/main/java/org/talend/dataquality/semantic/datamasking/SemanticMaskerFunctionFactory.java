@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import static org.talend.dataquality.semantic.datamasking.FunctionBuilder.functionInitializer;
+
 public class SemanticMaskerFunctionFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemanticMaskerFunctionFactory.class);
@@ -50,9 +52,7 @@ public class SemanticMaskerFunctionFactory {
         final MaskableCategoryEnum cat = MaskableCategoryEnum.getCategoryById(semanticCategory);
         if (cat != null) {
             try {
-                function = (Function<String>) cat.getFunctionType().getClazz().newInstance();
-                function.parse(cat.getParameter(), true, null);
-                function.setKeepFormat(true);
+                function = functionInitializer(cat);
             } catch (InstantiationException e) {
                 LOGGER.debug(e.getMessage(), e);
             } catch (IllegalAccessException e) {

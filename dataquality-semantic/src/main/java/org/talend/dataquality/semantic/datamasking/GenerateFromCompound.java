@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import static org.talend.dataquality.semantic.datamasking.FunctionBuilder.functionInitializer;
 import static org.talend.dataquality.semantic.model.CategoryType.DICT;
 import static org.talend.dataquality.semantic.model.CategoryType.REGEX;
 
@@ -43,9 +44,13 @@ public class GenerateFromCompound extends Function<String> {
 
     private DictionarySnapshot dictionarySnapshot = null;
 
+    private SemanticQualityAnalyzer analyzer = null;
+
     @Override
     protected String doGenerateMaskedField(String value) {
         String result = EMPTY_STRING;
+        analyzer = new SemanticQualityAnalyzer(dictionarySnapshot,
+                new String[] { String.valueOf(categoryValues.stream().map(CategoryValues::getName).toArray()) });
         Optional<List<CategoryValues>> categoryValues = findMatchTypes(value);
         if (categoryValues.isPresent()) {
             Distribution distribution = processDistribution(categoryValues.get());
@@ -67,8 +72,6 @@ public class GenerateFromCompound extends Function<String> {
         for (CategoryValues category : categoryValues) {
             CategoryType type = category.getType();
             if (DICT.equals(type)) {
-                SemanticQualityAnalyzer analyzer = new SemanticQualityAnalyzer(dictionarySnapshot,
-                        new String[] { category.getName() });
                 if (analyzer.isValid(dictionarySnapshot.getDQCategoryByName(category.getName()), value))
                     categoryValuesResult.add(category); //can't use stream because of cast
             } else if (REGEX.equals(type)) {
@@ -131,9 +134,7 @@ public class GenerateFromCompound extends Function<String> {
 
         final MaskableCategoryEnum cat = MaskableCategoryEnum.getCategoryById(cats.getName());
         if (cat != null) { //specific masking
-            Function<String> function = (Function<String>) cat.getFunctionType().getClazz().newInstance();
-            function.parse(cat.getParameter(), true, getRandom());
-            function.setKeepFormat(true);
+            Function<String> function = functionInitializer(cat);
             result = function.generateMaskedRow(value);
         } else {
             CategoryType type = cats.getType();
