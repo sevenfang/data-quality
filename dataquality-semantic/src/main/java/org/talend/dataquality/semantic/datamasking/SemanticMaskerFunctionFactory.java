@@ -91,8 +91,8 @@ public class SemanticMaskerFunctionFactory {
                     List types = GenerateValidator.initSemanticTypes(snapshotCompound, category, null);
                     if (types.size() > 0) {
                         function = new GenerateFromCompound();
-                        ((GenerateFromCompound) function).setCategoryValues(types);
                         ((GenerateFromCompound) function).setDictionarySnapshot(snapshotCompound);
+                        ((GenerateFromCompound) function).setCategoryValues(types);
                     }
 
                     break;

@@ -152,6 +152,9 @@ public class GenerateFromCompound extends Function<String> {
 
     public void setCategoryValues(List<CategoryValues> categoryValues) {
         this.categoryValues = categoryValues;
+        if (dictionarySnapshot != null)
+            analyzer = new SemanticQualityAnalyzer(dictionarySnapshot,
+                    new String[] { String.valueOf(categoryValues.stream().map(CategoryValues::getName).toArray()) });
     }
 
     public void setDictionarySnapshot(DictionarySnapshot dictionarySnapshot) {
