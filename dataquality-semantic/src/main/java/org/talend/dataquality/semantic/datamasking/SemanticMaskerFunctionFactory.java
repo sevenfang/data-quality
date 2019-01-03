@@ -12,10 +12,6 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.dataquality.datamasking.FunctionFactory;
@@ -26,13 +22,20 @@ import org.talend.dataquality.datamasking.functions.Function;
 import org.talend.dataquality.datamasking.functions.ReplaceAll;
 import org.talend.dataquality.datamasking.semantic.DateFunctionAdapter;
 import org.talend.dataquality.datamasking.semantic.FluctuateNumericString;
-import org.talend.dataquality.datamasking.semantic.GenerateFromRegex;
 import org.talend.dataquality.datamasking.semantic.ReplaceCharactersWithGeneration;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
 import org.talend.dataquality.semantic.model.CategoryType;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
+import org.talend.dataquality.semantic.validator.GenerateValidator;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
+import static org.talend.dataquality.semantic.datamasking.FunctionBuilder.functionInitializer;
 
 public class SemanticMaskerFunctionFactory {
 
@@ -49,9 +52,7 @@ public class SemanticMaskerFunctionFactory {
         final MaskableCategoryEnum cat = MaskableCategoryEnum.getCategoryById(semanticCategory);
         if (cat != null) {
             try {
-                function = (Function<String>) cat.getFunctionType().getClazz().newInstance();
-                function.parse(cat.getParameter(), true, null);
-                function.setKeepFormat(true);
+                function = functionInitializer(cat);
             } catch (InstantiationException e) {
                 LOGGER.debug(e.getMessage(), e);
             } catch (IllegalAccessException e) {
@@ -63,18 +64,41 @@ public class SemanticMaskerFunctionFactory {
             DQCategory category = dictionarySnapshot != null ? dictionarySnapshot.getDQCategoryByName(semanticCategory)
                     : CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
             if (category != null) {
-                if (CategoryType.DICT.equals(category.getType())) {
+                CategoryType categoryType = category.getType();
+                String extraParameter = category.getId();
+
+                switch (categoryType) {
+                case DICT:
                     function = new GenerateFromDictionaries();
-                    function.parse(category.getId(), true, null);
-                } else if (CategoryType.REGEX.equals(category.getType())) {
+                    DictionarySnapshot snapshot = dictionarySnapshot != null ? dictionarySnapshot
+                            : new StandardDictionarySnapshotProvider().get();
+                    ((GenerateFromDictionaries) function).setDictionarySnapshot(snapshot);
+                    break;
+                case REGEX:
                     final UserDefinedClassifier udc = dictionarySnapshot != null ? dictionarySnapshot.getRegexClassifier()
                             : CategoryRegistryManager.getInstance().getRegexClassifier();
                     final String patternString = udc.getPatternStringByCategoryId(category.getId());
                     if (GenerateFromRegex.isValidPattern(patternString)) {
                         function = new GenerateFromRegex();
-                        function.parse(patternString, true, null);
+                        extraParameter = patternString;
                     }
+                    break;
+                case COMPOUND:
+
+                    DictionarySnapshot snapshotCompound = dictionarySnapshot != null ? dictionarySnapshot
+                            : new StandardDictionarySnapshotProvider().get();
+
+                    List types = GenerateValidator.initSemanticTypes(snapshotCompound, category, null);
+                    if (types.size() > 0) {
+                        function = new GenerateFromCompound();
+                        ((GenerateFromCompound) function).setDictionarySnapshot(snapshotCompound);
+                        ((GenerateFromCompound) function).setCategoryValues(types);
+                    }
+
+                    break;
                 }
+                if (function != null)
+                    function.parse(extraParameter, true, null);
             }
         }
 

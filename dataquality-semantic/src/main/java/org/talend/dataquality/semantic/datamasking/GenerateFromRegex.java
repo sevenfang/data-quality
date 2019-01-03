@@ -10,14 +10,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.dataquality.datamasking.semantic;
+package org.talend.dataquality.semantic.datamasking;
+
+import static org.talend.dataquality.semantic.utils.RegexUtils.removeInvalidCharacter;
 
 import java.security.SecureRandom;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.datamasking.functions.Function;
 
 import com.mifmif.common.regex.Generex;
@@ -32,10 +32,6 @@ public class GenerateFromRegex extends Function<String> {
     protected transient Generex generex = null;
 
     private static final String[] invalidKw = { "(?:", "(?!", "(?=", "[[:space:]]", "[[:digit:]]", "\\u" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-
-    private Pattern startPattern = Pattern.compile("[\\^]*+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
-
-    private Pattern endPattern = Pattern.compile("[\\$]*$", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
 
     /*
      * (non-Javadoc)
@@ -69,68 +65,6 @@ public class GenerateFromRegex extends Function<String> {
             setKeepNull(keepNullValues);
             setRandom(rand);
         }
-    }
-
-    /**
-     * Keep only one '$'at the end and remove other no need character '$'
-     * 
-     * @param extraParameter
-     * @return valid pattern string
-     */
-    protected String removeInvalidCharacter(String extraParameter) {
-        String patternStr = stringStartTrim(extraParameter, "\\^"); //$NON-NLS-1$
-        patternStr = stringEndTrim(patternStr, "\\$"); //$NON-NLS-1$
-        patternStr = patternStr + "$"; //$NON-NLS-1$
-        return patternStr;
-    }
-
-    /**
-     * Remove special character from start
-     * 
-     * @param stream original string
-     * @param trim The character which you want to remove
-     * @return
-     */
-    private String stringStartTrim(String stream, String trim) {
-        if (StringUtils.isEmpty(stream) || StringUtils.isEmpty(trim)) {
-            return stream;
-        }
-        // The end location which need to remove str
-        int end;
-        String result = stream;
-
-        // remove characters
-        Matcher matcher = startPattern.matcher(stream);
-        if (matcher.lookingAt()) {
-            end = matcher.end();
-            result = result.substring(end);
-        }
-        // return result after deal
-        return result;
-    }
-
-    /**
-     * Remove special character from tail
-     * 
-     * @param stream original string
-     * @param trim The character which you want to remove
-     * @return
-     */
-    private String stringEndTrim(String stream, String trim) {
-        if (StringUtils.isEmpty(stream) || StringUtils.isEmpty(trim)) {
-            return stream;
-        }
-        // The start location which need to remove str
-        int start;
-        String result = stream;
-        // remove characters from tail
-        Matcher matcher = endPattern.matcher(stream);
-        if (matcher.find()) {
-            start = matcher.start();
-            result = result.substring(0, start);
-        }
-        // return result after deal
-        return result;
     }
 
     /*

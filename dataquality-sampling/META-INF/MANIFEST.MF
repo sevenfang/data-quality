@@ -18,8 +18,6 @@ Export-Package: org.talend.dataquality.datamasking,
  org.talend.dataquality.sampling.exception,
  org.talend.dataquality.sampling.parallel
 Bundle-ClassPath: .,
- lib/automaton.jar,
- lib/generex.jar,
  lib/format-preserving-encryption.jar
 Import-Package: com.google.i18n.phonenumbers,
  org.apache.commons.codec.binary,

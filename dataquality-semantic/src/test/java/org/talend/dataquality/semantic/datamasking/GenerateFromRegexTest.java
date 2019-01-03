@@ -10,7 +10,9 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.dataquality.datamasking.semantic;
+package org.talend.dataquality.semantic.datamasking;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,7 +22,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.talend.dataquality.datamasking.functions.KeysLoader;
@@ -31,7 +33,7 @@ import org.talend.dataquality.datamasking.functions.KeysLoader;
 public class GenerateFromRegexTest {
 
     /**
-     * Test method for {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#setRandom(java.util.Random)}.
+     * Test method for {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#setRandom(java.util.Random)}.
      */
     @Test
     public void testSetRandom() {
@@ -44,7 +46,7 @@ public class GenerateFromRegexTest {
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#parse(java.lang.String, boolean, java.util.Random)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#parse(java.lang.String, boolean, java.util.Random)}.
      * case 1 normal case
      */
     @Test
@@ -56,7 +58,7 @@ public class GenerateFromRegexTest {
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#parse(java.lang.String, boolean, java.util.Random)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#parse(java.lang.String, boolean, java.util.Random)}.
      * case 2 extraParameter is null
      */
     @Test
@@ -68,7 +70,7 @@ public class GenerateFromRegexTest {
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
      * case 1 keepNull is true and inputValue is null
      */
     @Test
@@ -76,12 +78,12 @@ public class GenerateFromRegexTest {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
         regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true, null); //$NON-NLS-1$
         String maskResult = regexFunction.doGenerateMaskedField(null);
-        Assert.assertEquals("maskResult should be null", null, maskResult); //$NON-NLS-1$
+        assertEquals("maskResult should be null", null, maskResult); //$NON-NLS-1$
     }
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
      * case 2 keepNull is true and inputValue is empty
      */
     @Test
@@ -89,12 +91,12 @@ public class GenerateFromRegexTest {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
         regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true, null); //$NON-NLS-1$
         String maskResult = regexFunction.doGenerateMaskedField(StringUtils.EMPTY);
-        Assert.assertEquals("maskResult should be EMPTY", StringUtils.EMPTY, maskResult); //$NON-NLS-1$
+        assertEquals("maskResult should be EMPTY", StringUtils.EMPTY, maskResult); //$NON-NLS-1$
     }
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
      * case 3 normal case
      */
     @Test
@@ -147,7 +149,7 @@ public class GenerateFromRegexTest {
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
      * case 4 There are contains invalid character "^" and "$"
      */
     @Test
@@ -165,7 +167,7 @@ public class GenerateFromRegexTest {
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#doGenerateMaskedField(java.lang.String)}.
      * case 5 400 items validation
      * 
      * @throws URISyntaxException
@@ -181,7 +183,7 @@ public class GenerateFromRegexTest {
     }
 
     /**
-     * Test method for {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#isValidPattern(String)}.
+     * Test method for {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#isValidPattern(String)}.
      */
     @Test
     public void testIsValidPattern() {
@@ -207,19 +209,4 @@ public class GenerateFromRegexTest {
         Assert.assertTrue("^\\d*[02468]$ should be support by this API by now", isValidPattern);
     }
 
-    /**
-     * Test method for {@link org.talend.dataquality.datamasking.semantic.GenerateFromRegex#removeInvalidCharacter(String)}.
-     */
-    // @Test
-    // We commont this case because we don't want it execute every time.
-    public void testremoveInvalidCharacterString() {
-        GenerateFromRegex generateFromRegex = new GenerateFromRegex();
-        long startTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            generateFromRegex.removeInvalidCharacter("^^^^^^^^^^^^aaaaa^^^^aaa$$$$aaa$$$aaa$$$$$$$$$$$$$");
-        }
-        long endTime = System.currentTimeMillis();
-        Assert.assertTrue("All of action don't should spent more than 2 second. But in fact it is "
-                + ((endTime - startTime) / 1000.0) + "s", endTime - startTime < 2000);
-    }
 }

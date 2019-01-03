@@ -95,12 +95,9 @@ public class ValueDataMasker implements Serializable {
             DictionarySnapshot dictionary = dictionarySnapshot != null ? dictionarySnapshot
                     : new StandardDictionarySnapshotProvider().get();
             if (category.getCompleteness()) {
-                semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionary, new String[] {});
+                semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionary, new String[] { category.getName() });
             }
 
-            if (this.function instanceof GenerateFromDictionaries) {
-                ((GenerateFromDictionaries) function).setDictionarySnapshot(dictionary);
-            }
         }
     }
 

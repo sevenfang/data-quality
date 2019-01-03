@@ -28,16 +28,6 @@
                             <outputDirectory>${project.basedir}/lib</outputDirectory>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.github.mifmif</groupId>
-                                    <artifactId>generex</artifactId>
-                                    <version>1.0.2</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>dk.brics</groupId>
-                                    <artifactId>automaton</artifactId>
-                                    <version>1.12-1</version>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>com.idealista</groupId>
                                     <artifactId>format-preserving-encryption</artifactId>
                                     <version>1.0.0</version>
@@ -53,7 +43,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Include-Resource>{maven-resources},lib/automaton.jar=lib/automaton.jar,lib/generex.jar=lib/generex.jar,lib/format-preserving-encryption.jar=lib/format-preserving-encryption.jar,licenses=licenses</Include-Resource>
+                        <Include-Resource>{maven-resources},lib/format-preserving-encryption.jar=lib/format-preserving-encryption.jar,licenses=licenses</Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
@@ -119,18 +109,6 @@
 			<artifactId>libphonenumber</artifactId>
 			<version>8.9.6</version>
 			<scope>test</scope>
-		</dependency>
-
-		 <!--used by GenerateFromRegex-->
-        <dependency>
-            <groupId>com.github.mifmif</groupId>
-            <artifactId>generex</artifactId>
-            <version>1.0.2</version>
-         </dependency>
-		<dependency>
-		    <groupId>dk.brics</groupId>
-		    <artifactId>automaton</artifactId>
-		    <version>1.12-1</version>
 		</dependency>
 
 		<!-- used for FPE masking.

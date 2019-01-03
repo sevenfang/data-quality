@@ -13,6 +13,8 @@
 package org.talend.dataquality.semantic.datamasking;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.util.Arrays;
@@ -424,4 +426,16 @@ public class ValueDataMaskerTest extends CategoryRegistryManagerAbstract {
         holder.deleteDataDictDocuments(Collections.singletonList(newDoc));
     }
 
+    @Test
+    public void testProcessGenerateFromCompound() {
+        String mockedTenantID = this.getClass().getSimpleName() + "_CustomIndex";
+        MockitoAnnotations.initMocks(this);
+        mockWithTenant(mockedTenantID);
+        CategoryRegistryManager.setUsingLocalCategoryRegistry(true);
+
+        final ValueDataMasker masker = new ValueDataMasker(SemanticCategoryEnum.PHONE.name(), "string");
+        masker.getFunction().setRandom(new Random(AllSemanticTests.RANDOM_SEED));
+        String result = masker.maskValue("+33123456789");
+        assertEquals("+32515165500", result);
+    }
 }
