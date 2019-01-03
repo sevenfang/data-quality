@@ -70,14 +70,8 @@ public class GenerateFromCompound extends Function<String> {
         Optional<List<CategoryValues>> result = Optional.empty();
 
         for (CategoryValues category : categoryValues) {
-            CategoryType type = category.getType();
-            if (DICT.equals(type)) {
-                if (analyzer.isValid(dictionarySnapshot.getDQCategoryByName(category.getName()), value))
-                    categoryValuesResult.add(category); //can't use stream because of cast
-            } else if (REGEX.equals(type)) {
-                if (value.matches((String) category.getValue()))
-                    categoryValuesResult.add(category);
-            }
+            if (analyzer.isValid(dictionarySnapshot.getDQCategoryByName(category.getName()), value))
+                categoryValuesResult.add(category); //can't use stream because of cast
         }
 
         if (!categoryValuesResult.isEmpty())

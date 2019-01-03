@@ -32,6 +32,8 @@ public class GenerateFromCompoundTest {
 
     private LuceneIndex mockIndex;
 
+    private UserDefinedClassifier mockUserClassifier;
+
     private GenerateFromCompound generate;
 
     private DictionarySnapshot dictionarySnapshot;
@@ -43,6 +45,7 @@ public class GenerateFromCompoundTest {
 
         mockSearcher = Mockito.mock(DictionarySearcher.class);
         mockIndex = Mockito.mock(LuceneIndex.class);
+        mockUserClassifier = Mockito.mock(UserDefinedClassifier.class);
         when(mockIndex.getSearcher()).thenReturn(mockSearcher);
         when(mockSearcher.listDocumentsByCategoryId("CAT1")).thenReturn(getDocuments("1", 9999));
 
@@ -51,7 +54,7 @@ public class GenerateFromCompoundTest {
         when(dictionarySnapshot.getSharedDataDict()).thenReturn(mockIndex);
         when(dictionarySnapshot.getCustomDataDict()).thenReturn(Mockito.mock(Index.class));
         when(dictionarySnapshot.getKeyword()).thenReturn(Mockito.mock(Index.class));
-        when(dictionarySnapshot.getRegexClassifier()).thenReturn(Mockito.mock(UserDefinedClassifier.class));
+        when(dictionarySnapshot.getRegexClassifier()).thenReturn(mockUserClassifier);
         when(dictionarySnapshot.getMetadata()).thenReturn(metadata);
 
         generate = new GenerateFromCompound();
@@ -65,7 +68,13 @@ public class GenerateFromCompoundTest {
         cat1.setName("CAT1");
         cat1.setType(CategoryType.DICT);
 
+        DQCategory cat2 = new DQCategory();
+        cat2.setId("2");
+        cat2.setName("REGEX2");
+        cat2.setType(CategoryType.REGEX);
+
         metadata.put("CAT1", cat1);
+        metadata.put("REGEX2", cat2);
         return metadata;
     }
 
@@ -82,6 +91,9 @@ public class GenerateFromCompoundTest {
 
     @Test
     public void doGenerateMaskedFieldWithRegex() {
+        when(dictionarySnapshot.getDQCategoryByName("REGEX2")).thenReturn(metadata.get("REGEX2"));
+        when(mockUserClassifier.validCategories(eq("a"), eq(metadata.get("REGEX2")), eq(null))).thenReturn(true);
+
         generate.setCategoryValues(createCategoryValuesWithRegex());
         generate.parse("2", true, new Random(1234));
         String result = generate.doGenerateMaskedField("a");
@@ -91,7 +103,9 @@ public class GenerateFromCompoundTest {
     @Test
     public void doGenerateMaskedFieldWithCompoundDictAndRegex() {
         when(dictionarySnapshot.getDQCategoryByName("CAT1")).thenReturn(metadata.get("CAT1"));
+        when(dictionarySnapshot.getDQCategoryByName("REGEX2")).thenReturn(metadata.get("REGEX2"));
         when(mockIndex.validCategories(eq("value1"), eq(metadata.get("CAT1")), eq(null))).thenReturn(true);
+        when(mockUserClassifier.validCategories(eq("a"), eq(metadata.get("REGEX2")), eq(null))).thenReturn(true);
 
         generate.setCategoryValues(createCategoryValuesWithCompound());
         generate.parse("1", true, new Random(1234));
