@@ -12,8 +12,14 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.generic.patterns;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.FieldSetter;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.SecretManager;
 import org.talend.dataquality.datamasking.generic.fields.AbstractField;
@@ -23,28 +29,29 @@ import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GenerateFormatPreservingPatternsTest {
 
-    private static GenerateFormatPreservingPatterns pattern;
+    private GenerateFormatPreservingPatterns pattern;
 
-    private static SecretManager secretMng;
+    @Mock
+    private com.idealista.fpe.algorithm.ff1.Cipher mockCipher;
 
-    private static String minValue;
+    private SecretManager secretMng;
 
-    private static String maxValue;
+    private String minValue;
 
-    private static List<String> minStringList;
+    private String maxValue;
 
-    private static List<String> maxStringList;
-
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         // pattern we want to test
         List<AbstractField> fields = new ArrayList<AbstractField>();
         List<String> enums = new ArrayList<String>(Arrays.asList("O", "P", "G", "U", "M", "S"));
@@ -58,28 +65,131 @@ public class GenerateFormatPreservingPatternsTest {
         minValue = "OSF0005";
         maxValue = "SDU5020";
 
-        minStringList = Arrays.asList("O", "SF", "00", "5");
-        maxStringList = Arrays.asList("S", "DU", "50", "20");
-
         secretMng = new SecretManager(FormatPreservingMethod.SHA2_HMAC_PRF, "#Datadriven2018");
     }
 
     @Test
-    public void transformMinRankValue() {
-        String str = pattern.transform(pattern.transform(minStringList)).toString();
-        assertEquals(minValue, str);
+    public void findTrivialOptimalRadix() {
+        List<AbstractField> fields = new ArrayList<>();
+        fields.add(new FieldInterval(BigInteger.ZERO, BigInteger.valueOf(9)));
+
+        GenerateFormatPreservingPatterns arabicDigits = new GenerateFormatPreservingPatterns(fields);
+        assertEquals(10, arabicDigits.getRadix());
     }
 
     @Test
-    public void transformMaxRankValue() {
-        String str = pattern.transform(pattern.transform(maxStringList)).toString();
-        assertEquals(maxValue, str);
+    public void findBinaryOptimalRadix() {
+        List<AbstractField> fields = new ArrayList<>();
+        fields.add(new FieldInterval(BigInteger.ZERO, BigInteger.valueOf(255)));
+
+        GenerateFormatPreservingPatterns octet = new GenerateFormatPreservingPatterns(fields);
+        assertEquals(2, octet.getRadix());
     }
 
     @Test
-    public void transformOutLimitValue() {
-        int[] outLimit = pattern.transform(Arrays.asList("U", "KI", "52", "12"));
-        assertEquals(0, outLimit.length);
+    public void findBigIntOptimalRadix() {
+        List<AbstractField> fields = new ArrayList<>();
+
+        // The Big Integer is equal to 2^10000 and this cardinality perfectly fits in 10k-bit strings
+        BigInteger card = new BigInteger("1" + new String(new char[10000]).replace("\0", "0"), 2);
+        fields.add(new FieldInterval(BigInteger.ONE, card));
+
+        GenerateFormatPreservingPatterns bigPattern = new GenerateFormatPreservingPatterns(fields);
+        assertEquals(2, bigPattern.getRadix());
+    }
+
+    @Test
+    public void almostFullDenseBinaryPattern() {
+        List<AbstractField> fields = new ArrayList<>();
+
+        // Here the cardinality is one away to be full dense on 10k bits.
+        BigInteger card = new BigInteger("1" + new String(new char[10000]).replace("\0", "0"), 2).add(BigInteger.valueOf(-1L));
+        fields.add(new FieldInterval(BigInteger.ONE, card));
+
+        GenerateFormatPreservingPatterns bigPattern = new GenerateFormatPreservingPatterns(fields);
+        assertEquals(2, bigPattern.getRadix());
+    }
+
+    @Test
+    public void sparseBinaryPattern() {
+        List<AbstractField> fields = new ArrayList<>();
+
+        // Here the cardinality is one above to be full dense on 10k bits, so it is very sparse on 10001 bits.
+        BigInteger card = new BigInteger("1" + new String(new char[10000]).replace("\0", "0"), 2).add(BigInteger.ONE);
+        fields.add(new FieldInterval(BigInteger.ONE, card));
+
+        GenerateFormatPreservingPatterns bigPattern = new GenerateFormatPreservingPatterns(fields);
+        assertNotEquals(2, bigPattern.getRadix());
+    }
+
+    @Test
+    public void almostFullDenseBase35Pattern() {
+        List<AbstractField> fields = new ArrayList<>();
+
+        // Here the cardinality is one away to be full dense on base-35
+        // strings of 1000 characters.
+        BigInteger card = new BigInteger("1" + new String(new char[1000]).replace("\0", "0"), 35).add(BigInteger.valueOf(-1L));
+
+        fields.add(new FieldInterval(BigInteger.ONE, card));
+
+        GenerateFormatPreservingPatterns bigPattern = new GenerateFormatPreservingPatterns(fields);
+        assertEquals(35, bigPattern.getRadix());
+    }
+
+    @Test
+    public void sparseBase35Pattern() {
+        List<AbstractField> fields = new ArrayList<>();
+
+        // Here the cardinality is one above to be full dense on base-35
+        // strings of 1000 characters, so it is very sparse in the ensemble of base-35 strings of 10001 characters.
+        BigInteger card = new BigInteger("1" + new String(new char[1000]).replace("\0", "0"), 35).add(BigInteger.ONE);
+        fields.add(new FieldInterval(BigInteger.ONE, card));
+
+        GenerateFormatPreservingPatterns bigPattern = new GenerateFormatPreservingPatterns(fields);
+        assertNotEquals(35, bigPattern.getRadix());
+    }
+
+    @Test
+    public void worksForAllRadix() {
+        for (int i = Character.MIN_RADIX; i <= Character.MAX_RADIX; i++) {
+            GenerateFormatPreservingPatterns pat = new GenerateFormatPreservingPatterns(i, pattern.getFields());
+            StringBuilder output = pat.generateUniquePattern(Arrays.asList("U", "KI", "45", "12"), secretMng);
+            assertNotNull("Masking did not work with radix value of : " + i, output);
+        }
+    }
+
+    @Test
+    public void transformMinRankValue() throws NoSuchFieldException {
+
+        GenerateFormatPreservingPatterns mockPattern = new GenerateFormatPreservingPatterns(10,
+                Collections.singletonList(new FieldInterval(BigInteger.ZERO, BigInteger.TEN)));
+
+        Mockito.when(mockCipher.encrypt(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+                .thenReturn(new int[] { 0, 0 });
+
+        new FieldSetter(mockPattern, GenerateFormatPreservingPatterns.class.getDeclaredField("cipher")).set(mockCipher);
+
+        List<String> input = new ArrayList<>();
+        input.add("00");
+
+        assertEquals("00", mockPattern.generateUniquePattern(input, secretMng).toString());
+    }
+
+    @Test
+    public void transformMaxRankValue() throws NoSuchFieldException {
+
+        GenerateFormatPreservingPatterns mockPattern = new GenerateFormatPreservingPatterns(10,
+                Collections.singletonList(new FieldInterval(BigInteger.ZERO, BigInteger.TEN)));
+
+        Mockito.when(mockCipher.encrypt(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+                .thenReturn(new int[] { 1, 0 });
+
+        new FieldSetter(mockPattern, GenerateFormatPreservingPatterns.class.getDeclaredField("cipher")).set(mockCipher);
+
+        List<String> input = new ArrayList<>();
+        input.add("10");
+
+        assertEquals("10", mockPattern.generateUniquePattern(input, secretMng).toString());
     }
 
     @Test
@@ -109,15 +219,6 @@ public class GenerateFormatPreservingPatternsTest {
         }
         assertNotNull(result);
         assertEquals(expected, result.toString());
-    }
-
-    @Test
-    public void severalRadix() {
-        for (int i = Character.MIN_RADIX; i <= Character.MAX_RADIX; i++) {
-            pattern = new GenerateFormatPreservingPatterns(i, pattern.getFields());
-            StringBuilder output = pattern.generateUniquePattern(Arrays.asList("U", "KI", "45", "12"), secretMng);
-            assertNotNull("Masking did not work with radix value of : " + i, output);
-        }
     }
 
     @Test
