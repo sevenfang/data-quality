@@ -97,27 +97,7 @@ public class GenerateFromRegex extends Function<String> {
                 return false;
             }
         }
-        return Generex.isValidPattern(patternString) && isComputable(patternString);
-    }
-
-    private static boolean isComputable(String patternString) {
-
-        final Thread stuffToDo = new Thread(() -> {
-            new Generex(patternString);
-        });
-
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-        final Future future = executor.submit(stuffToDo);
-
-        try {
-            future.get(1, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException ie) {
-            stuffToDo.interrupt();
-            future.cancel(true);
-            return false;
-        }
-        executor.shutdown();
-        return true;
+        return Generex.isValidPattern(patternString);
     }
 
 }

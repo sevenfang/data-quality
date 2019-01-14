@@ -223,7 +223,7 @@ public class GenerateFromRegexTest {
         String pattern = "(.{1,6})( *, *(.{1,6})){0,25}";
 
         //      for (int i = 0; i < 50; i++)
-        Assert.assertFalse(GenerateFromRegex.isValidPattern(pattern));
+        Assert.assertTrue(GenerateFromRegex.isValidPattern(pattern));
 
         //    Thread.sleep(300000);
     }

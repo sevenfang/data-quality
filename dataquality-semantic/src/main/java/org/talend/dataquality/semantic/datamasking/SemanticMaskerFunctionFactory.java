@@ -78,7 +78,7 @@ public class SemanticMaskerFunctionFactory {
                     final UserDefinedClassifier udc = dictionarySnapshot != null ? dictionarySnapshot.getRegexClassifier()
                             : CategoryRegistryManager.getInstance().getRegexClassifier();
                     final String patternString = udc.getPatternStringByCategoryId(category.getId());
-                    if (GenerateFromRegex.isValidPattern(patternString)) {
+                    if (GenerateFromRegex.isValidPattern(patternString) && category.getRegEx().getValidator().isGenerexCompliant()) {
                         function = new GenerateFromRegex();
                         extraParameter = patternString;
                     }
