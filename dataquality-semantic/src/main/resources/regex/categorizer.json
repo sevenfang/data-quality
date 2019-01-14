@@ -306,8 +306,8 @@
       "filter": null,
       "validator": {
         "re2jCompliant" : true,
-        "patternString": "^(?:mailto)\\:((\\p{L}|\\p{N}|[\\._%\\-'])+@(\\p{L}|\\p{N}|[.%-])+(,)?)*((?:\\?)((subject|to|body|cc|blat)=(((\\p{L}|\\p{N}|[\\._%\\-'])+@(\\p{L}|\\p{N}|[.%-])+)|([\\d\\w\\.\\/\\%\\+\\-\\=\\&\\?\\:\\\"\\'\\,\\|\\~\\;#\\\\]|[\\p{L}])*)+(\\&)?)*)*$",
         "generexCompliant" : false,
+        "patternString": "^(?:mailto)\\:((\\p{L}|\\p{N}|[\\._%\\-'])+@(\\p{L}|\\p{N}|[.%-])+(,)?)*((?:\\?)((subject|to|body|cc|blat)=(((\\p{L}|\\p{N}|[\\._%\\-'])+@(\\p{L}|\\p{N}|[.%-])+)|([\\d\\w\\.\\/\\%\\+\\-\\=\\&\\?\\:\\\"\\'\\,\\|\\~\\;#\\\\]|[\\p{L}])*)+(\\&)?)*)*$",
         "subValidatorClassName": null
       }
     },
