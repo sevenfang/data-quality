@@ -12,10 +12,17 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.dataquality.common.pattern.TextPatternUtil;
+import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
+import org.talend.dataquality.datamasking.generic.Alphabet;
+import org.talend.dataquality.datamasking.generic.GenerateFromAlphabet;
 
 /**
  * @author jteuladedenantes
@@ -25,6 +32,8 @@ import org.talend.dataquality.common.pattern.TextPatternUtil;
 public abstract class CharactersOperation<T> extends Function<T> {
 
     private static final long serialVersionUID = -1326050500008572996L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CharactersOperation.class);
 
     /**
      * the index from which we replace
@@ -42,7 +51,7 @@ public abstract class CharactersOperation<T> extends Function<T> {
     protected int endNumberToReplace = Integer.MAX_VALUE;
 
     /**
-     * the last number we want to keep. By default, it's Integer.MAX_VALUE and we won't use it
+     * the number we want to keep. By default, it's 0 and we won't use it
      */
     protected int endNumberToKeep = 0;
 
@@ -60,6 +69,25 @@ public abstract class CharactersOperation<T> extends Function<T> {
 
     private int counter;
 
+    private GenerateFromAlphabet ff1Cipher;
+
+    private Alphabet alphabet;
+
+    @Override
+    public void setAlphabet(Alphabet alphabet) {
+        this.alphabet = alphabet;
+    }
+
+    @Override
+    public void setSecret(FormatPreservingMethod method, String password) {
+        if (alphabet == null) {
+            throw new IllegalArgumentException(
+                    "The method setAlphabet should be called before the method setSecret for the function "
+                            + this.getClass().getName());
+        }
+        ff1Cipher = new GenerateFromAlphabet(alphabet, method, password);
+    }
+
     @Override
     public void parse(String extraParameter, boolean keepNullValues, Random rand) {
         super.parse(extraParameter, keepNullValues, rand);
@@ -75,31 +103,11 @@ public abstract class CharactersOperation<T> extends Function<T> {
 
     @Override
     protected T doGenerateMaskedField(T t) {
-        if (!isValidParameters || t == null) {
-            return getDefaultOutput();
-        }
-        String str = t.toString();
-        StringBuilder sb = new StringBuilder();
-
-        int strCPCount = str.codePointCount(0, str.length());
-        int beginAux = Math.min(Math.max(beginIndex, strCPCount - endNumberToReplace), strCPCount);
-        int endAux = Math.max(Math.min(endIndex, strCPCount - endNumberToKeep), 0);
-        sb.append(str, 0, str.offsetByCodePoints(0, beginAux));
-        if (!toRemove) {
-            for (int i = beginAux; i < endAux; i++) {
-                Integer codePoint = str.codePointAt(str.offsetByCodePoints(0, i));
-                sb.append(Character.toChars(replaceChar(codePoint)));
-            }
-        }
-        sb.append(str.substring(str.offsetByCodePoints(0, endAux)));
-        if (sb.length() == 0) {
-            return getDefaultOutput();
-        }
-        return getOutput(sb.toString());
+        return doGenerateMaskedField(t, FunctionMode.RANDOM);
     }
 
     @Override
-    protected T doGenerateMaskedFieldConsistent(T t) {
+    protected T doGenerateMaskedField(T t, FunctionMode mode) {
         if (!isValidParameters || t == null) {
             return getDefaultOutput();
         }
@@ -111,17 +119,63 @@ public abstract class CharactersOperation<T> extends Function<T> {
         int endAux = Math.max(Math.min(endIndex, strCPCount - endNumberToKeep), 0);
         sb.append(str, 0, str.offsetByCodePoints(0, beginAux));
         if (!toRemove) {
-            String toBeReplaced = findStringToReplace(str, beginAux, endAux);
-            Random random = getRandomForString(toBeReplaced);
-            List<Integer> replacedCodePoints = TextPatternUtil.replaceStringCodePoints(toBeReplaced, random);
-            String substring = str.substring(str.offsetByCodePoints(0, beginAux), str.offsetByCodePoints(0, endAux));
-            sb.append(replaceConsistent(substring, replacedCodePoints));
+            String replacedString;
+            switch (mode) {
+            case CONSISTENT:
+                replacedString = generateConsistentString(str, beginAux, endAux);
+                break;
+            case BIJECTIVE:
+                replacedString = generateBijectiveString(str, beginAux, endAux);
+                break;
+            default:
+                replacedString = generateRandomString(str, beginAux, endAux);
+                break;
+            }
+            if (replacedString == null) {
+                return getDefaultOutput();
+            }
+
+            sb.append(replacedString);
         }
         sb.append(str.substring(str.offsetByCodePoints(0, endAux)));
-        if (sb.length() == 0) {
-            return getDefaultOutput();
+        return getResult(sb);
+    }
+
+    private String generateConsistentString(String str, int beginAux, int endAux) {
+        String toBeReplaced = findStringToReplace(str, beginAux, endAux);
+        Random random = getRandomForString(toBeReplaced);
+        List<Integer> replacedCodePoints = TextPatternUtil.replaceStringCodePoints(toBeReplaced, random);
+        String substring = str.substring(str.offsetByCodePoints(0, beginAux), str.offsetByCodePoints(0, endAux));
+
+        return replaceConsistent(substring, replacedCodePoints);
+    }
+
+    private String generateBijectiveString(String str, int beginAux, int endAux) {
+        List<Integer> codePoints = new ArrayList<>();
+        for (int i = beginAux; i < endAux; i++) {
+            codePoints.add(str.codePointAt(str.offsetByCodePoints(0, i)));
         }
-        return getOutput(sb.toString());
+
+        List<Integer> replacedCodePoints = ff1Cipher.generateUniqueCodePoints(codePoints);
+        if (replacedCodePoints.isEmpty()) {
+            LOGGER.warn("The element {} has too few characters to be masked bijectively. It will be masked consistently.", str);
+            return generateConsistentString(str, beginAux, endAux);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        replacedCodePoints.forEach(cp -> sb.append(Character.toChars(cp)));
+
+        return sb.toString();
+    }
+
+    private String generateRandomString(String str, int beginAux, int endAux) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = beginAux; i < endAux; i++) {
+            Integer codePoint = str.codePointAt(str.offsetByCodePoints(0, i));
+            sb.append(Character.toChars(replaceChar(codePoint)));
+        }
+
+        return sb.toString();
     }
 
     private String replaceConsistent(String substringToReplace, List<Integer> replacedString) {
@@ -138,9 +192,9 @@ public abstract class CharactersOperation<T> extends Function<T> {
     }
 
     private String findStringToReplace(String str, int beginAux, int endAux) {
-        StringBuilder stringBuilder = new StringBuilder("");
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = beginAux; i < endAux; i++) {
-            Integer codePoint = str.codePointAt(str.offsetByCodePoints(0, i));
+            int codePoint = str.codePointAt(str.offsetByCodePoints(0, i));
             if ((!isNeedCheckSpecialCase() || isGoodType(codePoint)) && charToReplace == null)
                 stringBuilder.append(Character.toChars(codePoint));
         }
@@ -168,6 +222,13 @@ public abstract class CharactersOperation<T> extends Function<T> {
         return replace;
     }
 
+    private T getResult(StringBuilder sb) {
+        if (sb.length() == 0) {
+            return getDefaultOutput();
+        }
+        return getOutput(sb.toString());
+    }
+
     /**
      * Judge whether need to check first.
      * 
@@ -180,7 +241,7 @@ public abstract class CharactersOperation<T> extends Function<T> {
     /**
      * This method allows to replace only some specific types
      * 
-     * @param the character c to ckeck
+     * @param codePoint the character c to ckeck
      * @return true if c type is ok
      */
     protected boolean isGoodType(Integer codePoint) {

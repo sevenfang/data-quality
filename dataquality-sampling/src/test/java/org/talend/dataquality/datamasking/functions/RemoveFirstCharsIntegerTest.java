@@ -31,18 +31,18 @@ public class RemoveFirstCharsIntegerTest {
     private RemoveFirstCharsInteger rfci = new RemoveFirstCharsInteger();
 
     @Test
-    public void test() {
+    public void defaultBehavior() {
         rfci.parse("2", false, new Random(42));
         ;
         output = rfci.generateMaskedRow(input);
-        assertEquals(output, 6);
+        assertEquals(6, output);
     }
 
     @Test
-    public void testDummyGood() {
+    public void dummyParameter() {
         rfci.parse("10", false, new Random(42));
         output = rfci.generateMaskedRow(input);
-        assertEquals(output, 0);
+        assertEquals(0, output);
     }
 
 }

@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
@@ -33,31 +34,31 @@ public class KeepLastCharsLongTest {
     private KeepLastCharsLong klag = new KeepLastCharsLong();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         klag.parse("3", false, new Random(42));
         output = klag.generateMaskedRow(input);
         assertEquals(38456, output); // $NON-NLS-1$
     }
 
     @Test
-    public void testDummyGood() {
+    public void dummyHighParameter() {
         klag.parse("7", false, new Random(42));
         output = klag.generateMaskedRow(input);
         assertEquals(input, output);
     }
 
     @Test
-    public void testParameter() {
+    public void twoParameters() {
         klag.parse("3,8", false, new Random(42));
         output = klag.generateMaskedRow(input);
         assertEquals(888456L, output);
     }
 
     @Test
-    public void testWrongParameter() {
+    public void letterInParameters() {
         try {
             klag.parse("3,r", false, new Random(42));
-            fail("should get exception with input " + klag.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(klag.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }

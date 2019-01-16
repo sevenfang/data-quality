@@ -16,9 +16,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
+import org.talend.dataquality.datamasking.generic.Alphabet;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -33,71 +40,104 @@ public class ReplaceAllTest {
 
     private ReplaceAll ra = new ReplaceAll();
 
+    private Alphabet alphabet = Alphabet.DEFAULT_LATIN;
+
+    @Before
+    public void setUp() {
+        ra.parse("", false, new RandomWrapper(42));
+    }
+
     @Test
-    public void testGood() {
+    public void replaceByParameter() {
         ra.parse("X", false, new Random(42));
         output = ra.generateMaskedRow(input);
         assertEquals("XXXXXXXXXXX", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testSurrogate() {
-        ra.parse("", false, new Random(42));
-        output = ra.generateMaskedRow("\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3");
+    public void defaultBehavior() {
+        output = ra.generateMaskedRow(input);
+        assertEquals("ñ38ñï xài 9", output); //$NON-NLS-1$
+    }
+
+    @Test
+    public void randomWithSurrogate() {
+        output = ra.generateMaskedRow("\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3", FunctionMode.RANDOM);
         assertEquals(4, output.codePoints().count()); //$NON-NLS-1$
     }
 
     @Test
-    public void testSurrogateConsistent() {
-        ra.parse("", false, new RandomWrapper(42));
-        output = ra.generateMaskedRow("\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3", true);
-        assertEquals(output, ra.generateMaskedRow("\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3", true));
+    public void consistent() {
+        output = ra.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, ra.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
-    public void testEmpty() {
+    public void noSeedConsistent() {
+        ra.parse(" ", false, new RandomWrapper());
+        output = ra.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, ra.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
+    }
+
+    @Test
+    public void consistentWithSurrogate() {
+        output = ra.generateMaskedRow("\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3", FunctionMode.CONSISTENT);
+        assertEquals(output, ra.generateMaskedRow("\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3", FunctionMode.CONSISTENT));
+    }
+
+    @Test
+    public void bijectiveWithSurrogate() {
+        ra.setAlphabet(alphabet);
+        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        String input = "abc\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3efgh";
+        String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        assertEquals(input.length(), output.length());
+        assertEquals(input.substring(3, 11), output.substring(3, 11));
+    }
+
+    @Test
+    public void bijectiveTooShortValue() {
+        String input = "a";
+        ra.setAlphabet(alphabet);
+        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        assertEquals(1, output.length());
+    }
+
+    @Test
+    public void bijectivity() {
+        ra.setAlphabet(alphabet);
+        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        Set<String> outputSet = new HashSet<>();
+        String prefix = "a@";
+        String suffix = "z98";
+        for (int i = 0; i < alphabet.getRadix(); i++) {
+            for (int j = 0; j < alphabet.getRadix(); j++) {
+                String input = new StringBuilder().append(prefix).append(Character.toChars(alphabet.getCharactersMap().get(i)))
+                        .append(Character.toChars(alphabet.getCharactersMap().get(j))).append(suffix).toString();
+
+                outputSet.add(ra.generateMaskedRow(input, FunctionMode.BIJECTIVE));
+            }
+        }
+        assertEquals((int) Math.pow(alphabet.getRadix(), 2), outputSet.size()); //$NON-NLS-1$
+    }
+
+    @Test
+    public void emptyReturnsEmpty() {
         ra.setKeepEmpty(true);
         output = ra.generateMaskedRow("");
         assertEquals("", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testCharacter() {
-        ra.parse("?", false, new Random(42));
-        output = ra.generateMaskedRow(input);
-        assertEquals("???????????", output); //$NON-NLS-1$
-    }
-
-    @Test
-    public void testWrongParameter() {
+    public void lettersInParameter() {
         try {
             ra.parse("zi", false, new Random(42));
-            fail("should get exception with input " + ra.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(ra.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }
         output = ra.generateMaskedRow(input);
         assertEquals("", output); // $NON-NLS-1$
-    }
-
-    @Test
-    public void testNoParameter() {
-        ra.parse(" ", false, new Random(42));
-        output = ra.generateMaskedRow(input);
-        assertEquals("ñ38ñï xài 9", output); //$NON-NLS-1$
-    }
-
-    @Test
-    public void testNoParameterConsistent() {
-        ra.parse(" ", false, new RandomWrapper(42));
-        output = ra.generateMaskedRow(input, true);
-        assertEquals(output, ra.generateMaskedRow(input, true)); //$NON-NLS-1$
-    }
-
-    @Test
-    public void testNoSeedConsistent() {
-        ra.parse(" ", false, new RandomWrapper());
-        output = ra.generateMaskedRow(input, true);
-        assertEquals(output, ra.generateMaskedRow(input, true)); //$NON-NLS-1$
     }
 }

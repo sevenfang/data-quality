@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
@@ -33,41 +34,41 @@ public class RemoveLastCharsLongTest {
     private RemoveLastCharsLong rlci = new RemoveLastCharsLong();
 
     @Test
-    public void test() {
+    public void defaultBehavior() {
         rlci.parse("2", false, new Random(42));
         output = rlci.generateMaskedRow(input);
         assertEquals(6, output);
     }
 
     @Test
-    public void testNullParameter() {
+    public void nullParameter() {
         try {
             rlci.parse(null, false, new Random(42));
-            fail("should get exception with input " + rlci.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rlci.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }
     }
 
     @Test
-    public void testDummyGood() {
+    public void dummyParameter() {
         rlci.parse("10", false, new Random(42));
         output = rlci.generateMaskedRow(input);
         assertEquals(0, output);
     }
 
     @Test
-    public void testLimitCase() {
+    public void zeroParameter() {
         rlci.parse("0", false, new Random(42));
         output = rlci.generateMaskedRow(input);
         assertEquals(666, output);
     }
 
     @Test
-    public void testWrongParameterCase() {
+    public void letterInParameter() {
         try {
             rlci.parse("a", false, new Random(42));
-            fail("should get exception with input " + rlci.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rlci.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }

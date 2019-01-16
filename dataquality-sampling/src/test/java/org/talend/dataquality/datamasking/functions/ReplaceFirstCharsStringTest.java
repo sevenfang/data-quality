@@ -16,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -34,45 +36,52 @@ public class ReplaceFirstCharsStringTest {
     private ReplaceFirstCharsString rfcs = new ReplaceFirstCharsString();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         rfcs.parse("3,y", false, new Random(42));
         output = rfcs.generateMaskedRow(input);
         assertEquals("yyy456", output);
     }
 
     @Test
+    public void random() {
+        rfcs.parse("3,y", false, new Random(42));
+        output = rfcs.generateMaskedRow(input, FunctionMode.RANDOM);
+        assertEquals("yyy456", output);
+    }
+
+    @Test
     public void consistent() {
         rfcs.parse("3", false, new RandomWrapper(42));
-        output = rfcs.generateMaskedRow(input, true);
-        assertEquals(output, rfcs.generateMaskedRow(input, true));
+        output = rfcs.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rfcs.generateMaskedRow(input, FunctionMode.CONSISTENT));
     }
 
     @Test
     public void consistentNoSeed() {
         rfcs.parse("3", false, new RandomWrapper());
-        output = rfcs.generateMaskedRow(input, true);
-        assertEquals(output, rfcs.generateMaskedRow(input, true));
+        output = rfcs.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rfcs.generateMaskedRow(input, FunctionMode.CONSISTENT));
     }
 
     @Test
-    public void testEmpty() {
+    public void emptyReturnsEmpty() {
         rfcs.setKeepEmpty(true);
         output = rfcs.generateMaskedRow("");
         assertEquals("", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testDummyGood() {
+    public void dummyHighParameter() {
         rfcs.parse("7", false, new Random(42));
         output = rfcs.generateMaskedRow(input);
         assertEquals("038405", output);
     }
 
     @Test
-    public void testWrongParameters() {
+    public void letterInParameters() {
         try {
             rfcs.parse("0,xs", false, new Random(42));
-            fail("should get exception with input " + rfcs.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rfcs.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }

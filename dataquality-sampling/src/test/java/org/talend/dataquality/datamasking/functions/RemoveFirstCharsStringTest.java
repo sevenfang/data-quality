@@ -31,30 +31,30 @@ public class RemoveFirstCharsStringTest {
     private RemoveFirstCharsString rfcs = new RemoveFirstCharsString();
 
     @Test
-    public void testEmpty() {
+    public void emptyReturnsEmpty() {
         rfcs.setKeepEmpty(true);
         output = rfcs.generateMaskedRow("");
         assertEquals("", output); //$NON-NLS-1$
     }
 
     @Test
-    public void test() {
+    public void defaultBehavior() {
         rfcs.parse("2", false, new Random(42));
         output = rfcs.generateMaskedRow(input);
-        assertEquals(output, "eve"); //$NON-NLS-1$
+        assertEquals("eve", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testDummyGood() {
+    public void dummyParameter() {
         rfcs.parse("10", false, new Random(42));
         output = rfcs.generateMaskedRow(input);
-        assertEquals(output, Function.EMPTY_STRING); // $NON-NLS-1$
+        assertEquals(Function.EMPTY_STRING, output); // $NON-NLS-1$
     }
 
     @Test
-    public void testParameterToLong() {
+    public void parameterToLong() {
         rfcs.parse("10000", false, new Random(42));
         output = rfcs.generateMaskedRow(input);
-        assertEquals(output, Function.EMPTY_STRING);
+        assertEquals(Function.EMPTY_STRING, output);
     }
 }

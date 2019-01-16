@@ -16,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -34,21 +36,28 @@ public class ReplaceNumericStringTest {
     private ReplaceNumericString rns = new ReplaceNumericString();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         rns.parse("0", false, new Random(42));
         output = rns.generateMaskedRow(input);
         assertEquals("abc000def", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testEmpty() {
+    public void random() {
+        rns.parse("0", false, new Random(42));
+        output = rns.generateMaskedRow(input, FunctionMode.RANDOM);
+        assertEquals("abc000def", output); //$NON-NLS-1$
+    }
+
+    @Test
+    public void emptyReturnsEmpty() {
         rns.setKeepEmpty(true);
         output = rns.generateMaskedRow("");
         assertEquals("", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testEmptyParameter() {
+    public void emptyParameterWorks() {
         rns.parse(" ", false, new Random(42));
         output = rns.generateMaskedRow(input);
         assertEquals("abc038def", output); //$NON-NLS-1$
@@ -57,22 +66,22 @@ public class ReplaceNumericStringTest {
     @Test
     public void consistent() {
         rns.parse(" ", false, new RandomWrapper(42));
-        output = rns.generateMaskedRow(input, true);
-        assertEquals(output, rns.generateMaskedRow(input, true)); //$NON-NLS-1$
+        output = rns.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rns.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
     public void consistentNoSeed() {
         rns.parse(" ", false, new RandomWrapper());
-        output = rns.generateMaskedRow(input, true);
-        assertEquals(output, rns.generateMaskedRow(input, true)); //$NON-NLS-1$
+        output = rns.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rns.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
-    public void testBad() {
+    public void letterInParameter() {
         try {
             rns.parse("0X", false, new Random(42));
-            fail("should get exception with input " + rns.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rns.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }

@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Random;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -25,37 +26,44 @@ import org.talend.dataquality.duplicating.RandomWrapper;
  */
 public class ReplaceLastCharsIntegerTest {
 
-    private String output;
+    private int output;
 
-    private Integer input = 123456;
+    private int input = 123456;
 
     private ReplaceLastCharsInteger rlci = new ReplaceLastCharsInteger();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         rlci.parse("3", false, new Random(42));
-        output = rlci.generateMaskedRow(input).toString();
-        assertEquals(output, "123038"); //$NON-NLS-1$
+        output = rlci.generateMaskedRow(input);
+        assertEquals(123038, output); //$NON-NLS-1$
     }
 
     @Test
-    public void testDummyGood() {
+    public void random() {
+        rlci.parse("3", false, new Random(42));
+        output = rlci.generateMaskedRow(input, FunctionMode.RANDOM);
+        assertEquals(123038, output); //$NON-NLS-1$
+    }
+
+    @Test
+    public void dummyHighParameter() {
         rlci.parse("7", false, new Random(42));
-        output = rlci.generateMaskedRow(input).toString();
-        assertEquals(output, "38405"); //$NON-NLS-1$
+        output = rlci.generateMaskedRow(input);
+        assertEquals(38405, output); //$NON-NLS-1$
     }
 
     @Test
     public void consistent() {
         rlci.parse("3", false, new RandomWrapper(42));
-        output = rlci.generateMaskedRow(input, true).toString();
-        assertEquals(output, rlci.generateMaskedRow(input, true).toString());
+        output = rlci.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rlci.generateMaskedRow(input, FunctionMode.CONSISTENT).intValue());
     }
 
     @Test
     public void consistentNoSeed() {
         rlci.parse("3", false, new RandomWrapper());
-        output = rlci.generateMaskedRow(input, true).toString();
-        assertEquals(output, rlci.generateMaskedRow(input, true).toString());
+        output = rlci.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rlci.generateMaskedRow(input, FunctionMode.CONSISTENT).intValue());
     }
 }

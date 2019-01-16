@@ -16,9 +16,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
+import org.talend.dataquality.datamasking.generic.Alphabet;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -34,52 +40,24 @@ public class ReplaceCharactersTest {
     private ReplaceCharacters rc = new ReplaceCharacters();
 
     @Test
-    public void testGood() {
+    public void replaceByParameter() {
         rc.parse("X", false, new Random(42));
         output = rc.generateMaskedRow(input);
         assertEquals("XXX456XX XXXXX", output); //$NON-NLS-1$
     }
 
     @Test
-    public void testEmpty() {
-        rc.setKeepEmpty(true);
-        output = rc.generateMaskedRow("");
-        assertEquals("", output); //$NON-NLS-1$
-    }
-
-    @Test
-    public void testParameter() {
-        rc.parse("5", false, new Random(42));
-        output = rc.generateMaskedRow(input);
-        assertEquals("55545655 55555", output); //$NON-NLS-1$
-    }
-
-    @Test
-    public void testEmptyParameter() {
-        rc.parse(" ", false, new Random(42));
+    public void defaultBehavior() {
+        rc.parse("", false, new Random(42));
         output = rc.generateMaskedRow(input);
         assertEquals("ñjë456ñï xàiäz", output); //$NON-NLS-1$
     }
 
     @Test
-    public void consistent() {
-        rc.parse(" ", false, new RandomWrapper(42));
-        output = rc.generateMaskedRow(input, true);
-        assertEquals(output, rc.generateMaskedRow(input, true)); //$NON-NLS-1$
-    }
-
-    @Test
-    public void consistentNoSeed() {
-        rc.parse(" ", false, new RandomWrapper());
-        output = rc.generateMaskedRow(input, true);
-        assertEquals(output, rc.generateMaskedRow(input, true)); //$NON-NLS-1$
-    }
-
-    @Test
-    public void testWrongParameter() {
+    public void numberInParameter() {
         try {
             rc.parse("12", false, new Random(42));
-            fail("should get exception with input " + rc.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rc.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }
@@ -87,4 +65,54 @@ public class ReplaceCharactersTest {
         assertEquals("", output); //$NON-NLS-1$
     }
 
+    @Test
+    public void emptyReturnsEmpty() {
+        rc.setKeepEmpty(true);
+        output = rc.generateMaskedRow("");
+        assertEquals("", output); //$NON-NLS-1$
+    }
+
+    @Test
+    public void consistent() {
+        rc.parse(" ", false, new RandomWrapper(42));
+        output = rc.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rc.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
+    }
+
+    @Test
+    public void consistentNoSeed() {
+        rc.parse(" ", false, new RandomWrapper());
+        output = rc.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rc.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
+    }
+
+    @Test
+    public void bijectiveReplaceOnlyCharactersFromAlphabet() {
+        rc.parse("", false, new RandomWrapper(42));
+        rc.setAlphabet(Alphabet.LATIN_LETTERS);
+        rc.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        String output = rc.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        assertEquals("inpput : " + input + "\noutput : " + output, input.length(), output.length());
+        assertEquals(input.substring(3, 6), output.substring(3, 6));
+    }
+
+    @Test
+    public void bijective() {
+        Alphabet alphabet = Alphabet.LATIN_LETTERS;
+        rc.parse("", false, new RandomWrapper(42));
+        rc.setAlphabet(alphabet);
+        rc.setSecret(FormatPreservingMethod.AES_CBC_PRF, "data");
+        Set<String> outputSet = new HashSet<>();
+        String prefix = "a@";
+        String suffix = "z98";
+        for (int i = 0; i < alphabet.getRadix(); i++) {
+            for (int j = 0; j < alphabet.getRadix(); j++) {
+                String input = new StringBuilder().append(prefix).append(Character.toChars(alphabet.getCharactersMap().get(i)))
+                        .append(Character.toChars(alphabet.getCharactersMap().get(j))).append(suffix).toString();
+
+                outputSet.add(rc.generateMaskedRow(input, FunctionMode.BIJECTIVE));
+            }
+        }
+        assertEquals((int) Math.pow(alphabet.getRadix(), 2), outputSet.size()); //$NON-NLS-1$
+    }
 }

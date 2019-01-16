@@ -13,6 +13,7 @@
 package org.talend.dataquality.datamasking.generic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class BijectiveSubstitutionFunctionTest {
 
         fn = new BijectiveSubstitutionFunction(fieldDefinitionList);
         fn.setRandom(new Random(42));
-        fn.setSecret(FormatPreservingMethod.BASIC.name(), "");
+        fn.setSecret(FormatPreservingMethod.BASIC, "");
         fn.setKeepFormat(true);
     }
 
@@ -67,7 +68,7 @@ public class BijectiveSubstitutionFunctionTest {
     public void testKeepInvalidPatternTrue() {
         fn.setKeepInvalidPattern(true);
         output = fn.generateMaskedRow(null);
-        assertEquals(null, output);
+        assertNull(null, output);
         output = fn.generateMaskedRow("");
         assertEquals("", output);
         output = fn.generateMaskedRow("AHDBNSKD");
@@ -78,11 +79,11 @@ public class BijectiveSubstitutionFunctionTest {
     public void testKeepInvalidPatternFalse() {
         fn.setKeepInvalidPattern(false);
         output = fn.generateMaskedRow(null);
-        assertEquals(null, output);
+        assertNull(null, output);
         output = fn.generateMaskedRow("");
-        assertEquals(null, output);
+        assertNull(null, output);
         output = fn.generateMaskedRow("AHDBNSKD");
-        assertEquals(null, output);
+        assertNull(null, output);
     }
 
     @Test
@@ -118,7 +119,7 @@ public class BijectiveSubstitutionFunctionTest {
         fn.setKeepInvalidPattern(false);
         // without a number
         output = fn.generateMaskedRow("186034828207");
-        assertEquals(null, output);
+        assertNull(null, output);
     }
 
     @Test
@@ -126,7 +127,7 @@ public class BijectiveSubstitutionFunctionTest {
         fn.setKeepInvalidPattern(false);
         // with a wrong letter
         output = fn.generateMaskedRow("186034Y282079");
-        assertEquals(null, output);
+        assertNull(null, output);
     }
 
     @Test
@@ -134,7 +135,7 @@ public class BijectiveSubstitutionFunctionTest {
         fn.setKeepInvalidPattern(false);
         // with a letter instead of a number
         output = fn.generateMaskedRow("1860I48282079");
-        assertEquals(null, output);
+        assertNull(null, output);
     }
 
     @Test
@@ -150,7 +151,7 @@ public class BijectiveSubstitutionFunctionTest {
 
         BijectiveSubstitutionFunction bijectiveSubstitutionFunction = new BijectiveSubstitutionFunction(fieldDefinitionList);
         bijectiveSubstitutionFunction.setRandom(new Random(124));
-        bijectiveSubstitutionFunction.setSecret(FormatPreservingMethod.BASIC.name(), "");
+        bijectiveSubstitutionFunction.setSecret(FormatPreservingMethod.BASIC, "");
         bijectiveSubstitutionFunction.setKeepFormat(true);
         List<String> output = input.stream().map(bijectiveSubstitutionFunction::generateMaskedRow).collect(Collectors.toList());
 
@@ -171,7 +172,7 @@ public class BijectiveSubstitutionFunctionTest {
 
         BijectiveSubstitutionFunction bijectiveSubstitutionFunction = new BijectiveSubstitutionFunction(fieldDefinitionList);
         bijectiveSubstitutionFunction.setRandom(new Random(124));
-        bijectiveSubstitutionFunction.setSecret(FormatPreservingMethod.BASIC.name(), "");
+        bijectiveSubstitutionFunction.setSecret(FormatPreservingMethod.BASIC, "");
         bijectiveSubstitutionFunction.setKeepFormat(true);
         List<String> output = input.stream().map(bijectiveSubstitutionFunction::generateMaskedRow).collect(Collectors.toList());
 

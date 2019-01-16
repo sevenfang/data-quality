@@ -22,6 +22,9 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
+import org.talend.dataquality.datamasking.generic.Alphabet;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -191,10 +194,10 @@ public abstract class Function<T> implements Serializable {
     }
 
     public T generateMaskedRow(T t) {
-        return generateMaskedRow(t, false);
+        return generateMaskedRow(t, FunctionMode.RANDOM);
     }
 
-    public T generateMaskedRow(T t, boolean isConsistent) {
+    public T generateMaskedRow(T t, FunctionMode mode) {
         if (t == null && keepNull) {
             return null;
         }
@@ -203,7 +206,11 @@ public abstract class Function<T> implements Serializable {
             return t;
         }
 
-        return isConsistent ? doGenerateMaskedFieldConsistent(t) : doGenerateMaskedField(t);
+        try {
+            return doGenerateMaskedField(t, mode);
+        } catch (NotImplementedException e) {
+            return doGenerateMaskedField(t);
+        }
     }
 
     /**
@@ -244,12 +251,16 @@ public abstract class Function<T> implements Serializable {
      */
     protected abstract T doGenerateMaskedField(T t);
 
-    protected T doGenerateMaskedFieldConsistent(T t) {
+    protected T doGenerateMaskedField(T t, FunctionMode mode) {
         throw new NotImplementedException();
     }
 
-    public void setSecret(String method, String secret) {
-        throw new UnsupportedOperationException("The class " + this.getClass() + " should not use a secret.");
+    public void setSecret(FormatPreservingMethod method, String secret) {
+        throw new UnsupportedOperationException("The class " + this.getClass().getName() + " should not use a secret.");
+    }
+
+    public void setAlphabet(Alphabet alphabet) {
+        throw new UnsupportedOperationException("The class " + this.getClass().getName() + " should not use an alphabet.");
     }
 
     protected int nextRandomDigit() {

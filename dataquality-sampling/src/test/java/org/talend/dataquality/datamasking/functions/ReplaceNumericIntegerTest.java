@@ -16,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -34,14 +36,21 @@ public class ReplaceNumericIntegerTest {
     private ReplaceNumericInteger rni = new ReplaceNumericInteger();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         rni.parse("6", false, new Random(42));
         output = rni.generateMaskedRow(input);
         assertEquals(666, output);
     }
 
     @Test
-    public void testNullParameter() {
+    public void random() {
+        rni.parse("6", false, new Random(42));
+        output = rni.generateMaskedRow(input, FunctionMode.RANDOM);
+        assertEquals(666, output);
+    }
+
+    @Test
+    public void nullParameter() {
         rni.parse(null, false, new Random(42));
         output = rni.generateMaskedRow(input);
         assertEquals(38, output);
@@ -50,22 +59,22 @@ public class ReplaceNumericIntegerTest {
     @Test
     public void consistent() {
         rni.parse(" ", false, new RandomWrapper(42));
-        output = rni.generateMaskedRow(input, true);
-        assertEquals(output, (int) rni.generateMaskedRow(input, true)); //$NON-NLS-1$
+        output = rni.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, (int) rni.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
     public void consistentNoSeed() {
         rni.parse(" ", false, new RandomWrapper());
-        output = rni.generateMaskedRow(input, true);
-        assertEquals(output, (int) rni.generateMaskedRow(input, true)); //$NON-NLS-1$
+        output = rni.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, (int) rni.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
-    public void testWrongParameter() {
+    public void letterInParameter() {
         try {
             rni.parse("r", false, new Random(42));
-            fail("should get exception with input " + rni.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rni.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }
@@ -74,10 +83,10 @@ public class ReplaceNumericIntegerTest {
     }
 
     @Test
-    public void testBad() {
+    public void twoDigitsInParameter() {
         try {
             rni.parse("10", false, new Random(42));
-            fail("should get exception with input " + rni.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rni.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }

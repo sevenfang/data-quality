@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Random;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -32,37 +33,44 @@ public class ReplaceLastCharsStringTest {
     private ReplaceLastCharsString rlcs = new ReplaceLastCharsString();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         rlcs.parse("3", false, new Random(42));
         output = rlcs.generateMaskedRow(input);
-        assertEquals(output, "123038");
+        assertEquals("123038", output);
     }
 
     @Test
-    public void testEmpty() {
+    public void random() {
+        rlcs.parse("3", false, new Random(42));
+        output = rlcs.generateMaskedRow(input, FunctionMode.RANDOM);
+        assertEquals("123038", output);
+    }
+
+    @Test
+    public void emptyREturnsEmpty() {
         rlcs.setKeepEmpty(true);
         output = rlcs.generateMaskedRow("");
-        assertEquals("", output); //$NON-NLS-1$
+        assertEquals(output, ""); //$NON-NLS-1$
     }
 
     @Test
-    public void testDummyGood() {
+    public void dummyHighParameter() {
         rlcs.parse("7", false, new Random(42));
         output = rlcs.generateMaskedRow(input);
-        assertEquals(output, "038405");
+        assertEquals("038405", output);
     }
 
     @Test
     public void consistent() {
         rlcs.parse("3", false, new RandomWrapper(42));
-        output = rlcs.generateMaskedRow(input, true);
-        assertEquals(output, rlcs.generateMaskedRow(input, true));
+        output = rlcs.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rlcs.generateMaskedRow(input, FunctionMode.CONSISTENT));
     }
 
     @Test
     public void consistentNoSeed() {
         rlcs.parse("3", false, new RandomWrapper());
-        output = rlcs.generateMaskedRow(input, true);
-        assertEquals(output, rlcs.generateMaskedRow(input, true));
+        output = rlcs.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, rlcs.generateMaskedRow(input, FunctionMode.CONSISTENT));
     }
 }

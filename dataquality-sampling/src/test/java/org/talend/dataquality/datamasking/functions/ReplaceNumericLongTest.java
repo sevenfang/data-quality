@@ -16,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 
 /**
@@ -34,38 +36,45 @@ public class ReplaceNumericLongTest {
     private ReplaceNumericLong rnl = new ReplaceNumericLong();
 
     @Test
-    public void testGood() {
+    public void defaultBehavior() {
         rnl.parse("6", false, new Random(42));
         output = rnl.generateMaskedRow(input);
-        assertEquals(output, 666);
+        assertEquals(666, output);
     }
 
     @Test
-    public void testEmptyParameter() {
+    public void random() {
+        rnl.parse("6", false, new Random(42));
+        output = rnl.generateMaskedRow(input, FunctionMode.RANDOM);
+        assertEquals(666, output);
+    }
+
+    @Test
+    public void emptyParameter() {
         rnl.parse(" ", false, new Random(42));
         output = rnl.generateMaskedRow(input);
-        assertEquals(output, 38);
+        assertEquals(38, output);
     }
 
     @Test
     public void consistent() {
         rnl.parse(" ", false, new RandomWrapper(42));
-        output = rnl.generateMaskedRow(input, true);
-        assertEquals(output, (long) rnl.generateMaskedRow(input, true)); //$NON-NLS-1$
+        output = rnl.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, (long) rnl.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
     public void consistentNoSeed() {
         rnl.parse(" ", false, new RandomWrapper());
-        output = rnl.generateMaskedRow(input, true);
-        assertEquals(output, (long) rnl.generateMaskedRow(input, true)); //$NON-NLS-1$
+        output = rnl.generateMaskedRow(input, FunctionMode.CONSISTENT);
+        assertEquals(output, (long) rnl.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
     }
 
     @Test
-    public void testBad() {
+    public void twoDigitsInParameters() {
         try {
             rnl.parse("10", false, new Random(42));
-            fail("should get exception with input " + rnl.parameters); //$NON-NLS-1$
+            fail("should get exception with input " + Arrays.toString(rnl.parameters)); //$NON-NLS-1$
         } catch (Exception e) {
             assertTrue("expect illegal argument exception ", e instanceof IllegalArgumentException); //$NON-NLS-1$
         }
