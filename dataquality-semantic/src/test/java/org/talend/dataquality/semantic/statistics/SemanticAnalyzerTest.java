@@ -163,9 +163,10 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
     }
 
     @Test
-    public void testTagadaWithCustomRegexRe2J() {
+    public void testTagadaWithCustomRegex() {
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
         DQValidator dqValidator = new DQValidator();
+        dqValidator.setRe2jCompliant(false);
         dqValidator.setPatternString("^(true|false)$");
         DQRegEx dqRegEx = new DQRegEx();
         dqRegEx.setMainCategory(MainCategory.Alpha);
@@ -187,10 +188,9 @@ public class SemanticAnalyzerTest extends CategoryRegistryManagerAbstract {
     }
 
     @Test
-    public void testTagadaWithCustomRegexJava() {
+    public void testTagadaWithCustomRegexRe2J() {
         CustomDictionaryHolder holder = CategoryRegistryManager.getInstance().getCustomDictionaryHolder();
         DQValidator dqValidator = new DQValidator();
-        dqValidator.setRe2jCompliant(false);
         dqValidator.setPatternString("^(true|false)$");
         DQRegEx dqRegEx = new DQRegEx();
         dqRegEx.setMainCategory(MainCategory.Alpha);

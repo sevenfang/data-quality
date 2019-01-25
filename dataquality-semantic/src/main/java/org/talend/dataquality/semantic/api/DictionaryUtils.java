@@ -47,7 +47,6 @@ import org.talend.dataquality.semantic.model.DQFilter;
 import org.talend.dataquality.semantic.model.DQRegEx;
 import org.talend.dataquality.semantic.model.DQValidator;
 import org.talend.dataquality.semantic.model.ValidationMode;
-import org.talend.dataquality.semantic.validator.AbstractRegexSemanticValidator;
 
 public class DictionaryUtils {
 
@@ -228,7 +227,7 @@ public class DictionaryUtils {
         }
 
         if (dqValidator != null) {
-            AbstractRegexSemanticValidator validator;
+            UserDefinedRegexValidator validator;
             if (dqValidator.isRe2jCompliant())
                 validator = new UserDefinedRE2JRegexValidator();
             else
