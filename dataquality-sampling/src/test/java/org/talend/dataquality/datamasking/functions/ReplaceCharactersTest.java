@@ -50,7 +50,7 @@ public class ReplaceCharactersTest {
     public void defaultBehavior() {
         rc.parse("", false, new Random(42));
         output = rc.generateMaskedRow(input);
-        assertEquals("ñjë456ñï xàiäz", output); //$NON-NLS-1$
+        assertEquals("ahw456ma rnqdp", output); //$NON-NLS-1$
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ReplaceCharactersTest {
         rc.setAlphabet(Alphabet.LATIN_LETTERS);
         rc.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
         String output = rc.generateMaskedRow(input, FunctionMode.BIJECTIVE);
-        assertEquals("inpput : " + input + "\noutput : " + output, input.length(), output.length());
+        assertEquals("input : " + input + "\noutput : " + output, input.length(), output.length());
         assertEquals(input.substring(3, 6), output.substring(3, 6));
     }
 

@@ -3,7 +3,11 @@ package org.talend.dataquality.common.pattern;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.junit.Before;
@@ -47,6 +51,13 @@ public class TextPatternUtilTest {
         Random random = new Random();
         CharPattern charPattern = CharPattern.LOWER_LATIN;
         replaceCharMatch((int) 'a', (int) 'z', charPattern, random);
+        assertEquals(String.format("Pattern %s has a size issue", charPattern), globalCount, charPattern.getCodePointSize());
+    }
+
+    @Test
+    public void replaceCharacterLowerLatinRare() {
+        Random random = new Random();
+        CharPattern charPattern = CharPattern.LOWER_LATIN_RARE;
         replaceCharMatch((int) 'ß', (int) 'ö', charPattern, random);
         replaceCharMatch((int) 'ø', (int) 'ÿ', charPattern, random);
         assertEquals(String.format("Pattern %s has a size issue", charPattern), globalCount, charPattern.getCodePointSize());
@@ -57,6 +68,13 @@ public class TextPatternUtilTest {
         Random random = new Random();
         CharPattern charPattern = CharPattern.UPPER_LATIN;
         replaceCharMatch((int) 'A', (int) 'Z', charPattern, random);
+        assertEquals(String.format("Pattern %s has a size issue", charPattern), globalCount, charPattern.getCodePointSize());
+    }
+
+    @Test
+    public void replaceCharacterUpperLatinRare() {
+        Random random = new Random();
+        CharPattern charPattern = CharPattern.UPPER_LATIN_RARE;
         replaceCharMatch((int) 'À', (int) 'Ö', charPattern, random);
         replaceCharMatch((int) 'Ø', (int) 'Þ', charPattern, random);
         assertEquals(String.format("Pattern %s has a size issue", charPattern), globalCount, charPattern.getCodePointSize());
@@ -158,5 +176,20 @@ public class TextPatternUtilTest {
             String errorMessage = String.format("Pattern %s won't match %s", pattern, correspondingString);
             assertTrue(errorMessage, pattern.matcher(correspondingString).find());
         }
+    }
+
+    @Test
+    public void getPatternLatin() {
+        List<Integer> codepoints = Arrays.asList((int) 'a', (int) 'é', (int) '-', (int) 'A', (int) '€', (int) 'b');
+        List<Integer> filteredCodepoints = new ArrayList<>();
+        Set<CharPattern> charPatternSet = TextPatternUtil.getCharPatterns(codepoints, filteredCodepoints);
+        assertTrue(charPatternSet.contains(CharPattern.LOWER_LATIN));
+        assertTrue(charPatternSet.contains(CharPattern.LOWER_LATIN_RARE));
+        assertTrue(charPatternSet.contains(CharPattern.UPPER_LATIN));
+        assertTrue(filteredCodepoints.get(0) == (int) 'a');
+        assertTrue(filteredCodepoints.get(1) == (int) 'é');
+        assertTrue(filteredCodepoints.get(2) == (int) 'A');
+        assertTrue(filteredCodepoints.get(3) == (int) 'b');
+        assertTrue(charPatternSet.size() == 3);
     }
 }
