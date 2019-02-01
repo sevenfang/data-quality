@@ -1,5 +1,8 @@
 package org.talend.dataquality.datamasking.functions;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -9,8 +12,6 @@ import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.duplicating.RandomWrapper;
 import org.talend.dataquality.utils.MockRandom;
-
-import static org.junit.Assert.*;
 
 public class KeepFirstDigitsAndReplaceOtherDigitsTest {
 
@@ -52,7 +53,7 @@ public class KeepFirstDigitsAndReplaceOtherDigitsTest {
 
     @Test
     public void bijective() {
-        kfag.parse("3", false, new RandomWrapper(42));
+        kfag.parse("1", false, new RandomWrapper(42));
         kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
         Set<String> outputSet = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
@@ -66,6 +67,30 @@ public class KeepFirstDigitsAndReplaceOtherDigitsTest {
             outputSet.add(kfag.generateMaskedRow(input, FunctionMode.BIJECTIVE));
         }
         assertEquals(1000, outputSet.size()); //$NON-NLS-1$
+    }
+
+    @Test
+    public void bijectiveReturnsNullIfOneDigitToReplace() {
+        kfag.parse("2", false, new RandomWrapper(42));
+        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        String output = kfag.generateMaskedRow("abc123", FunctionMode.BIJECTIVE);
+        assertNull(output);
+    }
+
+    @Test
+    public void bijectiveReturnsNullIfSmallerThanParam() {
+        kfag.parse("2", false, new RandomWrapper(42));
+        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        String output = kfag.generateMaskedRow("a", FunctionMode.BIJECTIVE);
+        assertNull(output);
+    }
+
+    @Test
+    public void randomReturnsInputIfSmallerThanParam() {
+        kfag.parse("2", false, new RandomWrapper(42));
+        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        String output = kfag.generateMaskedRow("a", FunctionMode.RANDOM);
+        assertEquals("a", output);
     }
 
     @Test
