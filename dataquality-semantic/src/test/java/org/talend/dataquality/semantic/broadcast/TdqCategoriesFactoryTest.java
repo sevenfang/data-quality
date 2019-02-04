@@ -29,8 +29,10 @@ import org.talend.dataquality.common.inference.ValueQualityStatistics;
 import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
 import org.talend.dataquality.semantic.api.CustomDictionaryHolder;
+import org.talend.dataquality.semantic.classifier.ISubCategory;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier;
+import org.talend.dataquality.semantic.classifier.custom.UserDefinedRegexValidator;
 import org.talend.dataquality.semantic.index.DictionarySearcher;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
@@ -64,6 +66,13 @@ public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
         for (DQCategory value : expectedCategories) {
             assertTrue("This category is not found in metadata: " + value, categoryNames.contains(value.getName()));
         }
+
+        // make sure the serialized validator's type is UserDefinedRegexValidator, but not UserDefinedRE2JRegexValidator,
+        // to ensure the backward compatibility with 7.1 studio while launching tDataprepRun on Spark cluster
+        final UserDefinedClassifier udc = cats.getRegex().getRegexClassifier();
+        for (ISubCategory classifier : udc.getClassifiers()) {
+            assertEquals(UserDefinedRegexValidator.class, classifier.getValidator().getClass());
+        }
     }
 
     @Test
@@ -73,7 +82,7 @@ public class TdqCategoriesFactoryTest extends CategoryRegistryManagerAbstract {
         assertEquals("Unexpected document size in shared data dict!", 45829, cats.getDictionary().getDocumentList().size());
         assertEquals("Unexpected document size in custom data dict!", 0, cats.getCustomDictionary().getDocumentList().size());
         assertEquals("Unexpected document size in shared keyword!", 0, cats.getKeyword().getDocumentList().size());
-        assertEquals("Unexpected regex classifier size!", 47, cats.getRegex().getRegexClassifier().getClassifiers().size());
+        assertEquals("Unexpected regex classifier size!", 42, cats.getRegex().getRegexClassifier().getClassifiers().size());
     }
 
     @Test

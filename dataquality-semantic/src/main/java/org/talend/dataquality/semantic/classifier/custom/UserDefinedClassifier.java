@@ -23,7 +23,7 @@ import org.talend.dataquality.semantic.classifier.impl.AbstractSubCategoryClassi
 import org.talend.dataquality.semantic.filter.ISemanticFilter;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.MainCategory;
-import org.talend.dataquality.semantic.validator.AbstractRegexSemanticValidator;
+import org.talend.dataquality.semantic.validator.ISemanticValidator;
 
 /**
  * created by talend on 2015-07-28 Detailled comment.
@@ -187,7 +187,7 @@ public class UserDefinedClassifier extends AbstractSubCategoryClassifier {
         return filter != null && !filter.isQualified(str);
     }
 
-    private boolean validValidator(String str, AbstractRegexSemanticValidator validator, boolean caseSensitive) {
+    private boolean validValidator(String str, ISemanticValidator validator, boolean caseSensitive) {
         return validator != null && validator.isValid(str, caseSensitive);
     }
 

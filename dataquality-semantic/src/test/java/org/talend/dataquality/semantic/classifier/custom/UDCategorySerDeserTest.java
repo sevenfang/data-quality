@@ -20,8 +20,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
+import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.model.MainCategory;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -57,9 +64,21 @@ public class UDCategorySerDeserTest {
         assertTrue("Expected to read at least 10 category but only get " + nbCat, nbCat > 9); //$NON-NLS-1$
     }
 
+    @Test
+    public void testReadJsonFileWithUnknownField() throws IOException {
+        // WHEN
+        InputStream inputStream = UDCategorySerDeserTest.class.getResourceAsStream("category_with_unknown_field.json");
+        UserDefinedClassifier userDefinedClassifier = UDCategorySerDeser.readJsonFile(inputStream);
+
+        // THEN
+        // unknown fields should be ignored without exception
+        assertNotNull(userDefinedClassifier);
+        assertEquals("Unexpected category size!", 1, userDefinedClassifier.getClassifiers().size()); //$NON-NLS-1$
+    }
+
     /**
      * Test method for
-     * {@link org.talend.dataquality.semantic.classifier.custom.UserDefinedHelper#writeToJsonFile(org.talend.dataquality.semantic.classifier.custom.UserDefinedClassifier)}
+     * {@link org.talend.dataquality.semantic.classifier.custom.UDCategorySerDeser#writeToJsonFile(UserDefinedClassifier, OutputStream)}
      * .
      * 
      * @throws IOException
@@ -67,7 +86,7 @@ public class UDCategorySerDeserTest {
      * @throws JsonParseException
      */
     @Test
-    public void testWriteToJsonFile() throws JsonParseException, JsonMappingException, IOException {
+    public void testWriteToJsonFile() throws IOException {
 
         UDCategorySerDeser helper = new UDCategorySerDeser();
 
@@ -105,4 +124,38 @@ public class UDCategorySerDeserTest {
         assertTrue(file.delete());
     }
 
+    /**
+     * This test ensures that future semantic library is still to able to read the serialization result of current
+     * UserDefinedClassifier implementation.
+     */
+    @Test
+    public void testDeserializeObjectFromFile() {
+        InputStream inputStream = UDCategorySerDeserTest.class.getResourceAsStream("udc.ser");
+        UserDefinedClassifier udc = (UserDefinedClassifier) SerializationUtils.deserialize(inputStream);
+
+        final Map<String, String[]> TEST_DATA = new HashMap<String, String[]>() {
+
+            private static final long serialVersionUID = 1L;
+
+            {
+                put("asdf@talend.com", new String[] { SemanticCategoryEnum.EMAIL.name() });
+
+                // A valid SEDOL code
+                put("2936921", new String[] { SemanticCategoryEnum.US_PHONE.name(), SemanticCategoryEnum.SEDOL.name() });
+
+                // An invalid SEDOL code which is good for the RegEx but has wrong checksum at the end
+                put("2936922", new String[] { SemanticCategoryEnum.US_PHONE.name() });
+            }
+        };
+
+        for (String key : TEST_DATA.keySet()) {
+            Set<String> result = udc.classify(key);
+            assertEquals("Unexpected category count for input: " + key, TEST_DATA.get(key).length, result.size());
+            for (String expectedCategory : TEST_DATA.get(key)) {
+                String technicalID = SemanticCategoryEnum.getCategoryById(expectedCategory).getTechnicalId();
+                assertTrue("The category " + expectedCategory + " is expected to be present in result but actually not.",
+                        result.contains(technicalID));
+            }
+        }
+    }
 }

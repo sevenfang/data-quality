@@ -57,5 +57,4 @@ public class DQValidator implements Serializable {
     public void setRe2jCompliant(boolean re2jCompliant) {
         this.re2jCompliant = re2jCompliant;
     }
-
 }
