@@ -16,9 +16,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -36,14 +35,6 @@ import org.slf4j.LoggerFactory;
 public class TypeInferenceUtilsTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeInferenceUtilsTest.class);
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
 
     @Test
     public void testIsBoolean() throws Exception {
@@ -110,7 +101,23 @@ public class TypeInferenceUtilsTest {
     }
 
     @Test
-    public void testIsDouble() throws Exception {
+    public void testFullwidthNumbers() {
+        String[] fullWidthIntegerValues = { "９９９９９９", "＋９９９９９９", "－９９９９９９" };
+        String[] fullWidthDoubleValues = { "３．１４", "１００", "－２．０", "＋２．０", "１．０ｅ－０４", "１．０ｅ＋４", "１Ｅ－４", "１．０　ｅ－４", "１　Ｅ＋１２", "２５％",
+                "５８９．９４　％", "１．６５Ｅ－５％" };
+        for (String value : Arrays.asList(fullWidthIntegerValues)) {
+            Assert.assertTrue(value + " is expected to be a valid Integer(full width) but actually not.",
+                    TypeInferenceUtils.isInteger(value));
+        }
+        for (String value : Arrays.asList(fullWidthDoubleValues)) {
+            Assert.assertTrue(value + " is expected to be a valid decimal value(full width) but actually not.",
+                    TypeInferenceUtils.isDouble(value));
+
+        }
+    }
+
+    @Test
+    public void testIsDouble() {
         String[] validEnDoubleValues = { "0.8", "1.2", "100", "100.0", "-2.0", "1.0e-04", "1.0e+4", "1E-4", "1.0 e-4", "1 E+12",
                 "25%", "589.94 %", "1.65E-5%" };
         String[] validFrDoubleValues = { "0,9", "1,0e-4", "8,9568%" };
@@ -129,7 +136,7 @@ public class TypeInferenceUtilsTest {
     }
 
     @Test
-    public void testIsDecimal() throws Exception {
+    public void testIsDecimal() {
 
         String[] validEnDoubleValues = { "5538297118", "1045.35", "1,045.35", "1,045", "1,045,350", "2.68435E+17",
                 "268 435 000 000 000 000", "265" + '\u00A0' + "435" + '\u2007' + "000" + '\u202F' + "000" };
