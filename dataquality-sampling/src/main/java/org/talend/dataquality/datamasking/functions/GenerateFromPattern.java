@@ -15,16 +15,22 @@ package org.talend.dataquality.datamasking.functions;
 import org.apache.commons.lang.StringUtils;
 import org.talend.dataquality.common.pattern.TextPatternUtil;
 
+import java.util.Random;
+
 /**
  * created by jgonzalez on 17 juil. 2015 Detailled comment
- *
  */
-public class GenerateFromPattern extends Function<String> {
+public class GenerateFromPattern extends FunctionString {
 
     private static final long serialVersionUID = 7920843158759995757L;
 
     @Override
     protected String doGenerateMaskedField(String str) {
+        return doGenerateMaskedFieldWithRandom(str, rnd);
+    }
+
+    @Override
+    protected String doGenerateMaskedFieldWithRandom(String str, Random r) {
         StringBuilder result = new StringBuilder(EMPTY_STRING);
         if (parameters == null) {
             return StringUtils.EMPTY;
@@ -43,7 +49,7 @@ public class GenerateFromPattern extends Function<String> {
                 skipNextLoop = handleBackslashCase(result, pattern, i);
                 break;
             default:
-                result.append(TextPatternUtil.replacePatternCharacter(codePoint, rnd));
+                result.append(TextPatternUtil.replacePatternCharacter(codePoint, r));
                 break;
             }
             if (Character.isHighSurrogate(pattern.charAt(i))) {
@@ -55,9 +61,10 @@ public class GenerateFromPattern extends Function<String> {
 
     /**
      * Deal backslash case.
-     * 
+     *
      * @param result
-     * @param skipNextLoop
+     * @param pattern
+     * @param i
      */
     private boolean handleBackslashCase(StringBuilder result, String pattern, int i) {
         if (i == pattern.length() - 1) {

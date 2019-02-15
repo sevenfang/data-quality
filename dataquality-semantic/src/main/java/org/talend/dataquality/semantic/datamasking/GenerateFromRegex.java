@@ -12,40 +12,54 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
+import com.mifmif.common.regex.Generex;
+import org.apache.commons.lang3.StringUtils;
+import org.talend.dataquality.datamasking.functions.FunctionString;
+import org.talend.dataquality.semantic.utils.RegexUtils;
+
 import java.security.SecureRandom;
 import java.util.Random;
 
-import org.apache.commons.lang3.StringUtils;
-import org.talend.dataquality.datamasking.functions.Function;
-
-import com.mifmif.common.regex.Generex;
-import org.talend.dataquality.semantic.utils.RegexUtils;
+import static org.talend.dataquality.datamasking.FunctionMode.CONSISTENT;
 
 /**
  * Generate masking data from regex str
  */
-public class GenerateFromRegex extends Function<String> {
+public class GenerateFromRegex extends FunctionString {
 
     private static final long serialVersionUID = 2315410175790920472L;
 
     protected transient Generex generex = null;
+
+    private transient String patternStr;
 
     private static final String[] invalidKw = { "(?:", "(?!", "(?=", "[[:space:]]", "[[:digit:]]", "\\u" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.talend.dataquality.datamasking.functions.Function#doGenerateMaskedField(java.lang.Object)
+     * @see org.talend.dataquality.datamasking.functions.Function#doGenerateMaskedFieldWithRandom(java.lang.Object)
      */
     @Override
     protected String doGenerateMaskedField(String inputValue) {
-        if (keepNull && inputValue == null) {
+        return doGenerateMaskedFieldWithRandom(inputValue, rnd);
+    }
+
+    @Override
+    protected String doGenerateMaskedFieldWithRandom(String str, Random r) {
+        if (keepNull && str == null) {
             return null;
         }
-        if (StringUtils.isEmpty(inputValue)) {
+        if (StringUtils.isEmpty(str)) {
             return EMPTY_STRING;
         }
-        return generex.random();
+
+        if (CONSISTENT == this.maskingMode) {
+            Generex gen = new Generex(this.patternStr, r);
+            return gen.random();
+        } else {
+            return generex.random();
+        }
     }
 
     /*
@@ -56,8 +70,8 @@ public class GenerateFromRegex extends Function<String> {
     @Override
     public void parse(String extraParameter, boolean keepNullValues, Random rand) {
         if (extraParameter != null) {
-            String patterStr = RegexUtils.removeStartingAndEndingAnchors(extraParameter);
-            generex = new Generex(patterStr);
+            patternStr = RegexUtils.removeStartingAndEndingAnchors(extraParameter);
+            generex = new Generex(patternStr);
             setKeepNull(keepNullValues);
             setRandom(rand);
         }

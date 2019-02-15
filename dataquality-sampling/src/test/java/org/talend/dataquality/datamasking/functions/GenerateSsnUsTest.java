@@ -15,6 +15,7 @@ package org.talend.dataquality.datamasking.functions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.utils.MockRandom;
 
 import java.util.Random;
@@ -122,5 +123,13 @@ public class GenerateSsnUsTest {
         gsus.setRandom(random);
         output = gsus.generateMaskedRow(null);
         assertThat(output).contains("-0001");
+    }
+
+    @Test
+    public void consistentMasking() {
+        gsus.setSeed("aSeed");
+        String result1 = gsus.doGenerateMaskedField("530-49-7984", FunctionMode.CONSISTENT);
+        String result2 = gsus.doGenerateMaskedField("530-49-7984", FunctionMode.CONSISTENT);
+        assertEquals(result2, result1);
     }
 }

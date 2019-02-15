@@ -12,26 +12,25 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Random;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.generic.Alphabet;
-import org.talend.dataquality.duplicating.RandomWrapper;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Pattern;
 
 /**
  * created by jgonzalez on 18 juin 2015. This class is an abstract class that
  * all other functions extend. All the methods and fields that all functions
  * share are stored here.
- *
  */
 public abstract class Function<T> implements Serializable {
 
@@ -63,6 +62,10 @@ public abstract class Function<T> implements Serializable {
 
     protected boolean keepFormat = false;
 
+    protected String seed = RandomStringUtils.randomAlphanumeric(4);
+
+    protected FunctionMode maskingMode = FunctionMode.RANDOM;
+
     /**
      * getter for random
      *
@@ -75,8 +78,7 @@ public abstract class Function<T> implements Serializable {
     /**
      * setter for random
      *
-     * @param rand
-     * The java.util.Random instance.
+     * @param rand The java.util.Random instance.
      */
     public void setRandom(Random rand) {
         if (rand == null) {
@@ -89,9 +91,8 @@ public abstract class Function<T> implements Serializable {
     /**
      * DOC jgonzalez Comment method "setKeepNull". This function sets a boolean
      * used to keep null values.
-     * 
-     * @param keep
-     * The value of the boolean.
+     *
+     * @param keep The value of the boolean.
      */
     public void setKeepNull(boolean keep) {
         this.keepNull = keep;
@@ -113,13 +114,10 @@ public abstract class Function<T> implements Serializable {
      * DOC jgonzalez Comment method "parse". This function is called at the
      * beginning of the job and parses the parameter. Moreover, it will call
      * methods setKeepNull and setRandomWrapper
-     * 
-     * @param extraParameter
-     * The parameter we try to parse.
-     * @param keepNullValues
-     * The parameter used for setKeepNull.
-     * @param rand
-     * The parameter used for setRandomMWrapper.
+     *
+     * @param extraParameter The parameter we try to parse.
+     * @param keepNullValues The parameter used for setKeepNull.
+     * @param rand           The parameter used for setRandomMWrapper.
      */
     public void parse(String extraParameter, boolean keepNullValues, Random rand) {
         if (extraParameter != null) {
@@ -141,9 +139,10 @@ public abstract class Function<T> implements Serializable {
             for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = parameters[i].trim();
             }
-
         }
+
         setKeepNull(keepNullValues);
+
         if (rand != null) {
             setRandom(rand);
         }
@@ -194,7 +193,7 @@ public abstract class Function<T> implements Serializable {
     }
 
     public T generateMaskedRow(T t) {
-        return generateMaskedRow(t, FunctionMode.RANDOM);
+        return generateMaskedRow(t, maskingMode);
     }
 
     public T generateMaskedRow(T t, FunctionMode mode) {
@@ -214,8 +213,7 @@ public abstract class Function<T> implements Serializable {
     }
 
     /**
-     * @param strWithSpaces,
-     * resWithoutSpaces
+     * @param strWithSpaces, resWithoutSpaces
      * @return the res with spaces
      */
     protected String insertFormatInString(String strWithSpaces, StringBuilder resWithoutSpaces) {
@@ -233,7 +231,7 @@ public abstract class Function<T> implements Serializable {
 
     /**
      * Remove all the spaces in the input string
-     * 
+     *
      * @param input
      * @return
      */
@@ -244,9 +242,8 @@ public abstract class Function<T> implements Serializable {
     /**
      * DOC jgonzalez Comment method "generateMaskedRow". This method applies a
      * function on a field and returns the its new value.
-     * 
-     * @param t
-     * The input value.
+     *
+     * @param t The input value.
      * @return A new value after applying the function.
      */
     protected abstract T doGenerateMaskedField(T t);
@@ -263,14 +260,33 @@ public abstract class Function<T> implements Serializable {
         throw new UnsupportedOperationException("The class " + this.getClass().getName() + " should not use an alphabet.");
     }
 
+    protected int nextRandomDigit(Random r) {
+        return r.nextInt(10);
+    }
+
     protected int nextRandomDigit() {
         return rnd.nextInt(10);
     }
 
-    protected Random getRandomForString(String toBeReplaced) {
-        RandomWrapper randomWrapper = (RandomWrapper) rnd;
+    protected Random getRandomForObject(Object toBeReplaced) {
         Random random = new Random();
-        random.setSeed(toBeReplaced.hashCode() * randomWrapper.getSeed());
+        random.setSeed(toBeReplaced.hashCode() ^ seed.hashCode());
         return random;
+    }
+
+    public void setSeed(String seed) {
+        this.seed = seed;
+    }
+
+    public String getSeed() {
+        return seed;
+    }
+
+    public void setMaskingMode(FunctionMode maskingMode) {
+        this.maskingMode = maskingMode;
+    }
+
+    public FunctionMode getMaskingMode() {
+        return maskingMode;
     }
 }

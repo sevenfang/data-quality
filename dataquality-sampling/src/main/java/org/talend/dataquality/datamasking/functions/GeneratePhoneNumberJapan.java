@@ -12,31 +12,37 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import java.util.Random;
+
 /**
  * created by jgonzalez on 16 juil. 2015 Detailled comment
- *
  */
-public class GeneratePhoneNumberJapan extends Function<String> {
+public class GeneratePhoneNumberJapan extends FunctionString {
 
     private static final long serialVersionUID = -1152538201280991701L;
 
     @Override
     protected String doGenerateMaskedField(String str) {
+        return doGenerateMaskedFieldWithRandom(str, rnd);
+    }
+
+    @Override
+    protected String doGenerateMaskedFieldWithRandom(String str, Random r) {
         StringBuilder result = new StringBuilder("03-"); //$NON-NLS-1$
-        addFourRandomDigit(result);
+        addFourRandomDigit(result, r);
         result.append("-"); //$NON-NLS-1$
-        addFourRandomDigit(result);
+        addFourRandomDigit(result, r);
         return result.toString();
     }
 
     /**
      * Add next four random digits.
-     * 
+     *
      * @param result
      */
-    private void addFourRandomDigit(StringBuilder result) {
+    private void addFourRandomDigit(StringBuilder result, Random r) {
         for (int i = 0; i < 4; ++i) {
-            result.append(nextRandomDigit());
+            result.append(nextRandomDigit(r));
         }
     }
 }

@@ -20,6 +20,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.utils.MockRandom;
 
 /**
@@ -78,5 +79,13 @@ public class GeneratePhoneNumberFrenchTest {
         random.setNext(1);
         output = gpn.generateMaskedRow(null);
         assertEquals("+33 223456789", output);
+    }
+
+    @Test
+    public void consistentMasking() {
+        gpn.setSeed("aSeed");
+        String result1 = gpn.doGenerateMaskedField("+33 112345678", FunctionMode.CONSISTENT);
+        String result2 = gpn.doGenerateMaskedField("+33 112345678", FunctionMode.CONSISTENT);
+        assertEquals(result2, result1);
     }
 }

@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions;
 
+import java.util.Random;
+
 /**
  * The class generates the American ssn number randomly.<br>
  * The first two characters has 72 different combinations. The the following characters, whether is 00, whether is 06,
@@ -19,36 +21,41 @@ package org.talend.dataquality.datamasking.functions;
  * following character has 9 combinations too. The end four characters, it can generate at least 5832 combinations. <br>
  * In totoal, it has 374 134 464 results.<br>
  */
-public class GenerateSsnUs extends Function<String> {
+public class GenerateSsnUs extends FunctionString {
 
     private static final long serialVersionUID = -7651076296534530622L;
 
     @Override
     protected String doGenerateMaskedField(String str) {
+        return this.doGenerateMaskedFieldWithRandom(str, rnd);
+    }
+
+    @Override
+    protected String doGenerateMaskedFieldWithRandom(String str, Random r) {
         StringBuilder result = new StringBuilder();
-        result.append(generateFirstGroup());
+        result.append(generateFirstGroup(r));
         result.append("-"); //$NON-NLS-1$
-        result.append(generateSecondGroup());
+        result.append(generateSecondGroup(r));
         result.append("-"); //$NON-NLS-1$
-        result.append(generateThirdGroup());
+        result.append(generateThirdGroup(r));
         return result.toString();
     }
 
-    private String generateFirstGroup() {
+    private String generateFirstGroup(Random r) {
         int firstNumber;
         do {
-            firstNumber = rnd.nextInt(900);
+            firstNumber = r.nextInt(900);
         } while (firstNumber == 0 || firstNumber == 666);
         return String.format("%03d", firstNumber);
     }
 
-    private String generateSecondGroup() {
-        int secondNumber = rnd.nextInt(99) + 1;
+    private String generateSecondGroup(Random r) {
+        int secondNumber = r.nextInt(99) + 1;
         return String.format("%02d", secondNumber);
     }
 
-    private String generateThirdGroup() {
-        int value = rnd.nextInt(9999) + 1;
+    private String generateThirdGroup(Random r) {
+        int value = r.nextInt(9999) + 1;
         return String.format("%04d", value);
     }
 }

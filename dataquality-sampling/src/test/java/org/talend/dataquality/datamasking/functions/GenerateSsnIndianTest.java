@@ -20,6 +20,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.utils.MockRandom;
 
 /**
@@ -76,4 +77,13 @@ public class GenerateSsnIndianTest {
         output = gni.generateMaskedRow(null);
         assertEquals("112345678907", output);
     }
+
+    @Test
+    public void consistentMasking() {
+        gni.setSeed("aSeed");
+        String result1 = gni.doGenerateMaskedField("112345678907", FunctionMode.CONSISTENT);
+        String result2 = gni.doGenerateMaskedField("112345678907", FunctionMode.CONSISTENT);
+        assertEquals(result2, result1);
+    }
+
 }

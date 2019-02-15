@@ -21,7 +21,7 @@ import java.util.Set;
  * There are 373 combinations for the first two characters. Then the the number part, it generates 531441 (9 power 6)
  * combinations. It has 4 characters to choose from in the last position. In total, it has 792 909 972 results.<br>
  */
-public class GenerateSsnUk extends Function<String> {
+public class GenerateSsnUk extends FunctionString {
 
     private static final long serialVersionUID = 4664211523958436354L;
 
@@ -45,25 +45,30 @@ public class GenerateSsnUk extends Function<String> {
 
     @Override
     protected String doGenerateMaskedField(String str) {
+        return doGenerateMaskedFieldWithRandom(str, rnd);
+    }
+
+    @Override
+    protected String doGenerateMaskedFieldWithRandom(String str, Random r) {
         StringBuilder result = new StringBuilder();
         StringBuilder prefix;
         char tmp;
         do {
             prefix = new StringBuilder();
-            tmp = first.charAt(rnd.nextInt(20));
+            tmp = first.charAt(r.nextInt(20));
             prefix.append(tmp);
-            tmp = second.charAt(rnd.nextInt(19));
+            tmp = second.charAt(r.nextInt(19));
             prefix.append(tmp);
         } while (getForbid().contains(prefix.toString()));
         result.append(prefix);
         result.append(" "); //$NON-NLS-1$
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 2; ++j) {
-                result.append(nextRandomDigit());
+                result.append(nextRandomDigit(r));
             }
             result.append(" "); //$NON-NLS-1$
         }
-        result.append(UPPER.charAt(rnd.nextInt(4)));
+        result.append(UPPER.charAt(r.nextInt(4)));
         return result.toString();
     }
 

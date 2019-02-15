@@ -20,6 +20,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 
 /**
  * @author dprot
@@ -78,5 +79,13 @@ public class GenerateSsnChnTest {
         gnf.keepNull = true;
         output = gnf.generateMaskedRow(null);
         assertNull(output);
+    }
+
+    @Test
+    public void consistentMasking() {
+        gnf.setSeed("aSeed");
+        String result1 = gnf.doGenerateMaskedField("610201206301240556", FunctionMode.CONSISTENT);
+        String result2 = gnf.doGenerateMaskedField("610201206301240556", FunctionMode.CONSISTENT);
+        assertEquals(result2, result1);
     }
 }

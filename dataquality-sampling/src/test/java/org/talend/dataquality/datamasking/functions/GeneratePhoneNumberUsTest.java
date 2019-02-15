@@ -20,6 +20,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.utils.MockRandom;
 
 /**
@@ -79,4 +80,13 @@ public class GeneratePhoneNumberUsTest {
         output = gpnus.generateMaskedRow(null);
         assertEquals("612-945-6789", output);
     }
+
+    @Test
+    public void consistentMasking() {
+        gpnus.setSeed("aSeed");
+        String result1 = gpnus.doGenerateMaskedField("612-945-6789", FunctionMode.CONSISTENT);
+        String result2 = gpnus.doGenerateMaskedField("612-945-6789", FunctionMode.CONSISTENT);
+        assertEquals(result2, result1);
+    }
+
 }

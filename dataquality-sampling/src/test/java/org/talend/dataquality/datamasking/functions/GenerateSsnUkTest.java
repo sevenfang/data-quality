@@ -20,6 +20,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.utils.MockRandom;
 
 /**
@@ -78,5 +79,13 @@ public class GenerateSsnUkTest {
         random.setNext(3);
         output = gsuk.generateMaskedRow(null);
         assertEquals("RT 56 78 90 D", output);
+    }
+
+    @Test
+    public void consistentMasking() {
+        gsuk.setSeed("aSeed");
+        String result1 = gsuk.doGenerateMaskedField("HH 84 05 58 C", FunctionMode.CONSISTENT);
+        String result2 = gsuk.doGenerateMaskedField("HH 84 05 58 C", FunctionMode.CONSISTENT);
+        assertEquals(result2, result1);
     }
 }

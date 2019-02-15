@@ -14,7 +14,9 @@ package org.talend.dataquality.semantic.datamasking;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Random;
 
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.functions.Function;
 import org.talend.dataquality.datamasking.semantic.ReplaceCharacterHelper;
 import org.talend.dataquality.semantic.api.CategoryRegistryManager;
@@ -87,6 +89,25 @@ public class ValueDataMasker implements Serializable {
         initCategory(semanticCategory, dictionarySnapshot);
     }
 
+    /**
+     *
+     * ValueDataMasker constructor.
+     *
+     * @param semanticCategory the semantic domain information
+     * @param dataType the data type information
+     * @param params extra parameters such as date time pattern list
+     * @param dictionarySnapshot the dictionary snapshot
+     * @param seed seed used for masking
+     */
+    public ValueDataMasker(String semanticCategory, String dataType, List<String> params, DictionarySnapshot dictionarySnapshot,
+            String seed, FunctionMode mode) {
+
+        this.function = SemanticMaskerFunctionFactory.createMaskerFunctionForSemanticCategory(semanticCategory, dataType, params,
+                dictionarySnapshot, seed, mode);
+
+        initCategory(semanticCategory, dictionarySnapshot);
+    }
+
     private void initCategory(String semanticCategory, DictionarySnapshot dictionarySnapshot) {
         category = dictionarySnapshot != null ? dictionarySnapshot.getDQCategoryByName(semanticCategory)
                 : CategoryRegistryManager.getInstance().getCategoryMetadataByName(semanticCategory);
@@ -109,7 +130,14 @@ public class ValueDataMasker implements Serializable {
      */
     public String maskValue(String input) {
         if (semanticQualityAnalyzer != null && !semanticQualityAnalyzer.isValid(category, input)) {
-            return ReplaceCharacterHelper.replaceCharacters(input, function.getRandom());
+            Random r = function.getRandom();
+
+            if (FunctionMode.CONSISTENT == function.getMaskingMode()) {
+                r = new Random();
+                r.setSeed(input.hashCode() ^ function.getSeed().hashCode());
+            }
+
+            return ReplaceCharacterHelper.replaceCharacters(input, r);
         }
         // when category is null or input is valid
         try {

@@ -12,15 +12,11 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
-import static org.talend.dataquality.semantic.datamasking.FunctionBuilder.functionInitializer;
-
-import java.security.SecureRandom;
-import java.util.Date;
-import java.util.List;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.dataquality.datamasking.FunctionFactory;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.FunctionType;
 import org.talend.dataquality.datamasking.TypeTester;
 import org.talend.dataquality.datamasking.functions.DateVariance;
@@ -37,6 +33,12 @@ import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
 import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 import org.talend.dataquality.semantic.validator.GenerateValidator;
 
+import java.security.SecureRandom;
+import java.util.Date;
+import java.util.List;
+
+import static org.talend.dataquality.semantic.datamasking.FunctionBuilder.functionInitializer;
+
 public class SemanticMaskerFunctionFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemanticMaskerFunctionFactory.class);
@@ -45,9 +47,9 @@ public class SemanticMaskerFunctionFactory {
         return createMaskerFunctionForSemanticCategory(semanticCategory, dataType, null, null);
     }
 
-    @SuppressWarnings("unchecked")
     public static Function<String> createMaskerFunctionForSemanticCategory(String semanticCategory, String dataType,
-            List<String> params, DictionarySnapshot dictionarySnapshot) {
+            List<String> params, DictionarySnapshot dictionarySnapshot, String seed, FunctionMode mode) {
+
         Function<String> function = null;
         final MaskableCategoryEnum cat = MaskableCategoryEnum.getCategoryById(semanticCategory);
         if (cat != null) {
@@ -132,8 +134,22 @@ public class SemanticMaskerFunctionFactory {
         }
         // setRandom must be call because of there is some special class declaration init operation in the method(e.g
         // AbstractGenerateUniquePhoneNumber)
-        function.setRandom(new SecureRandom());
+
+        function.setMaskingMode(mode);
+        if (StringUtils.isNotEmpty(seed))
+            function.setSeed(seed);
+        else
+            function.setRandom(new SecureRandom());
+
         return function;
+
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Function<String> createMaskerFunctionForSemanticCategory(String semanticCategory, String dataType,
+            List<String> params, DictionarySnapshot dictionarySnapshot) {
+        return createMaskerFunctionForSemanticCategory(semanticCategory, dataType, params, dictionarySnapshot, null,
+                FunctionMode.RANDOM);
     }
 
     private static Function<String> adaptForDateFunction(List<String> datePatterns, Function<Date> functionToAdapt,
@@ -145,7 +161,7 @@ public class SemanticMaskerFunctionFactory {
 
     /**
      * creates a data masking function with the given name and parameters
-     * 
+     *
      * @param functionType
      * @param dataType
      * @param extraParam
@@ -177,6 +193,22 @@ public class SemanticMaskerFunctionFactory {
                     "No masking function available for the current column!  " + " DataType: " + dataType);
         }
 
+        return function;
+    }
+
+    /**
+     * creates a data masking function with the given name and parameters
+     *
+     * @param functionType
+     * @param dataType
+     * @param extraParam
+     */
+    public static Function<String> getMaskerFunctionByFunctionName(FunctionType functionType, String dataType, String extraParam,
+            String seed, FunctionMode mode) {
+
+        Function<String> function = getMaskerFunctionByFunctionName(functionType, dataType, extraParam);
+        function.setSeed(seed);
+        function.setMaskingMode(mode);
         return function;
     }
 }
