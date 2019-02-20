@@ -1,18 +1,18 @@
 package org.talend.dataquality.semantic.extraction;
 
-import org.junit.Test;
-import org.talend.dataquality.semantic.api.CategoryRegistryManager;
-import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
-import org.talend.dataquality.semantic.model.DQCategory;
-import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
-import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
+import static junit.framework.TestCase.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
+import org.junit.Test;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
+import org.talend.dataquality.semantic.model.DQCategory;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
 
 public class ExtractFromDictionaryTest {
 
@@ -41,7 +41,7 @@ public class ExtractFromDictionaryTest {
     public void matchAfterMultiTokenMatch() {
         ExtractFromDictionary efd = new ExtractFromDictionary(snapshot, category);
         TokenizedString input = new TokenizedString("The United States, Somalia, AFR");
-        List<MatchedPart> expected = Arrays.asList(new MatchedPart(input, 1, 2), new MatchedPart(input, 3, 3));
+        List<MatchedPart> expected = Arrays.asList(new MatchedPart(input, 1, 2), new MatchedPart(input, 4, 4));
         assertEquals(expected, efd.getMatches(input));
     }
 
@@ -49,7 +49,7 @@ public class ExtractFromDictionaryTest {
     public void matchAfterNoExactMatch() {
         ExtractFromDictionary efd = new ExtractFromDictionary(snapshot, category);
         TokenizedString input = new TokenizedString("Emirates United Arabia, Somalia, SO, Africa, AFR");
-        List<MatchedPart> expected = Collections.singletonList(new MatchedPart(input, 3, 3));
+        List<MatchedPart> expected = Collections.singletonList(new MatchedPart(input, 4, 4));
         assertEquals(expected, efd.getMatches(input));
     }
 }

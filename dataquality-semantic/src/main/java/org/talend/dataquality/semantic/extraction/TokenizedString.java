@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class TokenizedString {
 
-    private static final Pattern separatorPattern = Pattern.compile("[\\p{Punct}\\s]+");
+    private static final Pattern separatorPattern = Pattern.compile("[\\p{Punct}\\s]");
 
     private final String value;
 
@@ -82,6 +82,14 @@ public class TokenizedString {
                     "Invalid tokens and/or separators ! There must be one less separator than tokens.\nNumber of tokens : "
                             + tokens.size() + "\nNumber of separators : " + separators.size());
         }
+    }
+
+    public Pattern getSeparatorPattern() {
+        return separatorPattern;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     @Override
