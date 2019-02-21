@@ -1,10 +1,11 @@
 package org.talend.dataquality.semantic.extraction;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.dataquality.semantic.CategoryRegistryManagerAbstract;
@@ -30,10 +31,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         DQCategory category = CategoryRegistryManager.getInstance().getCategoryMetadataByName(SemanticCategoryEnum.IBAN.getId());
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("DE89 3704 0044 0532 0130 00, Bee, Aerospace Engineer");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(0, 1, 2, 3, 4, 5));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 0, 27);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -41,10 +42,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         DQCategory category = CategoryRegistryManager.getInstance().getCategoryMetadataByName(SemanticCategoryEnum.IBAN.getId());
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("DE89 3704 0044 0532 0130 00");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(0, 1, 2, 3, 4, 5));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 0, 27);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -53,10 +54,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
                 .getCategoryMetadataByName(SemanticCategoryEnum.FR_PHONE.getId());
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My phone is 0102030405.");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(3));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 12, 22);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -64,10 +65,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         DQCategory category = prepCategory("abc");
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My efdss abc dfdfs abcd.");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(2));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 9, 12);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -75,10 +76,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         DQCategory category = prepCategory("abc\\$");
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My phone is abc$.");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(3));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 12, 16);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -86,10 +87,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         DQCategory category = prepCategory("abc\\\\\\$");
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My phone is abc\\$.");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(3));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 12, 17);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -97,10 +98,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         DQCategory category = prepCategory("abc\\\\$");
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My phone is abc\\.");
-        MatchedPart expectedMatch = new MatchedPart(input, Arrays.asList(3));
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 12, 16);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -109,10 +110,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
                 .getCategoryMetadataByName(SemanticCategoryEnum.FR_PHONE.getId());
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My phone is 01 02 03 04 05.");
-        MatchedPart expectedMatch = new MatchedPart(input, 3, 7);
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 12, 26);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -121,10 +122,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
                 .getCategoryMetadataByName(SemanticCategoryEnum.FR_PHONE.getId());
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString("My phone is 01.02.03.04.05.");
-        MatchedPart expectedMatch = new MatchedPart(input, 3, 7);
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 12, 26);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -134,10 +135,10 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString(
                 "file://localhost/etc/fstab F-9748 0033739-55.67 67 OK 18 57 04 C fabien.bouquignaud@solypse.com");
-        MatchedPart expectedMatch = new MatchedPart(input, 12, 16);
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 51, 64);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -147,12 +148,61 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
         TokenizedString input = new TokenizedString(
                 "My phone is 0102030405. Your phone is 0203040506, isn't it? My SSN is 123010112312374.");
-        MatchedPart expectedMatch1 = new MatchedPart(input, Arrays.asList(3));
-        MatchedPart expectedMatch2 = new MatchedPart(input, Arrays.asList(8));
+        MatchedPart expectedMatch1 = new MatchedPartRegex(input, 12, 22);
+        MatchedPart expectedMatch2 = new MatchedPartRegex(input, 38, 48);
         List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch1));
-        assertTrue(list.contains(expectedMatch2));
-        assertTrue(list.size() == 2);
+        assertTrue("Expected : " + expectedMatch1.getExactMatch() + " in " + list, list.contains(expectedMatch1));
+        assertTrue("Expected : " + expectedMatch2.getExactMatch() + " in " + list, list.contains(expectedMatch2));
+        assertEquals(2, list.size());
+    }
+
+    @Test
+    public void frPostalCode() {
+        DQCategory category = CategoryRegistryManager.getInstance()
+                .getCategoryMetadataByName(SemanticCategoryEnum.FR_POSTAL_CODE.getId());
+        ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
+        TokenizedString input = new TokenizedString(
+                "SW 24 48 37 A F-54444 file:///home/User/2ndFile.html 0033880533496 munjuluris@aetna.com");
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 14, 21);
+        List<MatchedPart> list = efd.getMatches(input);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    public void matchEndingWithSeparator() {
+        DQCategory category = prepCategory("[0-9]{3}\\+");
+
+        ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
+        TokenizedString input = new TokenizedString("+33 7.65.1434.22 123+");
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 17, 21);
+        List<MatchedPart> list = efd.getMatches(input);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    public void matchStartingWithSeparator() {
+        DQCategory category = CategoryRegistryManager.getInstance()
+                .getCategoryMetadataByName(SemanticCategoryEnum.FR_PHONE.getId());
+        ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
+        TokenizedString input = new TokenizedString("+33 7.65.1434.22 ZL228849 file:///c:/WINDOWS/clock.avi swann@redkeet.com");
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 0, 16);
+        List<MatchedPart> list = efd.getMatches(input);
+        assertTrue("Expected : " + expectedMatch.getExactMatch() + " in " + list, list.contains(expectedMatch));
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    public void fieldStartingWithSeparator() {
+        DQCategory category = CategoryRegistryManager.getInstance()
+                .getCategoryMetadataByName(SemanticCategoryEnum.FR_PHONE.getId());
+        ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
+        TokenizedString input = new TokenizedString(" My phone is 0102030405.");
+        MatchedPart expectedMatch = new MatchedPartRegex(input, 13, 23);
+        List<MatchedPart> list = efd.getMatches(input);
+        Assert.assertTrue(list.contains(expectedMatch));
+        assertEquals(1, list.size());
     }
 
     private DQCategory prepCategory(String regex) {
@@ -170,29 +220,4 @@ public class ExtractFromRegexTest extends CategoryRegistryManagerAbstract {
         return dqCategory;
     }
 
-    @Test
-    public void frPhoneStartingWithPlusSymbol() {
-        DQCategory category = CategoryRegistryManager.getInstance()
-                .getCategoryMetadataByName(SemanticCategoryEnum.FR_PHONE.getId());
-        ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
-        TokenizedString input = new TokenizedString(
-                "F-3904 +33 7.65.1434.22 ZL228849 file:///c:/WINDOWS/clock.avi swann@redkeet.com");
-        MatchedPart expectedMatch = new MatchedPart(input, 2, 7);
-        List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
-    }
-
-    @Test
-    public void frPostalCode() {
-        DQCategory category = CategoryRegistryManager.getInstance()
-                .getCategoryMetadataByName(SemanticCategoryEnum.FR_POSTAL_CODE.getId());
-        ExtractFromRegex efd = new ExtractFromRegex(dictionarySnapshot, category);
-        TokenizedString input = new TokenizedString(
-                "SW 24 48 37 A F-54444 file:///home/User/2ndFile.html 0033880533496 munjuluris@aetna.com");
-        MatchedPart expectedMatch = new MatchedPart(input, 5, 6);
-        List<MatchedPart> list = efd.getMatches(input);
-        assertTrue(list.contains(expectedMatch));
-        assertTrue(list.size() == 1);
-    }
 }

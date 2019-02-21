@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class TokenizedString {
 
-    private static final Pattern separatorPattern = Pattern.compile("[\\p{Punct}\\s]");
+    private static final Pattern separatorPattern = Pattern.compile("[\\p{Punct}\\s\\u00A0\\u2007\\u202F\\u3000]+");
 
     private final String value;
 
@@ -51,7 +51,7 @@ public class TokenizedString {
     public static List<String> tokenize(String field) {
         List<String> tokens = new ArrayList<>(Arrays.asList(separatorPattern.split(field)));
 
-        if (tokens.get(0).isEmpty()) {
+        if (!tokens.isEmpty() && tokens.get(0).isEmpty()) {
             tokens.remove(0);
         }
 
@@ -62,7 +62,7 @@ public class TokenizedString {
         Matcher matcher = separatorPattern.matcher(value);
 
         while (matcher.find()) {
-            if (matcher.start() != 0 && matcher.end() < value.length() - 1) {
+            if (matcher.start() != 0 && matcher.end() < value.length()) {
                 separators.add(matcher.group());
             }
         }
@@ -89,11 +89,6 @@ public class TokenizedString {
     }
 
     public String getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
         return value;
     }
 }

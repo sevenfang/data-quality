@@ -42,10 +42,9 @@ public class FieldExtractionFunction {
     }
 
     public Map<String, List<String>> extractFieldParts(String field) {
-        if (field == null) {
+        if (isEmpty(field)) {
             return new HashMap<>();
         }
-
         TokenizedString tokenizedField = new TokenizedString(field);
         List<MatchedPart> matches = new ArrayList<>();
         Map<String, List<String>> matchesByCategory = new HashMap<>();
@@ -57,7 +56,7 @@ public class FieldExtractionFunction {
 
             for (MatchedPart match : functionMatches) {
                 match.setPriority(i);
-                matchString.add(match.toString());
+                matchString.add(match.getExactMatch());
             }
             matchesByCategory.put(function.getCategoryName(), matchString);
             matches.addAll(functionMatches);
@@ -68,6 +67,10 @@ public class FieldExtractionFunction {
         return matchesByCategory;
     }
 
+    private boolean isEmpty(String field) {
+        return field == null || new TokenizedString(field).getTokens().isEmpty();
+    }
+
     private void filter(List<MatchedPart> matches, Map<String, List<String>> matchesByCategory) {
         Set<Integer> matchedTokens = new HashSet<>();
         for (MatchedPart match : matches) {
@@ -75,7 +78,7 @@ public class FieldExtractionFunction {
             for (Integer token : match.getTokenPositions()) {
                 if (matchedTokens.contains(token)) {
                     ExtractFromSemanticType function = functions.get(match.getPriority());
-                    matchesByCategory.get(function.getCategoryName()).remove(match.toString());
+                    matchesByCategory.get(function.getCategoryName()).remove(match.getExactMatch());
                     toAdd = false;
                     break;
                 }
