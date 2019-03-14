@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
  */
 public class ReleaseVersionBumper {
 
-    private static final String TARGET_VERSION = "6.2.6";
+    private static final String TARGET_VERSION = "6.2.6-SNAPSHOT";
 
     private static final String TARGET_DAIKON_VERSION = "0.31.3";
 
@@ -95,6 +95,10 @@ public class ReleaseVersionBumper {
         if (inputFile.exists()) {
             System.out.println("Updating: " + inputFile.getAbsolutePath());
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputFile);
+
+            // replace parent version
+            Node rootParentVersion = (Node) xPath.evaluate("/project/parent/version", doc, XPathConstants.NODE);
+            rootParentVersion.setTextContent(TARGET_VERSION);
 
             // replace version value of this project
             Node parentVersion = (Node) xPath.evaluate("/project/version", doc, XPathConstants.NODE);
