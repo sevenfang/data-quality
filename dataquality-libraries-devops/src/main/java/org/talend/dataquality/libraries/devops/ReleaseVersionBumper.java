@@ -34,8 +34,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFactoryConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -56,7 +59,9 @@ import org.xml.sax.SAXException;
  */
 public class ReleaseVersionBumper {
 
-    private static final String TARGET_VERSION = "6.3.1-SNAPSHOT";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseVersionBumper.class);
+
+    private static final String TARGET_VERSION = "6.2.0-SNAPSHOT";
 
     private static final String TARGET_DAIKON_VERSION = "0.31.1";
 
@@ -64,7 +69,7 @@ public class ReleaseVersionBumper {
 
     private static final String BUNDLE_VERSION_STRING = "Bundle-Version: ";
 
-    private XPath xPath = XPathFactory.newInstance().newXPath();
+    private XPath xPath;
 
     private Transformer xTransformer;
 
@@ -72,6 +77,15 @@ public class ReleaseVersionBumper {
         xTransformer = TransformerFactory.newInstance().newTransformer();
         xTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
         xTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        try {
+            xpathFactory.setFeature("http://javax.xml.XMLConstants/feature/secure-processing", true);
+            xPath = xpathFactory.newXPath();
+        } catch (XPathFactoryConfigurationException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
     }
 
     private void bumpPomVersion()
@@ -85,7 +99,10 @@ public class ReleaseVersionBumper {
         File inputFile = new File(projectRoot + parentPomPath);
         if (inputFile.exists()) {
             System.out.println("Updating: " + inputFile.getAbsolutePath());
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputFile);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://javax.xml.XMLConstants/feature/secure-processing", true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            Document doc = factory.newDocumentBuilder().parse(inputFile);
 
             // replace version value of this project
             Node parentVersion = (Node) xPath.evaluate("/project/version", doc, XPathConstants.NODE);
