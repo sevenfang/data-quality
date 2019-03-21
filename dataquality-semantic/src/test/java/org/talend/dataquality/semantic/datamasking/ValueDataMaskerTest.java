@@ -13,6 +13,8 @@
 package org.talend.dataquality.semantic.datamasking;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.talend.dataquality.semantic.TestUtils.mockWithTenant;
 
 import java.util.Arrays;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -35,6 +38,9 @@ import org.talend.dataquality.semantic.api.CustomDictionaryHolder;
 import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.model.DQDocument;
+import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
+import org.talend.dataquality.semantic.snapshot.StandardDictionarySnapshotProvider;
+import org.talend.dataquality.semantic.statistics.SemanticQualityAnalyzer;
 
 @PrepareForTest({ CustomDictionaryHolder.class, CategoryRegistryManager.class })
 public class ValueDataMaskerTest extends CategoryRegistryManagerAbstract {
@@ -214,12 +220,12 @@ public class ValueDataMaskerTest extends CategoryRegistryManagerAbstract {
 
             // need to find out new pattern regex
             // valid
-            put(new String[] { "192.168.255.33.211", SemanticCategoryEnum.IPv6_ADDRESS.name(), "string" }, "325.151.655.00.024");
+            put(new String[] { "192.168.255.33.211", SemanticCategoryEnum.IPv6_ADDRESS.name(), "string" }, "515.165.500.02.470");
             // valid
             put(new String[] { "000.168.255.255.33.211", SemanticCategoryEnum.IPv6_ADDRESS.name(), "string" },
-                    "325.151.655.000.24.703");//
+                    "515.165.500.024.70.331");//
             // invalid
-            put(new String[] { "256.168.33", SemanticCategoryEnum.IPv6_ADDRESS.name(), "string" }, "325.151.65");
+            put(new String[] { "256.168.33", SemanticCategoryEnum.IPv6_ADDRESS.name(), "string" }, "515.165.50");
 
             // need to remove "(?:" from pattern regex
             // valid
@@ -324,11 +330,12 @@ public class ValueDataMaskerTest extends CategoryRegistryManagerAbstract {
             put(new String[] { "data:data/test;charset=UTF-8", SemanticCategoryEnum.DATA_URL.name(), "string" },
                     "vkfz:zpsb/bqga;qavovbr=SKQ-8");// invalid
 
-            put(new String[] { "DE07 5011 0200 9000 0104 01", SemanticCategoryEnum.IBAN.name(), "string" }, "cu660n4R 6xG0wS0d9");// valid
+            put(new String[] { "DE07 5011 0200 9000 0104 01", SemanticCategoryEnum.IBAN.name(), "string" },
+                    "DE31 3251 5165 5000 2470 33");// valid
             put(new String[] { "DE07 5011 0200 9000 0104 0111", SemanticCategoryEnum.IBAN.name(), "string" },
-                    "FZ51 6550 0024 7033 1688 8260");// valid
+                    "VK51 5165 5000 2470 3316 8882");// valid
             put(new String[] { "DE07 5011 0200 9000 01041 01", SemanticCategoryEnum.IBAN.name(), "string" },
-                    "FZ51 6550 0024 7033 16888 26");// invalid
+                    "VK51 5165 5000 2470 33168 88");// invalid
 
         }
     };
@@ -376,6 +383,43 @@ public class ValueDataMaskerTest extends CategoryRegistryManagerAbstract {
             String maskedValue = masker.maskValue(inputValue);
             assertEquals("Test failed on [" + inputValue + "]", EXPECTED_MASKED_VALUES.get(input), maskedValue);
         }
+    }
+
+    @Ignore
+    // This UT failed sometimes due to the bug of Generex, it should be fixed after TDQ-16753
+    public void testMaskingIPV6() { // TDQ-16626: unplug the specific masking for IPV6
+        final String ipv6Type = SemanticCategoryEnum.IPv6_ADDRESS.name();
+        final DictionarySnapshot dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+        final ValueDataMasker masker = new ValueDataMasker(ipv6Type, "string");
+        final SemanticQualityAnalyzer semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionarySnapshot, ipv6Type);
+        final DQCategory categoryIPV6 = dictionarySnapshot.getDQCategoryByName(ipv6Type);
+
+        final String validIPV6 = "AB7C:A:1a:A1d2::b";
+        String maskedValidIPV6 = masker.maskValue(validIPV6);
+        assertTrue("valid IPV6 should be masked to valid IPV6", semanticQualityAnalyzer.isValid(categoryIPV6, maskedValidIPV6));
+
+        final String invalidIPV6 = "AB7C:";
+        String maskedInvalidIPV6 = masker.maskValue(invalidIPV6);
+        assertFalse("invalid IPV6 should be masked to invalid IPV6",
+                semanticQualityAnalyzer.isValid(categoryIPV6, maskedInvalidIPV6));
+    }
+
+    @Test
+    public void testMaskingIBAN() { // TDQ-16626: plug "Generate Account Number and keep original country" for IBAN
+        final String ibanType = SemanticCategoryEnum.IBAN.name();
+        final DictionarySnapshot dictionarySnapshot = new StandardDictionarySnapshotProvider().get();
+        final ValueDataMasker masker = new ValueDataMasker(ibanType, "string");
+        final SemanticQualityAnalyzer semanticQualityAnalyzer = new SemanticQualityAnalyzer(dictionarySnapshot, ibanType);
+        final DQCategory categoryIBAN = dictionarySnapshot.getDQCategoryByName(ibanType);
+
+        final String validIBAN = "FR7630006000011234567890189";
+        String maskedValidIBAN = masker.maskValue(validIBAN);
+        assertTrue("valid IBAN should be masked to valid IBAN", semanticQualityAnalyzer.isValid(categoryIBAN, maskedValidIBAN));
+
+        final String inValidIBAN = "AD65228";
+        String maskedInvalidIBAN = masker.maskValue(inValidIBAN);
+        assertFalse("invalid IBAN should be masked to invalid IBAN",
+                semanticQualityAnalyzer.isValid(categoryIBAN, maskedInvalidIBAN));
     }
 
     /**
