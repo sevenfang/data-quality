@@ -51,5 +51,4 @@ public class GeneratePhoneNumberGermany extends FunctionString {
         }
         return result.toString();
     }
-
 }

@@ -27,6 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * The Function which used to generate data by regex
@@ -40,33 +42,33 @@ public class GenerateFromRegexTest {
     public void testSetRandom() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
         regexFunction.setRandom(null);
-        Assert.assertTrue("setRandom method will not modify the value of regexFunction", regexFunction.generex == null); //$NON-NLS-1$
-        Assert.assertTrue("setRandom method will create new random instance", //$NON-NLS-1$
+        assertNull("setRandom method will not modify the value of regexFunction", regexFunction.generex); //$NON-NLS-1$
+        assertTrue("setRandom method will create new random instance", //$NON-NLS-1$
                 regexFunction.getRandom() != null && regexFunction.getRandom() instanceof SecureRandom);
     }
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#parse(java.lang.String, boolean, java.util.Random)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#parse(java.lang.String, boolean)}.
      * case 1 normal case
      */
     @Test
     public void testParseCase1() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true, null); //$NON-NLS-1$
-        Assert.assertTrue("regexFunction.generex should not be null", regexFunction.generex != null); //$NON-NLS-1$
+        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true); //$NON-NLS-1$
+        Assert.assertNotNull("regexFunction.generex should not be null", regexFunction.generex); //$NON-NLS-1$
     }
 
     /**
      * Test method for
-     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#parse(java.lang.String, boolean, java.util.Random)}.
+     * {@link org.talend.dataquality.semantic.datamasking.GenerateFromRegex#parse(java.lang.String, boolean)}.
      * case 2 extraParameter is null
      */
     @Test
     public void testParseCase2() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse(null, true, new Random(100l));
-        Assert.assertTrue("regexFunction.generex should be null", regexFunction.generex == null); //$NON-NLS-1$
+        regexFunction.parse(null, true);
+        assertNull("regexFunction.generex should be null", regexFunction.generex); //$NON-NLS-1$
     }
 
     /**
@@ -77,9 +79,9 @@ public class GenerateFromRegexTest {
     @Test
     public void testDoGenerateMaskedFieldStringCase1() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true, null); //$NON-NLS-1$
+        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true); //$NON-NLS-1$
         String maskResult = regexFunction.doGenerateMaskedField(null);
-        assertEquals("maskResult should be null", null, maskResult); //$NON-NLS-1$
+        assertNull("maskResult should be null", maskResult); //$NON-NLS-1$
     }
 
     /**
@@ -90,7 +92,7 @@ public class GenerateFromRegexTest {
     @Test
     public void testDoGenerateMaskedFieldStringCase2() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true, null); //$NON-NLS-1$
+        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true); //$NON-NLS-1$
         String maskResult = regexFunction.doGenerateMaskedField(StringUtils.EMPTY);
         assertEquals("maskResult should be EMPTY", StringUtils.EMPTY, maskResult); //$NON-NLS-1$
     }
@@ -105,7 +107,7 @@ public class GenerateFromRegexTest {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
         regexFunction.setSeed("12345");
         regexFunction.setMaskingMode(FunctionMode.CONSISTENT);
-        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true, null); //$NON-NLS-1$
+        regexFunction.parse("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", true); //$NON-NLS-1$
         String maskResult = regexFunction.generateMaskedRow("+33145263761", FunctionMode.CONSISTENT);
         String maskResult2 = regexFunction.generateMaskedRow("+33145263761", FunctionMode.CONSISTENT);
         assertEquals("+33 198-78 21 59", maskResult);
@@ -119,33 +121,32 @@ public class GenerateFromRegexTest {
      */
     @Test
     public void testDoGenerateMaskedFieldStringCase3() {
-        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "08 38 9302 63", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
-        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new Random(), true); //$NON-NLS-1$ //$NON-NLS-2$
-        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new SecureRandom(), true); //$NON-NLS-1$ //$NON-NLS-2$
-        patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", null, true); //$NON-NLS-1$ //$NON-NLS-2$
-        patternJudgeResult("^\\d*[02468]$", "355084", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
-        // added for codacy check
-        Assert.assertTrue(true);
+        assertTrue(patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "08 38 9302 63", new Random(12345), true)); //$NON-NLS-1$ //$NON-NLS-2$
+        assertTrue(patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new Random(), true)); //$NON-NLS-1$ //$NON-NLS-2$
+        assertTrue(patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", new SecureRandom(), true)); //$NON-NLS-1$ //$NON-NLS-2$
+        assertTrue(patternJudgeResult("(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}", "*", null, true)); //$NON-NLS-1$ //$NON-NLS-2$
+        assertTrue(patternJudgeResult("^\\d*[02468]$", "355084", new Random(12345), true)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    private void patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue) {
+    private boolean patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue) {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse(regexStr, true, null);
+        regexFunction.parse(regexStr, true);
         regexFunction.setRandom(random);
         String maskResult = regexFunction.doGenerateMaskedField("any not empty value"); //$NON-NLS-1$
         Pattern compile = Pattern.compile(regexStr);
         Matcher matcher = compile.matcher(maskResult);
 
-        Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches() == assertTrue); //$NON-NLS-1$
+        assertEquals("maskResult is correct result:" + maskResult, matcher.matches(), assertTrue); //$NON-NLS-1$
         if (!"*".equals(assertResult)) { //$NON-NLS-1$
-            Assert.assertEquals("maskResult is correct result: " + assertResult, assertResult, maskResult); //$NON-NLS-1$
+            assertEquals("maskResult is correct result: " + assertResult, assertResult, maskResult); //$NON-NLS-1$
         }
+        return true;
     }
 
-    private void patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue, String inputFile)
+    private boolean patternJudgeResult(String regexStr, String assertResult, Random random, boolean assertTrue, String inputFile)
             throws NullPointerException, IOException, URISyntaxException {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse(regexStr, true, null);
+        regexFunction.parse(regexStr, true);
         regexFunction.setRandom(random);
         Pattern compile = Pattern.compile(regexStr);
 
@@ -158,11 +159,12 @@ public class GenerateFromRegexTest {
             String maskResult = regexFunction.doGenerateMaskedField(inputData);
             Matcher matcher = compile.matcher(maskResult);
 
-            Assert.assertTrue("maskResult is correct result:" + maskResult, matcher.matches() == assertTrue); //$NON-NLS-1$
+            assertEquals("maskResult is correct result:" + maskResult, matcher.matches(), assertTrue); //$NON-NLS-1$
             if (!"*".equals(assertResult)) { //$NON-NLS-1$
                 Assert.assertEquals("maskResult is correct result: " + assertResult, assertResult, maskResult); //$NON-NLS-1$
             }
         }
+        return true;
     }
 
     /**
@@ -172,15 +174,15 @@ public class GenerateFromRegexTest {
      */
     @Test
     public void testDoGenerateMaskedFieldStringCase4() {
-        patternJudgeResult("^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$", "08 38 9302 63", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
+        assertTrue(patternJudgeResult("^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$", "08 38 9302 63", new Random(12345), true)); //$NON-NLS-1$ //$NON-NLS-2$
         // more than one ^ and $
-        patternJudgeResult("^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$$", "08 38 9302 63", new Random(12345), true); //$NON-NLS-1$ //$NON-NLS-2$
-        patternJudgeResult("^^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$\\$$", "^^+3339302 63 00$$$$$$", //$NON-NLS-1$//$NON-NLS-2$
-                new Random(12345), false);
-        patternJudgeResult("\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$", "^^^^^^+33 4.31 02 3475$$$$$$$", //$NON-NLS-1$//$NON-NLS-2$
-                new Random(12345), false);
-        // added for codacy check
-        Assert.assertTrue(true);
+        assertTrue(patternJudgeResult("^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$$", "08 38 9302 63", //$NON-NLS-1$//$NON-NLS-2$
+                new Random(12345), true));
+        assertTrue(patternJudgeResult("^^^^\\^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$\\$$", "^^+3339302 63 00$$$$$$", //$NON-NLS-1$//$NON-NLS-2$
+                new Random(12345), false));
+        assertTrue(
+                patternJudgeResult("\\^^^^^^(0033 ?|\\+33 ?|0)[1-9]([-. ]?[0-9]{2}){4}$$$$$$\\$", "^^^^^^+33 4.31 02 3475$$$$$$$", //$NON-NLS-1$//$NON-NLS-2$
+                        new Random(12345), false));
     }
 
     /**
@@ -195,9 +197,7 @@ public class GenerateFromRegexTest {
     @Test
     public void testDoGenerateMaskedFieldStringCase5() throws NullPointerException, IOException, URISyntaxException {
 
-        patternJudgeResult("^\\d*[02468]$", "*", new Random(12345), true, "numberData.txt"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        // added for codacy check
-        Assert.assertTrue(true);
+        assertTrue(patternJudgeResult("^\\d*[02468]$", "*", new Random(12345), true, "numberData.txt")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     /**
@@ -222,15 +222,16 @@ public class GenerateFromRegexTest {
         isValidPattern = GenerateFromRegex.isValidPattern(null);
         Assert.assertFalse("null is not support by this API by now", isValidPattern);
         isValidPattern = GenerateFromRegex.isValidPattern("");
-        Assert.assertTrue("empty should be support by this API by now", isValidPattern);
+        assertTrue("empty should be support by this API by now", isValidPattern);
         isValidPattern = GenerateFromRegex.isValidPattern("^\\d*[02468]$");
-        Assert.assertTrue("^\\d*[02468]$ should be support by this API by now", isValidPattern);
+        assertTrue("^\\d*[02468]$ should be support by this API by now", isValidPattern);
     }
 
     @Test
     public void testParseCaseTDQ16375() {
         GenerateFromRegex regexFunction = new GenerateFromRegex();
-        regexFunction.parse("^alcool|bière|tequila|pastis|champagne$", true, new Random(12345));
+        regexFunction.parse("^alcool|bière|tequila|pastis|champagne$", true);
+        regexFunction.setRandom(new Random(12345));
         String maskResult = regexFunction.doGenerateMaskedField("ABC");
         assertEquals("unexpected mask result! ", "pastis", maskResult);
     }
