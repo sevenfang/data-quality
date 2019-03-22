@@ -2,14 +2,16 @@ Dictionary index
 ----------------------
 | Index NAME    | Creation Date   | Last Update | Source File | Data origin |
 |---------------|:-------------:|:-----------:|:-----------:|:-----------:|
+|`ACADEMIC_PROFESSIONAL_SUFFIX`|Mar. 2019|Mar. 2019|Talend|
+|`ACADEMIC_PROFESSIONAL_TITLE`|Mar. 2019|Mar. 2019|Talend|
+|`AIRPORT`|Jul. 2015|Dec. 2015|airport-name-wiki.csv|[Wikipedia](https://en.wikipedia.org/wiki/List_of_airports)|
+|`AIRPORT_CODE`|Jul. 2015|Oct. 2015|airport-code-wiki.csv|[Wikipedia](https://en.wikipedia.org/wiki/List_of_airports)|
 |`ANIMAL`|Jul. 2015|Jul. 2015|animal_cleaned.csv|Talend|
 |`ANSWER`|Feb. 2016|Jun. 2016|N/A|Talend|
-|`AIRPORT_CODE`|Jul. 2015|Oct. 2015|airport-code-wiki.csv|[Wikipedia](https://en.wikipedia.org/wiki/List_of_airports)|
-|`AIRPORT`|Jul. 2015|Dec. 2015|airport-name-wiki.csv|[Wikipedia](https://en.wikipedia.org/wiki/List_of_airports)|
 |`BEVERAGE`|Oct. 2015|Oct. 2015|wordnet_beverages_yago2.csv|[YAGO](http://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/)|
 |`CA_PROVINCE_TERRITORY`|Nov. 2015|Nov. 2015|ca_province_territory.csv|[statoids.com](http://www.statoids.com/)|
 |`CA_PROVINCE_TERRITORY_CODE`|Nov. 2015|Nov. 2015|ca_province_territory.csv|[statoids.com](http://www.statoids.com/)|
-|`CITY`|Jul. 2015|Jun. 2016|city_cleaned_without_pinyin.csv|Talend|
+|`CHRISTIAN_RELIGIOUS_TITLE`|Mar. 2019|Mar. 2019|Talend|
 |`CIVILITY`|Jul. 2015|Oct. 2015|civility_cleaned.csv|Talend|
 |`COMPANY`|Oct. 2015|Oct. 2015|wordnet_companies_yago2_optimized.csv|[YAGO](http://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/)|
 |`CONTINENT`|Jul. 2015|Nov. 2015|continent_cleaned.csv|Talend|
@@ -23,6 +25,7 @@ Dictionary index
 |`EN_MONTH_ABBREV`|May 2017|May 2017|N/A|Talend|
 |`EN_WEEKDAY`|May 2017|May 2017|N/A|Talend|
 |`FIRST_NAME`|Jul. 2015|Jun. 2016|firstname_cleaned.csv|Talend|
+|`FORMAL_TITLE`|Mar. 2019|Mar. 2019|Talend|
 |`FR_COMMUNE`|Nov. 2015|Jun. 2016|fr_comisimp2015.csv|INSEE|
 |`FR_DEPARTEMENT`|Nov. 2015|Nov. 2015|fr_depts2015.csv|INSEE|
 |`FR_REGION`|Nov. 2015|Sep. 2016|fr_reg2016.txt|INSEE|
@@ -31,12 +34,16 @@ Dictionary index
 |`HR_DEPARTMENT`|Jul. 2015|Jul. 2015|hr_department_cleaned.csv|Talend|
 |`INDUSTRY`|Oct. 2015|Oct. 2015|industry_GICS_simplified.csv|Talend|
 |`INDUSTRY_GROUP`|Oct. 2015|Oct. 2015|industry_GICS_simplified.csv|Talend|
+|`INHERITED_SUFFIX`|Mar. 2019|Mar. 2019|Talend|
+|`ISLAMIC_RELIGIOUS_TITLE`|Mar. 2019|Mar. 2019|Talend|
 |`JOB_TITLE`|Jul. 2015|Jun. 2016|jobTitle_cleaned.csv|Talend|
+|`JUDAIC_RELIGIOUS_TITLE`|Mar. 2019|Mar. 2019|Talend|
 |`LANGUAGE`|Nov. 2015|Nov. 2015|languages_code_name.csv|Wikipedia|
 |`LANGUAGE_CODE_ISO2`|Nov. 2015|Nov. 2015|languages_code_name.csv|Wikipedia|
 |`LANGUAGE_CODE_ISO3`|Nov. 2015|Nov. 2015|languages_code_name.csv|Wikipedia|
 |`LAST_NAME`|Jun. 2016|Jun. 2016|lastname12k.csv|[United States Census Bureau](http://www.census.gov/)| ([Licence](https://www.ons.gov.uk/census/2001censusandearlier/dataandproducts/copyrightandlicensing/licenseinformation))
 |`MEASURE_UNIT`|Oct. 2015|Oct. 2015|unitOfMeasurement_cleaned.csv|Talend|
+|`MILITARY_SUFFIX`|Mar. 2019|Mar. 2019|Talend|
 |`MONTH`|Jul. 2015|Oct. 2015|months_cleaned.csv|Talend|
 |`MUSEUM`|Oct. 2015|Oct. 2015|wordnet_museums_yago2.csv|[YAGO](http://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/)|
 |`MX_ESTADO`|Nov. 2015|Nov. 2015|mx_estado.csv|[statoids.com](http://www.statoids.com/)|
