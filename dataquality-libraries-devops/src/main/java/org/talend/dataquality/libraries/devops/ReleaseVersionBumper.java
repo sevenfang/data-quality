@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -34,6 +35,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFactoryConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
@@ -64,7 +66,17 @@ public class ReleaseVersionBumper {
 
     private static final String BUNDLE_VERSION_STRING = "Bundle-Version: ";
 
-    private XPath xPath = XPathFactory.newInstance().newXPath();
+    private XPathFactory getXPathFactory() {
+        XPathFactory xpf = XPathFactory.newInstance();
+        try {
+            xpf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (XPathFactoryConfigurationException e) {
+            System.out.println(e.getMessage());
+        }
+        return xpf;
+    }
+
+    private XPath xPath = getXPathFactory().newXPath();
 
     private Transformer xTransformer;
 
@@ -84,7 +96,10 @@ public class ReleaseVersionBumper {
         // update root pom file
         String rootPomPath = "../pom.xml";
         File rootPomFile = new File(projectRoot + rootPomPath);
-        Document rootDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(rootPomFile);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        Document rootDoc = dbf.newDocumentBuilder().parse(rootPomFile);
         Node rootVersion = (Node) xPath.evaluate("/project/version", rootDoc, XPathConstants.NODE);
         rootVersion.setTextContent(TARGET_VERSION);
         xTransformer.transform(new DOMSource(rootDoc), new StreamResult(rootPomFile));
@@ -94,7 +109,7 @@ public class ReleaseVersionBumper {
         File inputFile = new File(projectRoot + parentPomPath);
         if (inputFile.exists()) {
             System.out.println("Updating: " + inputFile.getAbsolutePath());
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputFile);
+            Document doc = dbf.newDocumentBuilder().parse(inputFile);
 
             // replace parent version
             Node rootParentVersion = (Node) xPath.evaluate("/project/parent/version", doc, XPathConstants.NODE);
@@ -133,7 +148,10 @@ public class ReleaseVersionBumper {
             throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException {
         if (inputFile.exists()) {
             System.out.println("Updating: " + inputFile.getAbsolutePath());
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputFile);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            Document doc = dbf.newDocumentBuilder().parse(inputFile);
 
             // replace parent version value
             Node parentVersion = (Node) xPath.evaluate("/project/parent/version", doc, XPathConstants.NODE);
