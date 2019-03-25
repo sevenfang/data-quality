@@ -25,7 +25,7 @@ import org.talend.dataquality.duplicating.AllDataqualitySamplingTests;
 public class GenerateFromFileStringProvidedTest {
 
     /**
-     * Test method for {@link org.talend.dataquality.datamasking.functions.GenerateFromFileString}.
+     * Test method for {@link org.talend.dataquality.datamasking.functions.generation.GenerateFromFileString}.
      * 
      * @throws URISyntaxException
      */

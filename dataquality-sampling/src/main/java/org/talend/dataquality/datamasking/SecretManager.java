@@ -12,7 +12,19 @@
 // ============================================================================
 package org.talend.dataquality.datamasking;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Random;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.dataquality.datamasking.generic.patterns.GenerateFormatPreservingPatterns;
@@ -22,17 +34,6 @@ import org.talend.dataquality.datamasking.utils.crypto.AbstractPrf;
 import org.talend.dataquality.datamasking.utils.crypto.AesPrf;
 import org.talend.dataquality.datamasking.utils.crypto.CryptoFactory;
 import org.talend.dataquality.datamasking.utils.crypto.HmacPrf;
-
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Random;
 
 /**
  * This class handles the keys and secrets used for datamasking.
@@ -193,13 +194,14 @@ public class SecretManager implements Serializable {
      * It is basically a hashing algorithm slow by design, in order to increase the time
      * required for an attacker to try a lot of passwords in a bruteforce attack.
      * <br>
-     *     About the salt :
-     *     <ul>
-     *         <li>The salt is not secret, the use of Random is not critical.</li>
-     *         <li>The salt is important to avoid rainbow table attacks.</li>
-     *         <li>The salt should be generated with SecureRandom() in case the passwords are stored.</li>
-     *         <li>In that case the salt should be stored in plaintext next to the password and a unique user identifier.</li>
-     *     </ul>
+     * About the salt :
+     * <ul>
+     * <li>The salt is not secret, the use of Random is not critical.</li>
+     * <li>The salt is important to avoid rainbow table attacks.</li>
+     * <li>The salt should be generated with SecureRandom() in case the passwords are stored.</li>
+     * <li>In that case the salt should be stored in plaintext next to the password and a unique user identifier.</li>
+     * </ul>
+     * 
      * @param password a password given as a {@code String}.
      * @return a {@code SecretKey} securely generated.
      */

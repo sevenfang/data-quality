@@ -16,8 +16,8 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.talend.dataquality.datamasking.functions.GenerateFromFileString;
 import org.talend.dataquality.datamasking.functions.KeysLoader;
+import org.talend.dataquality.datamasking.functions.generation.GenerateFromFileString;
 
 public class GenerateFromFileStringProvided extends GenerateFromFileString {
 

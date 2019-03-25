@@ -2,7 +2,7 @@ package org.talend.dataquality.datamasking.semantic;
 
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.common.pattern.TextPatternUtil;
 
 public class ReplaceCharacterHelper {

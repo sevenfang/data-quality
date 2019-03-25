@@ -14,20 +14,19 @@ package org.talend.dataquality.datamasking.functions;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.generic.Alphabet;
-
-import java.security.SecureRandom;
 
 /**
  * created by jgonzalez on 18 juin 2015. This class is an abstract class that
@@ -120,7 +119,7 @@ public abstract class Function<T> implements Serializable {
         if (extraParameter != null) {
             parameters = getParameters(extraParameter);
             if (parameters.length == 1 && isNeedCheckPath()
-                    && (!isBothValidForFileOrNot() || !StringUtils.EMPTY.equals(parameters[0]))) {
+                    && (!isBothValidForFileOrNot() || !EMPTY_STRING.equals(parameters[0]))) {
                 // check if it's a path to a readable file
                 // For an empty param that is not mandatory, we do not want to return an error
                 try {
@@ -139,6 +138,13 @@ public abstract class Function<T> implements Serializable {
         }
 
         setKeepNull(keepNullValues);
+    }
+
+    /**
+     * getter for parameters
+     */
+    public String[] getParsedParameters() {
+        return parameters;
     }
 
     @Deprecated
@@ -248,7 +254,7 @@ public abstract class Function<T> implements Serializable {
     protected abstract T doGenerateMaskedField(T t);
 
     protected T doGenerateMaskedField(T t, FunctionMode mode) {
-        throw new NotImplementedException();
+        throw new NotImplementedException("Not implemented.");
     }
 
     public void setSecret(FormatPreservingMethod method, String secret) {

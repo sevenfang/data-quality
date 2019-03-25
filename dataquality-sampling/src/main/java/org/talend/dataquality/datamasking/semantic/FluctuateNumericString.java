@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 import org.talend.daikon.number.BigDecimalParser;
 import org.talend.dataquality.datamasking.FunctionMode;
-import org.talend.dataquality.datamasking.functions.NumericVariance;
+import org.talend.dataquality.datamasking.functions.number.NumericVariance;
 
 public class FluctuateNumericString extends NumericVariance<String> {
 

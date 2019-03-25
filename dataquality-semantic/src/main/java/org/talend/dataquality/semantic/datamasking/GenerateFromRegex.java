@@ -12,14 +12,15 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
-import com.mifmif.common.regex.Generex;
+import static org.talend.dataquality.datamasking.FunctionMode.CONSISTENT;
+
+import java.util.Random;
+
 import org.apache.commons.lang3.StringUtils;
 import org.talend.dataquality.datamasking.functions.FunctionString;
 import org.talend.dataquality.semantic.utils.RegexUtils;
 
-import java.util.Random;
-
-import static org.talend.dataquality.datamasking.FunctionMode.CONSISTENT;
+import com.mifmif.common.regex.Generex;
 
 /**
  * Generate masking data from regex str
@@ -50,7 +51,7 @@ public class GenerateFromRegex extends FunctionString {
             return null;
         }
         if (StringUtils.isEmpty(str)) {
-            return EMPTY_STRING;
+            return "";
         }
 
         if (CONSISTENT == this.maskingMode) {

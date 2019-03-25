@@ -12,6 +12,12 @@
 // ============================================================================
 package org.talend.dataquality.semantic.datamasking;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 import org.apache.lucene.document.Document;
 import org.talend.dataquality.datamasking.functions.FunctionString;
 import org.talend.dataquality.semantic.index.DictionarySearcher;
@@ -19,12 +25,6 @@ import org.talend.dataquality.semantic.index.Index;
 import org.talend.dataquality.semantic.index.LuceneIndex;
 import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.snapshot.DictionarySnapshot;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * created by msjian on 2017.10.11.
@@ -50,7 +50,7 @@ public class GenerateFromDictionaries extends FunctionString {
         if (!valuesInDictionaries.isEmpty()) {
             return valuesInDictionaries.get(r.nextInt(valuesInDictionaries.size()));
         } else {
-            return EMPTY_STRING;
+            return "";
         }
     }
 
