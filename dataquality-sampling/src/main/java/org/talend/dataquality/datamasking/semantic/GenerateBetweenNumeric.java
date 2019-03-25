@@ -12,13 +12,13 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.semantic;
 
-import org.talend.dataquality.datamasking.FunctionMode;
-import org.talend.dataquality.datamasking.functions.GenerateBetween;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Random;
 import java.util.regex.Pattern;
+
+import org.talend.dataquality.datamasking.FunctionMode;
+import org.talend.dataquality.datamasking.functions.number.GenerateBetween;
 
 /**
  * Generate a numerical value between the 2 given numerical values.

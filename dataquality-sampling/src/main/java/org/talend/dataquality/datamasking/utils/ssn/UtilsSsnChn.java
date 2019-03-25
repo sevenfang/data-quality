@@ -1,15 +1,15 @@
 package org.talend.dataquality.datamasking.utils.ssn;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.talend.dataquality.datamasking.functions.GenerateUniqueSsnChn;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.talend.dataquality.datamasking.functions.ssn.GenerateUniqueSsnChn;
 
 public class UtilsSsnChn {
 

@@ -21,7 +21,7 @@ import java.util.Random;
 
 import org.junit.Test;
 import org.talend.dataquality.datamasking.FunctionMode;
-import org.talend.dataquality.datamasking.functions.DateVariance;
+import org.talend.dataquality.datamasking.functions.date.DateVariance;
 import org.talend.dataquality.duplicating.AllDataqualitySamplingTests;
 
 public class DateFunctionAdapterTest {
