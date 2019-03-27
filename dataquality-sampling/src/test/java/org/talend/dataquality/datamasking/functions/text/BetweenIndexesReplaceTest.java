@@ -23,9 +23,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
-import org.talend.dataquality.datamasking.functions.text.BetweenIndexesReplace;
 import org.talend.dataquality.datamasking.generic.Alphabet;
 
 /**
@@ -70,8 +68,8 @@ public class BetweenIndexesReplaceTest {
     public void bijectiveReplaceOnlyValidCharacters() {
         bir.parse("2, 4", false);
         bir.setAlphabet(Alphabet.DEFAULT_LATIN);
-        bir.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
-        String output = bir.generateMaskedRow("St€ve", FunctionMode.BIJECTIVE);
+        bir.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
+        String output = bir.generateMaskedRow("St€ve", FunctionMode.BIJECTIVE_BASIC);
         assertEquals(input.length(), output.length());
         assertEquals('€', output.charAt(2));
     }
@@ -81,7 +79,7 @@ public class BetweenIndexesReplaceTest {
         Alphabet alphabet = Alphabet.DEFAULT_LATIN;
         bir.parse("2, 4", false);
         bir.setAlphabet(alphabet);
-        bir.setSecret(FormatPreservingMethod.AES_CBC_PRF, "data");
+        bir.setSecret(FunctionMode.BIJECTIVE_AES_CBC_PRF, "data");
         Set<String> outputSet = new HashSet<>();
         String prefix = "a@";
         String suffix = "z98";
@@ -89,7 +87,7 @@ public class BetweenIndexesReplaceTest {
             for (int j = 0; j < alphabet.getRadix(); j++) {
                 String input = new StringBuilder().append(prefix).append(Character.toChars(alphabet.getCharactersMap().get(i)))
                         .append(Character.toChars(alphabet.getCharactersMap().get(j))).append(suffix).toString();
-                String output = bir.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+                String output = bir.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC);
                 assertTrue("This output is already present : " + output + "\nInput : " + input + "\nIndex : " + (i + j),
                         outputSet.add(output));
             }

@@ -12,15 +12,16 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions.ssn;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
-import org.talend.dataquality.datamasking.functions.ssn.AbstractGenerateUniqueSsn;
-import org.talend.dataquality.datamasking.functions.ssn.GenerateUniqueSsnUk;
-
-import static org.junit.Assert.*;
+import org.talend.dataquality.datamasking.FunctionMode;
 
 /**
  * @author jteuladedenantes
@@ -35,7 +36,7 @@ public class GenerateUniqueSsnUkTest {
     @Before
     public void setUp() throws Exception {
         gnu.setRandom(new Random(42));
-        gnu.setSecret(FormatPreservingMethod.BASIC, "");
+        gnu.setSecret(FunctionMode.BIJECTIVE_BASIC, "");
         gnu.setKeepFormat(true);
     }
 
@@ -108,10 +109,10 @@ public class GenerateUniqueSsnUkTest {
     @Test
     public void unreproducibleWhenNoPasswordSet() {
         String input = "AL 486934 D";
-        gnu.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        gnu.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         String result1 = gnu.generateMaskedRow(input);
 
-        gnu.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        gnu.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         String result2 = gnu.generateMaskedRow(input);
 
         assertNotEquals(String.format("The result should not be reproducible when no password is set. Input value is %s.", input),

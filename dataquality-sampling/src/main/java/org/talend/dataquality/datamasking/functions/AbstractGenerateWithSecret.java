@@ -1,7 +1,7 @@
 package org.talend.dataquality.datamasking.functions;
 
 import org.apache.commons.lang3.StringUtils;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.SecretManager;
 import org.talend.dataquality.datamasking.generic.patterns.AbstractGeneratePattern;
 import org.talend.dataquality.datamasking.generic.patterns.GenerateFormatPreservingPatterns;
@@ -36,10 +36,10 @@ public abstract class AbstractGenerateWithSecret extends Function<String> {
      * @param password the password entered by the user
      */
     @Override
-    public void setSecret(FormatPreservingMethod method, String password) {
+    public void setSecret(FunctionMode method, String password) {
         secretMng = new SecretManager(method, password);
 
-        if (FormatPreservingMethod.BASIC == secretMng.getMethod()) {
+        if (FunctionMode.BIJECTIVE_BASIC == secretMng.getMethod()) {
             secretMng.setKey(super.rnd.nextInt() % BasicSpec.BASIC_KEY_BOUND + BasicSpec.BASIC_KEY_OFFSET);
         } else {
             pattern = new GenerateFormatPreservingPatterns(pattern.getFields());

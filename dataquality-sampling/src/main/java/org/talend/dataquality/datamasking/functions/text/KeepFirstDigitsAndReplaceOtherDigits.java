@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.talend.dataquality.common.pattern.TextPatternUtil;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.functions.CharactersOperationUtils;
 import org.talend.dataquality.datamasking.functions.Function;
@@ -24,7 +23,7 @@ public class KeepFirstDigitsAndReplaceOtherDigits extends Function<String> {
     private Alphabet alphabet = Alphabet.DIGITS;
 
     @Override
-    public void setSecret(FormatPreservingMethod method, String password) {
+    public void setSecret(FunctionMode method, String password) {
         ff1Cipher = new GenerateFromAlphabet(alphabet, method, password);
     }
 
@@ -48,7 +47,7 @@ public class KeepFirstDigitsAndReplaceOtherDigits extends Function<String> {
             return EMPTY_STRING;
 
         if (str == null || integerParam >= str.trim().length()) {
-            return mode == FunctionMode.BIJECTIVE ? null : str;
+            return mode == FunctionMode.BIJECTIVE_BASIC ? null : str; // FIXME
         }
 
         StringBuilder sb = new StringBuilder(str.trim());
@@ -57,7 +56,7 @@ public class KeepFirstDigitsAndReplaceOtherDigits extends Function<String> {
         case CONSISTENT:
             generateConsistentDigits(sb);
             break;
-        case BIJECTIVE:
+        case BIJECTIVE_BASIC: // FIXME
             generateBijectiveDigits(sb);
             break;
         default:

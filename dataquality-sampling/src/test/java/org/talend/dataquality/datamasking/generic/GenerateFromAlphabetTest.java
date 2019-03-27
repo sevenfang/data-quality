@@ -13,11 +13,11 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.talend.daikon.pattern.character.CharPattern;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
 
 public class GenerateFromAlphabetTest {
 
-    private FormatPreservingMethod method = FormatPreservingMethod.AES_CBC_PRF;
+    private FunctionMode method = FunctionMode.BIJECTIVE_AES_CBC_PRF;
 
     private String password = "data";
 
@@ -78,7 +78,7 @@ public class GenerateFromAlphabetTest {
     @Test
     public void generateDigitsBijectiveWithHmac() {
         Alphabet digits = Alphabet.DIGITS;
-        GenerateFromAlphabet gfa = new GenerateFromAlphabet(digits, FormatPreservingMethod.SHA2_HMAC_PRF, password);
+        GenerateFromAlphabet gfa = new GenerateFromAlphabet(digits, FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, password);
         Set<List<Integer>> generatedDigits = new HashSet<>();
         for (int i = 0; i < digits.getRadix(); i++) {
             for (int j = 0; j < digits.getRadix(); j++) {
@@ -95,7 +95,7 @@ public class GenerateFromAlphabetTest {
     @Test
     public void generateBestGuessPatternWithHmac() {
         Alphabet alphabet = Alphabet.BEST_GUESS;
-        GenerateFromAlphabet generateFromAlphabet = new GenerateFromAlphabet(alphabet, FormatPreservingMethod.SHA2_HMAC_PRF,
+        GenerateFromAlphabet generateFromAlphabet = new GenerateFromAlphabet(alphabet, FunctionMode.BIJECTIVE_SHA2_HMAC_PRF,
                 password);
         List<Integer> codepoints = Arrays.asList((int) 'a', (int) '-', (int) '-', (int) '\u3400', (int) '€');
 
@@ -110,7 +110,7 @@ public class GenerateFromAlphabetTest {
     @Test
     public void isBijectiveBestGuess() {
         Alphabet alphabet = Alphabet.BEST_GUESS;
-        GenerateFromAlphabet generateFromAlphabet = new GenerateFromAlphabet(alphabet, FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        GenerateFromAlphabet generateFromAlphabet = new GenerateFromAlphabet(alphabet, FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         Set<String> outputs = new LinkedHashSet<>();
         int sizeKatakana = CharPattern.FULLWIDTH_KATAKANA.getCodePointSize();
         System.out.println(sizeKatakana);
@@ -148,7 +148,7 @@ public class GenerateFromAlphabetTest {
 
     @Test
     public void generateCodePointsBijectiveWithHmac() {
-        GenerateFromAlphabet gfa = new GenerateFromAlphabet(defaultAlphabet, FormatPreservingMethod.SHA2_HMAC_PRF, password);
+        GenerateFromAlphabet gfa = new GenerateFromAlphabet(defaultAlphabet, FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, password);
         Set<List<Integer>> generatedCodePoints = new HashSet<>();
         for (int i = 0; i < defaultAlphabet.getCharactersMap().size(); i++) {
             for (int j = 0; j < defaultAlphabet.getCharactersMap().size(); j++) {

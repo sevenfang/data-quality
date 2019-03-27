@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.daikon.pattern.character.CharPattern;
 import org.talend.dataquality.common.pattern.TextPatternUtil;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.SecretManager;
 import org.talend.dataquality.datamasking.generic.fields.AbstractField;
 import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
@@ -56,7 +56,7 @@ public class GenerateFromAlphabet implements Serializable {
      */
     private SecretManager secretMng;
 
-    public GenerateFromAlphabet(Alphabet alphabet, FormatPreservingMethod method, String password) {
+    public GenerateFromAlphabet(Alphabet alphabet, FunctionMode method, String password) {
         this.alphabet = alphabet;
         this.secretMng = new SecretManager(method, password);
         minLength = Math.max(2, (int) Math.ceil(Math.log(100) / Math.log(alphabet.getRadix())));

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.generic.FieldDefinition.FieldDefinitionType;
 import org.talend.dataquality.sampling.exception.DQRuntimeException;
 
@@ -53,7 +53,7 @@ public class BijectiveSubstitutionFunctionTest {
 
         fn = new BijectiveSubstitutionFunction(fieldDefinitionList);
         fn.setRandom(new Random(42));
-        fn.setSecret(FormatPreservingMethod.BASIC, "");
+        fn.setSecret(FunctionMode.BIJECTIVE_BASIC, "");
         fn.setKeepFormat(true);
     }
 
@@ -151,7 +151,7 @@ public class BijectiveSubstitutionFunctionTest {
 
         BijectiveSubstitutionFunction bijectiveSubstitutionFunction = new BijectiveSubstitutionFunction(fieldDefinitionList);
         bijectiveSubstitutionFunction.setRandom(new Random(124));
-        bijectiveSubstitutionFunction.setSecret(FormatPreservingMethod.BASIC, "");
+        bijectiveSubstitutionFunction.setSecret(FunctionMode.BIJECTIVE_BASIC, "");
         bijectiveSubstitutionFunction.setKeepFormat(true);
         List<String> output = input.stream().map(bijectiveSubstitutionFunction::generateMaskedRow).collect(Collectors.toList());
 
@@ -172,7 +172,7 @@ public class BijectiveSubstitutionFunctionTest {
 
         BijectiveSubstitutionFunction bijectiveSubstitutionFunction = new BijectiveSubstitutionFunction(fieldDefinitionList);
         bijectiveSubstitutionFunction.setRandom(new Random(124));
-        bijectiveSubstitutionFunction.setSecret(FormatPreservingMethod.BASIC, "");
+        bijectiveSubstitutionFunction.setSecret(FunctionMode.BIJECTIVE_BASIC, "");
         bijectiveSubstitutionFunction.setKeepFormat(true);
         List<String> output = input.stream().map(bijectiveSubstitutionFunction::generateMaskedRow).collect(Collectors.toList());
 

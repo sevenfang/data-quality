@@ -35,24 +35,24 @@ public class SecretManagerTest {
 
     @Test(expected = IllegalStateException.class)
     public void getPRFWhenMethodIsBasic() {
-        SecretManager secMng = new SecretManager(FormatPreservingMethod.BASIC, "Password");
+        SecretManager secMng = new SecretManager(FunctionMode.BIJECTIVE_BASIC, "Password");
         secMng.getPseudoRandomFunction();
     }
 
     @Test
     public void getPRFWithEachMethod() {
-        SecretManager secMng = new SecretManager(FormatPreservingMethod.AES_CBC_PRF, "Password");
+        SecretManager secMng = new SecretManager(FunctionMode.BIJECTIVE_AES_CBC_PRF, "Password");
         PseudoRandomFunction prf = secMng.getPseudoRandomFunction();
         assertTrue("The PRF is not of the correct type (AesPrf) !", prf instanceof AesPrf);
 
-        secMng = new SecretManager(FormatPreservingMethod.SHA2_HMAC_PRF, "Password");
+        secMng = new SecretManager(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "Password");
         prf = secMng.getPseudoRandomFunction();
         assertTrue("The PRF is not of the correct type (HmacPrf) !", prf instanceof HmacPrf);
     }
 
     @Test
     public void latinPasswordWithNumbers() {
-        SecretManager secMng = new SecretManager(FormatPreservingMethod.SHA2_HMAC_PRF, "ARandomPassword921");
+        SecretManager secMng = new SecretManager(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "ARandomPassword921");
         byte[] res = secMng.getPseudoRandomFunction().apply("abcde".getBytes());
 
         String expected;
@@ -66,7 +66,7 @@ public class SecretManagerTest {
 
     @Test
     public void passwordWithSpecialChars() {
-        SecretManager secMng = new SecretManager(FormatPreservingMethod.SHA2_HMAC_PRF, "Pa$$_With%Spe{ial_Ch@rs");
+        SecretManager secMng = new SecretManager(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "Pa$$_With%Spe{ial_Ch@rs");
         byte[] res = secMng.getPseudoRandomFunction().apply("abcde".getBytes());
 
         String expected;
@@ -80,14 +80,14 @@ public class SecretManagerTest {
 
     @Test
     public void getPrfNoPasswordHMAC() {
-        SecretManager secMng = new SecretManager(FormatPreservingMethod.SHA2_HMAC_PRF, null);
+        SecretManager secMng = new SecretManager(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, null);
         byte[] res = secMng.getPseudoRandomFunction().apply("something".getBytes());
         assertNotNull(res);
     }
 
     @Test
     public void getPrfNoPasswordAES() {
-        SecretManager secMng = new SecretManager(FormatPreservingMethod.AES_CBC_PRF, null);
+        SecretManager secMng = new SecretManager(FunctionMode.BIJECTIVE_AES_CBC_PRF, null);
         // AES supports only multiples of 16-byte inputs
         byte[] input = new byte[16];
         new Random(123456).nextBytes(input);

@@ -12,15 +12,16 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.functions.ssn;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
-import org.talend.dataquality.datamasking.functions.ssn.AbstractGenerateUniqueSsn;
-import org.talend.dataquality.datamasking.functions.ssn.GenerateUniqueSsnGermany;
-
-import static org.junit.Assert.*;
+import org.talend.dataquality.datamasking.FunctionMode;
 
 /**
  * @author dprot
@@ -34,7 +35,7 @@ public class GenerateUniqueSsnGermanTest {
     @Before
     public void setUp() throws Exception {
         gng.setRandom(new Random(42));
-        gng.setSecret(FormatPreservingMethod.BASIC, "");
+        gng.setSecret(FunctionMode.BIJECTIVE_BASIC, "");
         gng.setKeepFormat(true);
     }
 
@@ -99,10 +100,10 @@ public class GenerateUniqueSsnGermanTest {
     @Test
     public void unreproducibleWhenNoPasswordSet() {
         String input = "83807527228";
-        gng.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        gng.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         String result1 = gng.generateMaskedRow(input);
 
-        gng.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        gng.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         String result2 = gng.generateMaskedRow(input);
 
         assertNotEquals(String.format("The result should not be reproducible when no password is set. Input value is %s.", input),

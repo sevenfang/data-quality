@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
+import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.SecretManager;
 import org.talend.dataquality.datamasking.functions.AbstractGenerateWithSecret;
 import org.talend.dataquality.datamasking.generic.fields.AbstractField;
@@ -26,10 +26,10 @@ public abstract class AbstractGenerateUniquePhoneNumber extends AbstractGenerate
     }
 
     @Override
-    public void setSecret(FormatPreservingMethod method, String password) {
+    public void setSecret(FunctionMode method, String password) {
         secretMng = new SecretManager(method, password);
 
-        if (FormatPreservingMethod.BASIC == secretMng.getMethod()) {
+        if (FunctionMode.BIJECTIVE_BASIC == secretMng.getMethod()) {
             secretMng.setKey(super.rnd.nextInt(Integer.MAX_VALUE - 1000000) + 1000000);
         } else {
             pattern = new GenerateFormatPreservingPatterns(10, pattern.getFields());

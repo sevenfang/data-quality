@@ -18,7 +18,6 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 
 /**
@@ -71,6 +70,6 @@ public class GenerateCreditCardFormatLongTest {
     @Test(expected = UnsupportedOperationException.class)
     public void setSecretWithWrongFunctionType() {
         GenerateCreditCardFormatLong fn = new GenerateCreditCardFormatLong();
-        fn.setSecret(FormatPreservingMethod.BASIC, "Password");
+        fn.setSecret(FunctionMode.BIJECTIVE_BASIC, "Password");
     }
 }

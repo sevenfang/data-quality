@@ -10,10 +10,7 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
-import org.talend.dataquality.datamasking.functions.phone.AbstractGenerateUniquePhoneNumber;
-import org.talend.dataquality.datamasking.functions.phone.GeneratePhoneNumberJapan;
-import org.talend.dataquality.datamasking.functions.phone.GenerateUniquePhoneNumberJapan;
+import org.talend.dataquality.datamasking.FunctionMode;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -34,7 +31,7 @@ public class GenerateUniquePhoneNumberJapanTest {
     @Before
     public void setUp() throws Exception {
         gnj.setRandom(new Random(56));
-        gnj.setSecret(FormatPreservingMethod.BASIC, "");
+        gnj.setSecret(FunctionMode.BIJECTIVE_BASIC, "");
         gnj.setKeepFormat(true);
     }
 
@@ -82,10 +79,10 @@ public class GenerateUniquePhoneNumberJapanTest {
     @Test
     public void unreproducibleWhenNoPasswordSet() {
         String input = "49-92 8 7895";
-        gnj.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        gnj.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         String result1 = gnj.generateMaskedRow(input);
 
-        gnj.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "");
+        gnj.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "");
         String result2 = gnj.generateMaskedRow(input);
 
         assertNotEquals(String.format("The result should not be reproducible when no password is set. Input value is %s.", input),

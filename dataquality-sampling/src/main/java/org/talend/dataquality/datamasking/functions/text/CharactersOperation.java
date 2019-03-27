@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.talend.dataquality.common.pattern.TextPatternUtil;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.functions.Function;
 import org.talend.dataquality.datamasking.generic.Alphabet;
@@ -76,7 +75,7 @@ public abstract class CharactersOperation<T> extends Function<T> {
     }
 
     @Override
-    public void setSecret(FormatPreservingMethod method, String password) {
+    public void setSecret(FunctionMode method, String password) {
         if (alphabet == null) {
             throw new IllegalArgumentException(
                     "The method setAlphabet should be called before the method setSecret for the function "
@@ -121,7 +120,7 @@ public abstract class CharactersOperation<T> extends Function<T> {
             case CONSISTENT:
                 replacedString = generateConsistentString(str, beginAux, endAux);
                 break;
-            case BIJECTIVE:
+            case BIJECTIVE_BASIC:
                 replacedString = generateBijectiveString(str, beginAux, endAux);
                 break;
             default:

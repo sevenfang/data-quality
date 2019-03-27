@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.generic.Alphabet;
 
@@ -96,8 +95,8 @@ public class ReplaceCharactersTest {
     public void bijectiveReplaceOnlyCharactersFromAlphabet() {
         rc.parse("", false);
         rc.setAlphabet(Alphabet.LATIN_LETTERS);
-        rc.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
-        String output = rc.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        rc.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
+        String output = rc.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC);
         assertEquals("input : " + input + "\noutput : " + output, input.length(), output.length());
         assertEquals(input.substring(3, 6), output.substring(3, 6));
     }
@@ -107,7 +106,7 @@ public class ReplaceCharactersTest {
         Alphabet alphabet = Alphabet.LATIN_LETTERS;
         rc.parse("", false);
         rc.setAlphabet(alphabet);
-        rc.setSecret(FormatPreservingMethod.AES_CBC_PRF, "data");
+        rc.setSecret(FunctionMode.BIJECTIVE_AES_CBC_PRF, "data");
         Set<String> outputSet = new HashSet<>();
         String prefix = "a@";
         String suffix = "z98";
@@ -116,7 +115,7 @@ public class ReplaceCharactersTest {
                 String input = prefix + String.valueOf(Character.toChars(alphabet.getCharactersMap().get(i)))
                         + String.valueOf(Character.toChars(alphabet.getCharactersMap().get(j))) + suffix;
 
-                outputSet.add(rc.generateMaskedRow(input, FunctionMode.BIJECTIVE));
+                outputSet.add(rc.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC));
             }
         }
         assertEquals((int) Math.pow(alphabet.getRadix(), 2), outputSet.size()); // $NON-NLS-1$

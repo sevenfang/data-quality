@@ -27,7 +27,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.daikon.pattern.character.CharPattern;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.generic.Alphabet;
 
@@ -93,9 +92,9 @@ public class ReplaceAllTest {
     @Test
     public void bijectiveWithSurrogate() {
         ra.setAlphabet(alphabet);
-        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        ra.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
         String input = "abc\uD840\uDC40\uD840\uDFD3\uD841\uDC01\uD840\uDFD3efgh";
-        String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC);
         assertEquals(input.length(), output.length());
         assertEquals(input.substring(3, 11), output.substring(3, 11));
     }
@@ -104,8 +103,8 @@ public class ReplaceAllTest {
     public void bijectiveTooShortValue() {
         String input = "a";
         ra.setAlphabet(alphabet);
-        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
-        String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        ra.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
+        String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC);
         assertNull(output);
     }
 
@@ -113,7 +112,7 @@ public class ReplaceAllTest {
     public void bijectivity() {
         ra.setRandom(null);
         ra.setAlphabet(alphabet);
-        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        ra.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
         Set<String> outputSet = new HashSet<>();
         String prefix = "a@";
         String suffix = "z98";
@@ -122,7 +121,7 @@ public class ReplaceAllTest {
                 String input = prefix + String.valueOf(Character.toChars(alphabet.getCharactersMap().get(i)))
                         + String.valueOf(Character.toChars(alphabet.getCharactersMap().get(j))) + suffix;
 
-                outputSet.add(ra.generateMaskedRow(input, FunctionMode.BIJECTIVE));
+                outputSet.add(ra.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC));
             }
         }
         assertEquals((int) Math.pow(alphabet.getRadix(), 2), outputSet.size()); // $NON-NLS-1$
@@ -152,7 +151,7 @@ public class ReplaceAllTest {
 
         ra.parse("", false);
         ra.setAlphabet(Alphabet.BEST_GUESS);
-        ra.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        ra.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
         Map<String, String> inputOutput = new LinkedHashMap<String, String>() {
 
             private static final long serialVersionUID = 1L;
@@ -174,7 +173,7 @@ public class ReplaceAllTest {
         };
 
         for (String input : inputOutput.keySet()) {
-            String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+            String output = ra.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC);
             assertEquals(inputOutput.get(input), output);
             assertTrue("The same charPatterns are present", checkPatterns(input, output));
         }

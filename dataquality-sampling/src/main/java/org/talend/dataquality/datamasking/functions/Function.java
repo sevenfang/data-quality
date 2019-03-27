@@ -24,7 +24,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
 import org.talend.dataquality.datamasking.generic.Alphabet;
 
@@ -257,7 +256,7 @@ public abstract class Function<T> implements Serializable {
         throw new NotImplementedException("Not implemented.");
     }
 
-    public void setSecret(FormatPreservingMethod method, String secret) {
+    public void setSecret(FunctionMode method, String secret) {
         throw new UnsupportedOperationException("The class " + this.getClass().getName() + " should not use a secret.");
     }
 

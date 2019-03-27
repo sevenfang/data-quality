@@ -1,12 +1,12 @@
 package org.talend.dataquality.datamasking.utils.crypto;
 
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
-
 import javax.crypto.SecretKey;
+
+import org.talend.dataquality.datamasking.FunctionMode;
 
 /**
  * Factory for constructing the {@link AbstractPrf} and {@link AbstractCryptoSpec}
- * according to the context given by the {@link FormatPreservingMethod}.
+ * according to the context given by the {@link FunctionMode}.
  *
  * @author afournier
  * @see AbstractCryptoSpec
@@ -17,16 +17,16 @@ public class CryptoFactory {
 
     /**
      * Returns the correct instance of {@link AbstractCryptoSpec}
-     * according to the context given by the {@link FormatPreservingMethod}.
+     * according to the context given by the {@link FunctionMode}.
      */
-    public AbstractCryptoSpec getPrfSpec(FormatPreservingMethod method) {
+    public AbstractCryptoSpec getPrfSpec(FunctionMode method) {
         AbstractCryptoSpec cryptoSpec = null;
 
         switch (method) {
-        case AES_CBC_PRF:
+        case BIJECTIVE_AES_CBC_PRF:
             cryptoSpec = new AesCbcCryptoSpec();
             break;
-        case SHA2_HMAC_PRF:
+        case BIJECTIVE_SHA2_HMAC_PRF:
             cryptoSpec = new HmacSha2CryptoSpec();
             break;
         default:

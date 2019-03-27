@@ -73,7 +73,7 @@ public class SecretManager implements Serializable {
     /**
      * Enumeration that corresponds to the type of pseudo-random function used by the secretManager
      */
-    private FormatPreservingMethod method;
+    private FunctionMode method;
 
     /**
      * This attribute contains all the specifications relative to the pseudo-random function.
@@ -86,14 +86,14 @@ public class SecretManager implements Serializable {
     private AbstractPrf pseudoRandomFunction;
 
     public SecretManager() {
-        this.method = FormatPreservingMethod.BASIC;
+        this.method = FunctionMode.BIJECTIVE_BASIC;
     }
 
     public SecretManager(String method, String password) {
-        this(FormatPreservingMethod.valueOf(method), password);
+        this(FunctionMode.valueOf(method), password);
     }
 
-    public SecretManager(FormatPreservingMethod method, String password) {
+    public SecretManager(FunctionMode method, String password) {
         this.method = method;
         cryptoSpec = cryptoFactory.getPrfSpec(method);
         setPseudoRandomFunction(password);
@@ -108,7 +108,7 @@ public class SecretManager implements Serializable {
      * @param password the password used to generate the pseudo-random function's key
      */
     public void setPseudoRandomFunction(String password) {
-        if (method != FormatPreservingMethod.BASIC) {
+        if (method != FunctionMode.BIJECTIVE_BASIC) {
 
             SecretKey secret;
             if (StringUtils.isEmpty(password)) {
@@ -141,7 +141,7 @@ public class SecretManager implements Serializable {
     /**
      * getter for the method used.
      */
-    public FormatPreservingMethod getMethod() {
+    public FunctionMode getMethod() {
         return method;
     }
 
@@ -164,7 +164,7 @@ public class SecretManager implements Serializable {
     public AbstractPrf getPseudoRandomFunction() {
         if (pseudoRandomFunction == null) {
 
-            if (method == null || method == FormatPreservingMethod.BASIC) {
+            if (method == null || method == FunctionMode.BIJECTIVE_BASIC) {
                 throw new IllegalStateException("This secret manager is not set to handle a pseudo-random function");
             }
 

@@ -12,19 +12,11 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.generic.patterns;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.FieldSetter;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
-import org.talend.dataquality.datamasking.SecretManager;
-import org.talend.dataquality.datamasking.generic.fields.AbstractField;
-import org.talend.dataquality.datamasking.generic.fields.FieldEnum;
-import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -34,7 +26,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.FieldSetter;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.talend.dataquality.datamasking.FunctionMode;
+import org.talend.dataquality.datamasking.SecretManager;
+import org.talend.dataquality.datamasking.generic.fields.AbstractField;
+import org.talend.dataquality.datamasking.generic.fields.FieldEnum;
+import org.talend.dataquality.datamasking.generic.fields.FieldInterval;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenerateFormatPreservingPatternsTest {
@@ -65,7 +69,7 @@ public class GenerateFormatPreservingPatternsTest {
         minValue = "OSF0005";
         maxValue = "SDU5020";
 
-        secretMng = new SecretManager(FormatPreservingMethod.SHA2_HMAC_PRF, "#Datadriven2018");
+        secretMng = new SecretManager(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "#Datadriven2018");
     }
 
     @Test
@@ -194,7 +198,7 @@ public class GenerateFormatPreservingPatternsTest {
 
     @Test
     public void generateUniqueStringAES() {
-        SecretManager AESSecMng = new SecretManager(FormatPreservingMethod.AES_CBC_PRF, "#Datadriven2018");
+        SecretManager AESSecMng = new SecretManager(FunctionMode.BIJECTIVE_AES_CBC_PRF, "#Datadriven2018");
         StringBuilder result = pattern.generateUniqueString(Arrays.asList("U", "KI", "45", "12"), AESSecMng).orElse(null);
 
         String expected;

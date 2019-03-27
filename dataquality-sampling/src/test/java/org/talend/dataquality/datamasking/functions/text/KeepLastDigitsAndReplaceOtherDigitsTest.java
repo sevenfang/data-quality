@@ -9,9 +9,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.dataquality.datamasking.FormatPreservingMethod;
 import org.talend.dataquality.datamasking.FunctionMode;
-import org.talend.dataquality.datamasking.functions.text.KeepLastDigitsAndReplaceOtherDigits;
 import org.talend.dataquality.utils.MockRandom;
 
 public class KeepLastDigitsAndReplaceOtherDigitsTest {
@@ -45,21 +43,21 @@ public class KeepLastDigitsAndReplaceOtherDigitsTest {
     public void consistent() {
         kfag.parse("3", false);
         output = kfag.generateMaskedRow(input, FunctionMode.CONSISTENT);
-        assertEquals(output, kfag.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
+        assertEquals(output, kfag.generateMaskedRow(input, FunctionMode.CONSISTENT)); // $NON-NLS-1$
     }
 
     @Test
     public void consistentNoSeed() {
         kfag.parse("3", false);
         output = kfag.generateMaskedRow(input, FunctionMode.CONSISTENT);
-        assertEquals(output, kfag.generateMaskedRow(input, FunctionMode.CONSISTENT)); //$NON-NLS-1$
+        assertEquals(output, kfag.generateMaskedRow(input, FunctionMode.CONSISTENT)); // $NON-NLS-1$
     }
 
     @Test
     public void bijectiveReplaceOnlyDigits() {
         kfag.parse("2", false);
-        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
-        String output = kfag.generateMaskedRow(input, FunctionMode.BIJECTIVE);
+        kfag.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
+        String output = kfag.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC);
         assertEquals(input.length(), output.length());
         assertEquals('b', output.charAt(2));
     }
@@ -67,7 +65,7 @@ public class KeepLastDigitsAndReplaceOtherDigitsTest {
     @Test
     public void bijective() {
         kfag.parse("1", false);
-        kfag.setSecret(FormatPreservingMethod.AES_CBC_PRF, "data");
+        kfag.setSecret(FunctionMode.BIJECTIVE_AES_CBC_PRF, "data");
         Set<String> outputSet = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
             StringBuilder sb = new StringBuilder();
@@ -77,31 +75,31 @@ public class KeepLastDigitsAndReplaceOtherDigitsTest {
                 sb.append(0);
             }
             String input = sb.append(i).toString();
-            outputSet.add(kfag.generateMaskedRow(input, FunctionMode.BIJECTIVE));
+            outputSet.add(kfag.generateMaskedRow(input, FunctionMode.BIJECTIVE_BASIC));
         }
-        assertEquals(1000, outputSet.size()); //$NON-NLS-1$
+        assertEquals(1000, outputSet.size()); // $NON-NLS-1$
     }
 
     @Test
     public void bijectiveReturnsNullIfOneDigitToReplace() {
         kfag.parse("2", false);
-        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
-        String output = kfag.generateMaskedRow("abc123", FunctionMode.BIJECTIVE);
+        kfag.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
+        String output = kfag.generateMaskedRow("abc123", FunctionMode.BIJECTIVE_BASIC);
         assertNull(output);
     }
 
     @Test
     public void bijectiveReturnsNullIfSmallerThanParam() {
         kfag.parse("2", false);
-        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
-        String output = kfag.generateMaskedRow("a", FunctionMode.BIJECTIVE);
+        kfag.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
+        String output = kfag.generateMaskedRow("a", FunctionMode.BIJECTIVE_BASIC);
         assertNull(output);
     }
 
     @Test
     public void randomReturnsInputIfSmallerThanParam() {
         kfag.parse("2", false);
-        kfag.setSecret(FormatPreservingMethod.SHA2_HMAC_PRF, "data");
+        kfag.setSecret(FunctionMode.BIJECTIVE_SHA2_HMAC_PRF, "data");
         String output = kfag.generateMaskedRow("a", FunctionMode.RANDOM);
         assertEquals("a", output);
     }
