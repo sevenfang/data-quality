@@ -1,0 +1,321 @@
+﻿Code;Num;Decimal;Currency;Locations using this currency;Notes;From;Until;Replaced by
+XUA;965;.;ADB Unit of Account;;;;;
+AFA;4;;Afghan afghani;Afghanistan;;1925;2003;AFN
+AFN;971;2;Afghan afghani;Afghanistan;;;;
+ALL;8;2;Albanian lek;Albania;;;;
+;;;Alderney pound ;;1:1 pegged to the pound sterling;;;
+DZD;12;2;Algerian dinar;Algeria;;;;
+ADF;...;2;Andorran franc;;;1960;01/01/1999;EUR
+ADP;20;0;Andorran peseta;;;1869;01/01/1999;EUR
+AOA;973;2;Angolan kwanza;Angola;;;;
+AOK;...;0;Angolan kwanza;Angola;;08/01/1977;24/09/1990;AON (AOA)
+AOR;982;0;Angolan kwanza readjustado;;;01/07/1995;30/11/1999;AOA
+AON;24;0;Angolan new kwanza;;;25/09/1990;30/06/1995;AOR (AOA)
+ARA;32;2;Argentine austral;;;15/06/1985;31/12/1991;ARS
+ARS;32;2;Argentine peso;Argentina;;;;
+ARP;32;2;Argentine peso argentino;;;06/06/1983;14/06/1985;ARA (ARS)
+ARL;...;2;Argentine peso ley;;;01/01/1970;05/05/1983;ARP (ARS)
+AMD;51;2;Armenian dram;Armenia;;;;
+AWG;533;2;Aruban florin;Aruba;;;;
+AUD;36;2;Australian dollar;Australia,  Christmas Island (CX),  Cocos (Keeling) Islands (CC),  Heard Island and McDonald Islands (HM),  Kiribati (KI),  Nauru (NR),  Norfolk Island (NF),  Tuvalu (TV);;;;
+ATS;40;2;Austrian schilling;;;1945;01/01/1999;EUR
+AZM;31;0;Azerbaijani manat;Azerbaijan;;15/08/1992;01/01/2006;AZN
+AZN;944;2;Azerbaijani manat;Azerbaijan;;;;
+BSD;44;2;Bahamian dollar;Bahamas;;;;
+BHD;48;3;Bahraini dinar;Bahrain;;;;
+BDT;50;2;Bangladeshi taka;Bangladesh;;;;
+BBD;52;2;Barbados dollar;Barbados;;;;
+BYB;112;2;Belarusian ruble;Belarus;;1992;31/12/1999;BYR (BYN)
+BYN;933;2;Belarusian ruble;Belarus;;;;
+BYR;974;0;Belarusian ruble;Belarus;;01/01/2000;30/06/2016;BYN
+BEF;56;2;Belgian franc;;;1832;01/01/1999;EUR
+BZD;84;2;Belize dollar;Belize;;;;
+BMD;60;2;Bermudian dollar;Bermuda;;;;
+BTN;64;2;Bhutanese ngultrum;Bhutan;;;;
+XBT;-;8;Bitcoin;;BTC conflicts with ISO 4217 because BT stands for Bhutan.;;;
+XBC;_;8;Bitcoin Cash;;XBC conflicts with European Unit of Account 9 (E.U.A.-9);;;
+BTU;_;8;Bitcoin Unlimited;;BTU conflicts with ISO 4217 because BT stands for Bhutan.;;;
+BOV;984;2;Bolivian Mvdol (funds code);Bolivia;;;;
+BOP;...;2;Bolivian peso;;;01/01/1963;01/01/1987;BOB
+BOB;68;2;Boliviano;Bolivia;;;;
+BAM;977;2;Bosnia and Herzegovina convertible mark;Bosnia and Herzegovina;;;;
+BAD;70;2;Bosnia and Herzegovina dinar;;;01/07/1992;04/02/1998;BAM
+BWP;72;2;Botswana pula;Botswana;;;;
+BRC;76;2;Brazilian cruzado A/89;;;28/02/1986;15/01/1989;BRN (BRL)
+BRN;76;2;Brazilian cruzado novo A/90;;;16/01/1989;15/03/1990;BRE (BRL)
+BRB;...;2;Brazilian cruzeiro A/86;;;1970;28/02/1986;BRC (BRL)
+BRE;76;2;Brazilian cruzeiro A/93;;;15/03/1990;01/08/1993;BRR (BRL)
+BRR;987;2;Brazilian cruzeiro real A/94;;;01/08/1993;30/06/1994;BRL
+BRL;986;2;Brazilian real;Brazil;;;;
+BND;96;2;Brunei dollar;Brunei;;;;
+BGN;975;2;Bulgarian lev;Bulgaria;;;;
+BGL;100;2;Bulgarian lev A/99;;;1962;31/08/1999;BGN
+BIF;108;0;Burundian franc;Burundi;;;;
+KHR;116;2;Cambodian riel;Cambodia;;;;
+CAD;124;2;Canadian dollar;Canada;;;;
+CVE;132;2;Cape Verde escudo;Cabo Verde;;;;
+KYD;136;2;Cayman Islands dollar;Cayman Islands;;;;
+XOF;952;0;CFA franc BCEAO;;;;;
+XAF;950;0;CFA franc BEAC;Cameroon (CM),  Central African Republic (CF),  Republic of the Congo (CG),  Chad (TD),  Equatorial Guinea (GQ),  Gabon (GA);;;;
+XPF;953;0;CFP franc (franc Pacifique);;;;;
+CLP;152;0;Chilean peso;Chile;;;;
+CNH;-;2;Chinese yuan (when traded offshore);Hong Kong;;;;
+XTS;963;.;Code reserved for testing;;;;;
+COP;170;2;Colombian peso;Colombia;;;;
+KMF;174;0;Comoro franc;Comoros;;;;
+CDF;976;2;Congolese franc;Democratic Republic of the Congo;;;;
+;;;Cook Islands dollar ;;1:1 pegged to the New Zealand dollar;;;
+CRC;188;2;Costa Rican colon;Costa Rica;;;;
+HRD;191;;Croatian dinar;;;23/12/1991;30/05/1994;HRK
+HRK;191;2;Croatian kuna;Croatia;;;;
+CUC;931;2;Cuban convertible peso;Cuba;;;;
+CUP;192;2;Cuban peso;Cuba;;;;
+CYP;196;2;Cypriot pound;;;1879;01/01/2006;EUR
+CZK;203;2;Czech koruna;Czechia;;;;
+CSK;200;;Czechoslovak koruna;;;10/04/1919;08/02/1993;CZK/SKK (CZK/EUR)
+DKK;208;2;Danish krone;Denmark,  Faroe Islands (FO),  Greenland (GL);;;;
+DASH;_;8;Dash;;;;;
+DJF;262;0;Djiboutian franc;Djibouti;;;;
+DOP;214;2;Dominican peso;Dominican Republic;;;;
+NLG;528;2;Dutch guilder;;;1810s;01/01/1999;EUR
+XCD;951;2;East Caribbean dollar;;;;;
+DDM;278;;East German mark;;;21/06/1948;01/07/1990;DEM (EUR)
+ECV;983;.;Ecuador Unidad de Valor Constante(funds code);;;1993;29/02/2000;—
+ECS;218;0;Ecuadorian sucre;;;1884;29/02/2000;USD
+EGP;818;2;Egyptian pound;Egypt;;;;
+GQE;...;;Equatorial Guinean ekwele;;;1975;31/12/1985;XAF
+ERN;232;2;Eritrean nakfa;Eritrea;;;;
+EEK;233;2;Estonian kroon;;;1992;01/01/2010;EUR
+ETH;_;18;Ether;;ETH conflicts with ISO 4217 because ET stands for Ethiopia.;;;
+ETB;230;2;Ethiopian birr;Ethiopia;;;;
+EUR;978;2;Euro;Åland Islands (AX),  European Union (EU),  Andorra (AD),  Austria (AT),  Belgium (BE),  Cyprus (CY),  Estonia (EE),  Finland (FI),  France (FR),  French Southern and Antarctic Lands (TF),  Germany (DE),  Greece (GR),  Guadeloupe (GP),  Ireland (IE),  Italy (IT),  Latvia (LV),  Lithuania (LT),  Luxembourg (LU),  Malta (MT),  French Guiana (GF),  Martinique (MQ),  Mayotte(YT),  Monaco (MC),  Montenegro (ME),  Netherlands (NL),  Portugal (PT),  Réunion (RE),  Saint Barthélemy (BL),  Saint Martin (MF),  Saint Pierre and Miquelon(PM),  San Marino (SM),  Slovakia (SK),  Slovenia (SI),  Spain (ES),  Holy See(VA);;;;
+XBA;955;.;European Composite Unit (EURCO) (bond market unit);;;;;
+XEU;954;.;European Currency Unit;;;13/03/1979;31/12/1998;EUR
+XBB;956;.;European Monetary Unit (E.M.U.-6) (bond market unit);;;;;
+XBD;958;.;European Unit of Account 17 (E.U.A.-17) (bond market unit);;;;;
+XBC;957;.;European Unit of Account 9 (E.U.A.-9) (bond market unit);;;;;
+FKP;238;2;Falkland Islands pound;Falkland Islands (pegged to GBP 1:1);;;;
+;;;Faroese króna ;;1:1 pegged to the Danish krone;;;
+FJD;242;2;Fiji dollar;Fiji;;;;
+FIM;246;2;Finnish markka;;;1860;01/01/1999;EUR
+FRF;250;2;French franc;;;1960;01/01/1999;EUR
+GMD;270;2;Gambian dalasi;Gambia;;;;
+GEL;981;2;Georgian lari;Georgia;;;;
+DEM;276;2;German mark;;;1948;01/01/1999;EUR
+GHC;288;0;Ghanaian cedi;Ghana;;1967;01/07/2007;GHS
+GHS;936;2;Ghanaian cedi;Ghana;;;;
+GIP;292;2;Gibraltar pound;Gibraltar (pegged to GBP 1:1);;;;
+XAU;959;.;Gold (one troy ounce);;;;;
+XFO;...;;Gold franc (special settlement currency);;;1803;2003;XDR
+GRD;300;2;Greek drachma;;;1954;01/01/2001;EUR
+GTQ;320;2;Guatemalan quetzal;Guatemala;;;;
+GGP;–;2;Guernsey pound;Guernsey;;;;
+;;;Guernsey pound ;;1:1 pegged to the pound sterling;;;
+GWP;624;;Guinea-Bissau peso;;;1975;31/05/1997;XOF
+GNF;324;0;Guinean franc;Guinea;;;;
+GNE;...;;Guinean syli;;;1971;31/12/1985;GNF
+GYD;328;2;Guyanese dollar;Guyana;;;;
+HTG;332;2;Haitian gourde;Haiti;;;;
+HNL;340;2;Honduran lempira;Honduras;;;;
+HKD;344;2;Hong Kong dollar;Hong Kong;;;;
+HUF;348;2;Hungarian forint;Hungary;;;;
+ISK;352;0;Icelandic króna;Iceland;;;;
+ISJ;...;2;Icelandic old króna;;;1922;30/06/1981;ISK
+INR;356;2;Indian rupee;India,  Bhutan;;;;
+IDR;360;2;Indonesian rupiah;Indonesia;;;;
+IRR;364;2;Iranian rial;Iran;;;;
+IQD;368;3;Iraqi dinar;Iraq;;;;
+IEP;372;2;Irish pound;;;1938;01/01/1999;EUR
+;;;Isle of Man pound ;;1:1 pegged to the pound sterling;;;
+IMP;–;2;Isle of Man pound also Manx pound;Isle of Man;;;;
+ILP;...;3, 2;Israeli lira;;;1948;20/02/1980;ILR (ILS)
+NIS;–;2;Israeli new shekel;Israel;;;;
+ILS;376;2;Israeli new shekel;Israel,  Palestinian Authority;;;;
+ILR;...;2;Israeli shekel;;;24/02/1980;31/12/1985;ILS
+ITL;380;0;Italian lira;;;1861;01/01/1999;EUR
+JMD;388;2;Jamaican dollar;Jamaica;;;;
+JPY;392;0;Japanese yen;Japan;;;;
+JEP;–;2;Jersey pound;Jersey;;;;
+;;;Jersey pound ;;1:1 pegged to the pound sterling;;;
+JOD;400;3;Jordanian dinar;Jordan;;;;
+KZT;398;2;Kazakhstani tenge;Kazakhstan;;;;
+KES;404;2;Kenyan shilling;Kenya;;;;
+KID;–;2;Kiribati dollar;Kiribati;;;;
+;;;Kiribati dollar ;;1:1 pegged to the Australian dollar;;;
+KWD;414;3;Kuwaiti dinar;Kuwait;;;;
+KGS;417;2;Kyrgyzstani som;Kyrgyzstan;;;;
+LAK;418;2;Lao kip;Laos;;;;
+LAJ;...;;Lao kip;Laos;;1965;31/12/1979;LAK
+LVL;428;2;Latvian lats;;;1992;01/01/2013;EUR
+LBP;422;2;Lebanese pound;Lebanon;;;;
+LSL;426;2;Lesotho loti;Lesotho;;;;
+LRD;430;2;Liberian dollar;Liberia;;;;
+LYD;434;3;Libyan dinar;Libya;;;;
+LTL;440;2;Lithuanian litas;;;1993;01/01/2015;EUR
+LUF;442;2;Luxembourg franc;;;1944;01/01/1999;EUR
+MOP;446;2;Macanese pataca;Macau;;;;
+MKD;807;2;Macedonian denar;North Macedonia;;;;
+MGA;969;2;Malagasy ariary;Madagascar;;;;
+MGF;450;2;Malagasy franc;;;01/07/1963;01/01/2005;MGA
+MWK;454;2;Malawian kwacha;Malawi;;;;
+MYR;458;2;Malaysian ringgit;Malaysia;;;;
+MVR;462;2;Maldivian rufiyaa;Maldives;;;;
+MVQ;...;;Maldivian rupee;;;?;31/12/1981;MVR
+MLF;466;;Mali franc;;;?;01/01/1984;XOF
+MTL;470;2;Maltese lira;;;1972;01/01/2006;EUR
+;;;Maltese scudo ;;1:0.24 pegged to the euro;;;
+MRO;478;;Mauritanian Ouguiya;Mauritania;;29/06/1973;01/01/2018;MRU
+MRU;929;2;Mauritanian ouguiya;Mauritania;;;;
+MUR;480;2;Mauritian rupee;Mauritius;;;;
+MXN;484;2;Mexican peso;Mexico;;;;
+MXP;...;;Mexican peso;;;?;31/03/1993;MXN
+MXV;979;2;Mexican Unidad de Inversion (UDI) (funds code);Mexico;;;;
+MDL;498;2;Moldovan leu;Moldova;;;;
+MCF;...;2;Monegasque franc;;;1960;31/03/1995;FRF(1995-04-01 - 1998-12-31), EUR (1999-01-01 - Present)
+XMR;_;12;Monero;;;;;
+MNT;496;2;Mongolian tögrög;Mongolia;;;;
+MAD;504;2;Moroccan dirham;Morocco,  Western Sahara;;;;
+MAF;...;–;Moroccan franc;;;1921;1960–1976;MAD
+MZM;508;0;Mozambican metical;Mozambique;;1980;30/06/2006;MZN
+MZN;943;2;Mozambican metical;Mozambique;;;;
+MMK;104;2;Myanmar kyat;Myanmar;;;;
+NAD;516;2;Namibian dollar;Namibia;;;;
+NPR;524;2;Nepalese rupee;Nepal;;;;
+ANG;532;2;Netherlands Antillean guilder;Curaçao (CW),  Sint Maarten (SX);;;;
+TWD;901;2;New Taiwan dollar;Taiwan;;;;
+NTD;–;2;New Taiwan dollar;Taiwan;;;;
+NZD;554;2;New Zealand dollar;"New Zealand,  Cook Islands (CK),  Niue (NU),  Pitcairn Islands (PN; see also Pitcairn Islands dollar),  Tokelau (TK)";;;;
+NIO;558;2;Nicaraguan córdoba;Nicaragua;;;;
+NIC;...;2;Nicaraguan córdoba;Nicaragua;;1988;31/10/1990;NIO
+NGN;566;2;Nigerian naira;Nigeria;;;;
+XXX;999;.;No currency;;;;;
+KPW;408;2;North Korean won;North Korea;;;;
+NOK;578;2;Norwegian krone;Norway,  Svalbard and  Jan Mayen (SJ),  Bouvet Island (BV);;;;
+MKN;...;;Old Macedonian denar A/93;;;1991;30/06/1993;MKD
+OMR;512;3;Omani rial;Oman;;;;
+PKR;586;2;Pakistani rupee;Pakistan;;;;
+XPD;964;.;Palladium (one troy ounce);;;;;
+PAB;590;2;Panamanian balboa;Panama;;;;
+PGK;598;2;Papua New Guinean kina;Papua New Guinea;;;;
+PYG;600;0;Paraguayan guaraní;Paraguay;;;;
+PEI;604;;Peruvian inti;;;01/02/1985;01/10/1991;PEN
+PEH;...;;Peruvian old sol;;;1863;01/02/1985;PEI (PEN)
+PEN;604;2;Peruvian sol;Peru;;;;
+PHP;608;2;Philippine peso;Philippines;;;;
+XPT;962;.;Platinum (one troy ounce);;;;;
+PLN;985;2;Polish złoty;Poland;;;;
+PLZ;616;;Polish zloty A/94;;;30/10/1950;31/12/1994;PLN
+PTE;620;0;Portuguese escudo;;;22/05/1911;01/01/1999;EUR
+TPE;626;;Portuguese Timorese escudo;;;1959;1976;USD
+GBP;826;2;Pound sterling;United Kingdom,  British Indian Ocean Territory (IO) (also uses USD), the  Isle of Man (IM, see Manx pound),  Jersey (JE, see Jersey pound), and  Guernsey (GG, see Guernsey pound);;;;
+QAR;634;2;Qatari riyal;Qatar;;;;
+CNY;156;2;Renminbi (Chinese) yuan;China;;;;
+RMB;-;2;Renminbi (Chinese) yuan;Mainland China ;from its official name RenMinBi;;;
+ZWC;...;2;Rhodesian dollar;;;17/02/1970;1980;ZWD (USD/Zimbabwean bonds)
+RON;946;2;Romanian leu;Romania;;;;
+ROL;642;;Romanian leu A/05;;;28/01/1952;2005;RON
+RUB;643;2;Russian ruble;Russia;;;;
+RUR;810;2;Russian ruble A/97;;;1992;31/12/1997;RUB
+RWF;646;0;Rwandan franc;Rwanda;;;;
+;;;Sahrawi peseta of the Sahrawi Arab Democratic Republic in Western Sahara;;"sometimes given the code ""EHP"" but this has not been assigned by the ISO";;;
+SHP;654;2;Saint Helena pound;Saint Helena (SH-SH),  Ascension Island (SH-AC),  Tristan da Cunha;;;;
+SVC;222;2;Salvadoran colón;El Salvador;;;;
+WST;882;2;Samoan tala;Samoa;;;;
+SML;...;0;San Marinese lira;;;1864;31/08/1992;ITL (1992-09-01 - 1998-12-31), EUR (1999-01-01 - Present)
+STD;678;;São Tomé and Príncipe Dobra;São Tomé and Príncipe;;1977;01/04/2018;STN
+STN;930;2;São Tomé and Príncipe dobra;São Tomé and Príncipe;;;;
+SAR;682;2;Saudi riyal;Saudi Arabia;;;;
+CSD;891;2;Serbian dinar;Serbia;;03/07/2003;19/06/2006;RSD
+RSD;941;2;Serbian dinar;Serbia;;;;
+SCR;690;2;Seychelles rupee;Seychelles;;;;
+SLL;694;2;Sierra Leonean leone;Sierra Leone;;;;
+XAG;961;.;Silver (one troy ounce);;;;;
+SGD;702;2;Singapore dollar;Singapore;;;;
+SKK;703;2;Slovak koruna;;;08/02/1993;01/01/2007;EUR
+SIT;705;2;Slovenian tolar;;;08/10/1991;01/01/2005;EUR
+SBD;90;2;Solomon Islands dollar;Solomon Islands;;;;
+SOS;706;2;Somali shilling;Somalia;;;;
+SLS;–;2;Somaliland shilling;Somaliland;;;;
+;;;Somaliland shilling ;;state of issue is viewed as de jure part of Somalia, exchange rate not fixed;;;
+ZAL;991;.;South African financial rand (funds code);;;01/09/1985;13/03/1995;—
+ZAR;710;2;South African rand;;;;;
+KRW;410;0;South Korean won;South Korea;;;;
+SSP;728;2;South Sudanese pound;South Sudan;;;;
+YDD;720;;South Yemeni dinar;;;?;11/06/1996;YER
+SUR;...;;Soviet Union ruble;;;1961;26/12/1991;RUR (RUB/AMD/AZN/BYN/EUR/GEL/KZT/KGS/MDL/TJS/TMT/UAH/UZS)
+ESP;724;0;Spanish peseta;;;1869;01/01/1999;EUR
+ESA;996;;Spanish peseta (account A);;;?;1978 to 1981;ESP (EUR)
+ESB;995;;Spanish peseta (account B);;;?;1994-12;ESP (EUR)
+XDR;960;.;Special drawing rights;;;;;
+LKR;144;2;Sri Lankan rupee;Sri Lanka;;;;
+XLM;_;8;Stellar Lumen;;;;;
+XSU;994;.;SUCRE;;;;;
+SDD;736;;Sudanese dinar;;;08/06/1992;10/01/2007;SDG
+SDP;...;;Sudanese old pound;;;1956;08/06/1992;SDD (SDG)
+SDG;938;2;Sudanese pound;Sudan;;;;
+SRG;740;;Suriname guilder;;;?;2004;SRD
+SRD;968;2;Surinamese dollar;Suriname;;;;
+SZL;748;2;Swazi lilangeni;Eswatini;;;;
+SEK;752;2;Swedish krona/kronor;Sweden;;;;
+CHF;756;2;Swiss franc;Switzerland,  Liechtenstein (LI);;;;
+SYP;760;2;Syrian pound;Syria;;;;
+TJR;762;;Tajikistani ruble;;;10/05/1995;30/10/2000;TJS
+TJS;972;2;Tajikistani somoni;Tajikistan;;;;
+TZS;834;2;Tanzanian shilling;Tanzania;;;;
+THB;764;2;Thai baht;Thailand;;;;
+TOP;776;2;Tongan paʻanga;Tonga;;;;
+PRB;–;2;Transnistrian ruble;Transnistria ;The code conflicts with ISO-4217 because PR stands for Puerto Rico. X should have been used for the first letter.;;;
+;;;Transnistrian ruble ;;state of issue is viewed as de jure part of Moldova;;;
+TTD;780;2;Trinidad and Tobago dollar;Trinidad and Tobago;;;;
+TND;788;3;Tunisian dinar;Tunisia;;;;
+TRY;949;2;Turkish lira;Turkey;;;;
+TRL;792;0;Turkish lira A/05;;;1843;31/12/2005;TRY
+TMT;934;2;Turkmenistan manat;Turkmenistan;;;;
+TMM;795;0;Turkmenistani manat;;;01/11/1993;31/12/2008;TMT
+TVD;–;2;Tuvalu dollar;Tuvalu;;;;
+;;;Tuvaluan dollar ;;1:1 pegged to the Australian dollar;;;
+UGX;800;0;Ugandan shilling;Uganda;;;;
+UGS;...;;Ugandan shilling A/87;;;?;31/12/1987;UGX
+XFU;...;.;UIC franc (special settlement currency);;;?;07/11/2013;EUR
+UAH;980;2;Ukrainian hryvnia;Ukraine;;;;
+UAK;804;;Ukrainian karbovanets;;;01/10/1992;01/09/1996;UAH
+CLF;990;4;Unidad de Fomento (funds code);Chile;;;;
+COU;970;2;Unidad de Valor Real (UVR) (funds code);Colombia;;;;
+UYW;927;4;Unidad previsional;Uruguay;;;;
+AED;784;2;United Arab Emirates dirham;United Arab Emirates;;;;
+USD;840;2;United States dollar;United States,  American Samoa (AS),  Barbados (BB) (as well as Barbados Dollar),  Bermuda (BM) (as well as Bermudian Dollar),  British Indian Ocean Territory (IO) (also uses GBP),  British Virgin Islands (VG),  Caribbean Netherlands (BQ - Bonaire, Sint Eustatius and Saba),  Ecuador (EC),  El Salvador (SV),  Guam (GU),  Haiti (HT),  Marshall Islands (MH),  Federated States of Micronesia (FM),  Northern Mariana Islands (MP),  Palau (PW),  Panama (PA) (as well as Panamanian Balboa),  Puerto Rico (PR),  Timor-Leste (TL),  Turks and Caicos Islands (TC),  U.S. Virgin Islands(VI),  United States Minor Outlying Islands (UM);;;;
+USN;997;2;United States dollar (next day) (funds code);United States;;;;
+USS;998;2;United States dollar (same day) (funds code);;;?;28/03/2014;—
+UYN;...;;Uruguay new peso;;;01/07/1975;01/03/1993;UYU
+UYP;...;;Uruguay peso;;;1896;01/07/1975;UYN
+UYI;940;0;Uruguay Peso en Unidades Indexadas (URUIURUI) (funds code);Uruguay;;;;
+UYU;858;2;Uruguayan peso;Uruguay;;;;
+UZS;860;2;Uzbekistan som;Uzbekistan;;;;
+VUV;548;0;Vanuatu vatu;Vanuatu;;;;
+VAL;...;0;Vatican lira;;;1929;31/12/1994;ITL (1995-01-01 - 1998-12-31), EUR (1999-01-01 - Present)
+VEB;862;2;Venezuelan bolívar;;;?;01/01/2008;VEF (VES)
+VEF;937;2;Venezuelan bolívar fuerte;;;?;20/08/2018;VES
+VES;928;2;Venezuelan bolívar soberano;Venezuela;;;;
+VTC;_;8;Vertcoin;;;;;
+VND;704;0;Vietnamese đồng;Vietnam;;;;
+CHE;947;2;WIR Euro (complementary currency);Switzerland;;;;
+CHW;948;2;WIR Franc (complementary currency);Switzerland;;;;
+XRP;_;6;XRP;;;;;
+YER;886;2;Yemeni rial;;;;;
+YUD;...;2;Yugoslav dinar A/1989;;;01/01/1966;31/12/1989;YUN (MKD/RSD/EUR/HRK/BAM)
+YUN;890;2;Yugoslav dinar A/1992;;;01/01/1990;30/06/1992;YUR (MKD/RSD/EUR/HRK/BAM)
+YUR;...;2;Yugoslav dinar A/1993-09;;;01/07/1992;30/09/1993;YUO (MKD/RSD/EUR/HRK/BAM)
+YUO;...;2;Yugoslav dinar A/1993-12;;;01/10/1993;31/12/1993;YUG (MKD/RSD/EUR/HRK/BAM)
+YUG;...;2;Yugoslav dinar A/1994;;;01/01/1994;23/01/1994;YUM (MKD/RSD/EUR/HRK/BAM)
+YUM;891;2;Yugoslav dinar A/2003;;;24/01/1994;02/07/2003;CSD (MKD/RSD/EUR/HRK/BAM)
+ZRN;180;2;Zairean new zaire;;;1993;1997;CDF
+ZRZ;180;3;Zairean zaire;;;1967;1993;ZRN (CDF)
+ZMK;894;2;Zambian kwacha;;;16/01/1968;01/01/2013;ZMW
+ZMW;967;2;Zambian kwacha;;;;;
+ZEC;_;8;Zcash;;;;;
+ZWB;-;2;Zimbabwean bonds;Zimbabwe;;;;
+;;;Zimbabwean bonds ;;1:1 pegged to the US dollar;;;
+ZWD;716;2;Zimbabwean dollar A/06;;;18/04/1980;31/07/2006;ZWN (USD/Zimbabwean bonds)
+ZWN;942;2;Zimbabwean dollar A/08;;;01/08/2006;31/07/2008;ZWR (USD/Zimbabwean bonds)
+ZWR;935;2;Zimbabwean dollar A/09;;;01/08/2008;02/02/2009;ZWL (USD/Zimbabwean bonds)
+ZWL;932;2;Zimbabwean dollar A/10;;;03/02/2009;12/04/2009;USD/Zimbabwean bonds
