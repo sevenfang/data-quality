@@ -35,14 +35,14 @@ public class MaskEmailLocalPartRandomlyTest {
     public void testOneGoodInput() {
         maskEmailLocalPart.parse("test.com", false);
         output = maskEmailLocalPart.generateMaskedRow(mail);
-        Assert.assertEquals(output, "test.com@talend.com");
+        assertEquals(output, "test.com@talend.com");
     }
 
     @Test
     public void test1OneGoodInputWithSpace() {
         maskEmailLocalPart.parse("", false);
         output = maskEmailLocalPart.generateMaskedRow(mail);
-        Assert.assertEquals(output, "@talend.com");
+        assertEquals(output, "@talend.com");
     }
 
     @Test
@@ -98,6 +98,6 @@ public class MaskEmailLocalPartRandomlyTest {
     public void testWrongFormat() {
         maskEmailLocalPart.parse("replace", true);
         output = maskEmailLocalPart.generateMaskedRow("hehe");
-        Assert.assertEquals("replace", output);
+        assertEquals("replace", output);
     }
 }

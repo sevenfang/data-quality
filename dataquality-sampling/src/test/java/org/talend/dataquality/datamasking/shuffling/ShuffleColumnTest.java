@@ -119,7 +119,7 @@ public class ShuffleColumnTest {
         }
 
         service.setHasFinished(true);
-        Assert.assertEquals(size / partition, result.size());
+        assertEquals(size / partition, result.size());
         for (int i = 0; i < result.size(); i++) {
             List<List<Object>> rows = result.poll();
             for (int position = 0; position < rows.size(); position++) {
@@ -157,7 +157,7 @@ public class ShuffleColumnTest {
             service.addOneRow(row);
         }
         service.setHasFinished(true);
-        Assert.assertEquals(size / partition, result.size() - 1);
+        assertEquals(size / partition, result.size() - 1);
         for (int i = 0; i < size / partition; i++) {
             List<List<Object>> rows = result.poll();
             for (int position = 0; position < rows.size(); position++) {
@@ -200,7 +200,7 @@ public class ShuffleColumnTest {
         service.setHasFinished(true);
         System.out.println("1000 line generation time " + (time2 - time1));
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
         List<Object> idColumnSL = new ArrayList<Object>();
         List<Object> firstNameColumnSL = new ArrayList<Object>();
         List<Object> emailSL = new ArrayList<Object>();
@@ -296,7 +296,7 @@ public class ShuffleColumnTest {
         Thread.sleep(100);
         System.out.println("5000 line generation time " + (time2 - time1));
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         List<Object> idColumnSL = new ArrayList<Object>();
         List<Object> firstNameColumnSL = new ArrayList<Object>();
@@ -386,7 +386,7 @@ public class ShuffleColumnTest {
         service.setHasFinished(true);
         System.out.println("50000 line generation time " + (time2 - time1));
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
         System.out.println("result size " + result.size());
         long time3 = System.currentTimeMillis();
         List<Object> idColumnSL = new ArrayList<Object>();

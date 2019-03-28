@@ -140,7 +140,7 @@ public class FieldModifierTest {
         FieldModifier fieldModifier = new FieldModifier();
         Date date = new Date();
         Date generateDuplicate = fieldModifier.generateDuplicate(date, null, DEFAULT_MODIF_COUNT, EMPTY_STRING);
-        Assert.assertEquals(generateDuplicate, date);
+        assertEquals(generateDuplicate, date);
     }
 
 }

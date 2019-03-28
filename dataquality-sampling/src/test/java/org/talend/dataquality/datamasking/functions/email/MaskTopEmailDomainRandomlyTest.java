@@ -55,14 +55,14 @@ public class MaskTopEmailDomainRandomlyTest {
     public void testOneGoodStandard() {
         maskTopEmailDomainRandomly.parse("gmail,test", false);
         output = maskTopEmailDomainRandomly.generateMaskedRow(mailStandard);
-        Assert.assertEquals("hehe@test.com", output);
+        assertEquals("hehe@test.com", output);
     }
 
     @Test
     public void testOneGoodStandardWithSpace() {
         maskTopEmailDomainRandomly.parse("", false);
         output = maskTopEmailDomainRandomly.generateMaskedRow(mailStandard);
-        Assert.assertEquals("hehe@.com", output);
+        assertEquals("hehe@.com", output);
     }
 
     @Test
@@ -145,6 +145,6 @@ public class MaskTopEmailDomainRandomlyTest {
     public void testWrongFormat() {
         maskTopEmailDomainRandomly.parse("replace", false);
         output = maskTopEmailDomainRandomly.generateMaskedRow("hehe");
-        Assert.assertEquals("replace", output);
+        assertEquals("replace", output);
     }
 }

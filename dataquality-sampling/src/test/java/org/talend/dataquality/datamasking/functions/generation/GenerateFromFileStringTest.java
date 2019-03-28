@@ -64,7 +64,7 @@ public class GenerateFromFileStringTest {
 
         GenerateFromFileString generateFromFileString = new GenerateFromFileString();
         generateFromFileString.parse("abc1", false);// invalid path //$NON-NLS-1$
-        Assert.assertEquals("Parameters length should be 1", 1, generateFromFileString.getParsedParameters().length); //$NON-NLS-1$
+        assertEquals("Parameters length should be 1", 1, generateFromFileString.getParsedParameters().length); //$NON-NLS-1$
         Assert.assertTrue("Parameters should not be empty", generateFromFileString.getParsedParameters()[0].length() > 0); //$NON-NLS-1$
         Assert.assertTrue("genericTokens should not be empty", generateFromFileString.genericTokens.get(0).length() > 0); //$NON-NLS-1$
 
@@ -75,10 +75,10 @@ public class GenerateFromFileStringTest {
         GenerateFromFileString generateFromFileString = new GenerateFromFileString();
         generateFromFileString.parse("", false); //$NON-NLS-1$
         String parameterResult = generateFromFileString.getParsedParameters()[0];
-        Assert.assertEquals("Parameters length should be 1", 1, generateFromFileString.getParsedParameters().length); //$NON-NLS-1$
+        assertEquals("Parameters length should be 1", 1, generateFromFileString.getParsedParameters().length); //$NON-NLS-1$
         Assert.assertTrue("Parameters should not be empty", //$NON-NLS-1$
                 parameterResult.length() > 0);
-        Assert.assertEquals("genericTokens should not be empty", "Configuration issue (check your parameters)", //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("genericTokens should not be empty", "Configuration issue (check your parameters)", //$NON-NLS-1$ //$NON-NLS-2$
                 generateFromFileString.genericTokens.get(0));
     }
 

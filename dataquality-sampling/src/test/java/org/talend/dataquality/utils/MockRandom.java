@@ -1,9 +1,10 @@
 package org.talend.dataquality.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
+
+import org.junit.Test;
 
 /**
  * Mock for random tests
@@ -26,7 +27,7 @@ public class MockRandom extends Random {
     public void nextIntTest() {
         Random random = new MockRandom();
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(i, random.nextInt());
+            assertEquals(i, random.nextInt());
         }
     }
 
@@ -34,10 +35,10 @@ public class MockRandom extends Random {
     public void nextIntBoundTest() {
         Random random = new MockRandom();
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(i, random.nextInt(10));
+            assertEquals(i, random.nextInt(10));
         }
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(i, random.nextInt(10));
+            assertEquals(i, random.nextInt(10));
         }
     }
 

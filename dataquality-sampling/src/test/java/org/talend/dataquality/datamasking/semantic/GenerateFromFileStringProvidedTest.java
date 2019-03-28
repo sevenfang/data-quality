@@ -12,10 +12,11 @@
 // ============================================================================
 package org.talend.dataquality.datamasking.semantic;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.URISyntaxException;
 import java.util.Random;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.talend.dataquality.duplicating.AllDataqualitySamplingTests;
 
@@ -35,38 +36,38 @@ public class GenerateFromFileStringProvidedTest {
         // this.getClass().getResource("data/numbers.txt").toURI().getPath()
         gfls.parse(this.getClass().getResource("commune.txt").toURI().getPath(), true);
         gfls.setRandom(new Random(AllDataqualitySamplingTests.RANDOM_SEED));
-        Assert.assertEquals("Dieppe", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Savigny-sur-Orge", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Roanne", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("  \t", gfls.generateMaskedRow("  \t")); // SPACE_SPACE_TAB //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Dieppe", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Savigny-sur-Orge", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Roanne", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("  \t", gfls.generateMaskedRow("  \t")); // SPACE_SPACE_TAB //$NON-NLS-1$ //$NON-NLS-2$
 
         gfls = new GenerateFromFileStringProvided();
         gfls.parse(this.getClass().getResource("company.txt").toURI().getPath(), true);
         gfls.setRandom(new Random(AllDataqualitySamplingTests.RANDOM_SEED));
-        Assert.assertEquals("Gilead Sciences", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Fresenius", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("McDonald's", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Gilead Sciences", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Fresenius", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("McDonald's", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
 
         gfls = new GenerateFromFileStringProvided();
         gfls.parse(this.getClass().getResource("firstName.txt").toURI().getPath(), true);
         gfls.setRandom(new Random(AllDataqualitySamplingTests.RANDOM_SEED));
-        Assert.assertEquals("Josiah", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Mason", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Cooper", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Josiah", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Mason", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Cooper", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
 
         gfls = new GenerateFromFileStringProvided();
         gfls.parse(this.getClass().getResource("lastName.txt").toURI().getPath(), true);
         gfls.setRandom(new Random(AllDataqualitySamplingTests.RANDOM_SEED));
-        Assert.assertEquals("Robbins", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Lambert", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("Pierce", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Robbins", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Lambert", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Pierce", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
 
         gfls = new GenerateFromFileStringProvided();
         gfls.parse(this.getClass().getResource("organization.txt").toURI().getPath(), true);
         gfls.setRandom(new Random(AllDataqualitySamplingTests.RANDOM_SEED));
-        Assert.assertEquals("Environmental Defense", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("United Nations Children's Fund (UNICEF)", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertEquals("JFK Center for Performing Arts", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Environmental Defense", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("United Nations Children's Fund (UNICEF)", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("JFK Center for Performing Arts", gfls.generateMaskedRow("A")); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
 }

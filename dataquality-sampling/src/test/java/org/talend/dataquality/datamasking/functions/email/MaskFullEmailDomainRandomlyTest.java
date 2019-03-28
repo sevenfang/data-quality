@@ -55,14 +55,14 @@ public class MaskFullEmailDomainRandomlyTest {
     public void testOneGoodInput() {
         maskEmailDomainName.parse("test.com", false);
         output = maskEmailDomainName.generateMaskedRow(mail);
-        Assert.assertEquals(output, "jugonzalez@test.com");
+        assertEquals(output, "jugonzalez@test.com");
     }
 
     @Test
     public void test1OneGoodInputWithSpace() {
         maskEmailDomainName.parse("", false);
         output = maskEmailDomainName.generateMaskedRow(mail);
-        Assert.assertEquals(output, "jugonzalez@");
+        assertEquals(output, "jugonzalez@");
     }
 
     @Test
@@ -118,6 +118,6 @@ public class MaskFullEmailDomainRandomlyTest {
     public void testWrongFormat() {
         maskEmailDomainName.parse("replace", true);
         output = maskEmailDomainName.generateMaskedRow("hehe");
-        Assert.assertEquals("replace", output);
+        assertEquals("replace", output);
     }
 }

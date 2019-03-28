@@ -26,21 +26,21 @@ public class MaskEmailLocalPartByXTest {
     public void test1Good() {
         maskEmailLocalPartByX.parse("", false);
         output = maskEmailLocalPartByX.generateMaskedRow(mail);
-        Assert.assertEquals("XXXXXXXXX@uestc.edu.cn", output);
+        assertEquals("XXXXXXXXX@uestc.edu.cn", output);
     }
 
     @Test
     public void testNullParameter() {
         maskEmailLocalPartByX.parse(null, false);
         output = maskEmailLocalPartByX.generateMaskedRow(mail);
-        Assert.assertEquals("XXXXXXXXX@uestc.edu.cn", output);
+        assertEquals("XXXXXXXXX@uestc.edu.cn", output);
     }
 
     @Test
     public void testSpecialEmail() {
         maskEmailLocalPartByX.parse("", true);
         output = maskEmailLocalPartByX.generateMaskedRow(spemail);
-        Assert.assertEquals("XXXX@telecom-bretagne.eu", output);
+        assertEquals("XXXX@telecom-bretagne.eu", output);
 
     }
 
@@ -48,21 +48,21 @@ public class MaskEmailLocalPartByXTest {
     public void test2WithInput() {
         maskEmailLocalPartByX.parse("hehe", false);
         output = maskEmailLocalPartByX.generateMaskedRow(mail);
-        Assert.assertEquals("XXXXXXXXX@uestc.edu.cn", output);
+        assertEquals("XXXXXXXXX@uestc.edu.cn", output);
     }
 
     @Test
     public void test2WithOneCharacter() {
         maskEmailLocalPartByX.parse("A", false);
         output = maskEmailLocalPartByX.generateMaskedRow(mail);
-        Assert.assertEquals("AAAAAAAAA@uestc.edu.cn", output);
+        assertEquals("AAAAAAAAA@uestc.edu.cn", output);
     }
 
     @Test
     public void test2WithOneDigit() {
         maskEmailLocalPartByX.parse("1", false);
         output = maskEmailLocalPartByX.generateMaskedRow(mail);
-        Assert.assertEquals("XXXXXXXXX@uestc.edu.cn", output);
+        assertEquals("XXXXXXXXX@uestc.edu.cn", output);
     }
 
     @Test
@@ -90,6 +90,6 @@ public class MaskEmailLocalPartByXTest {
     public void test5WrongFormat() {
         maskEmailLocalPartByX.parse("", false);
         output = maskEmailLocalPartByX.generateMaskedRow("hehe");
-        Assert.assertEquals("XXXX", output);
+        assertEquals("XXXX", output);
     }
 }

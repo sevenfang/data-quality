@@ -46,14 +46,14 @@ public class MaskFullEmailDomainByXTest {
     public void test1Good() {
         maskEmailDomainByX.parse("", false);
         output = maskEmailDomainByX.generateMaskedRow(mail);
-        Assert.assertEquals("hehe.hehe@XXXXX.XXX.XX", output);
+        assertEquals("hehe.hehe@XXXXX.XXX.XX", output);
     }
 
     @Test
     public void testReal() {
         maskEmailDomainByX.parse("", true);
         output = maskEmailDomainByX.generateMaskedRow("dewitt.julio@hotmail.com");
-        Assert.assertEquals("dewitt.julio@XXXXXXX.XXX", output);
+        assertEquals("dewitt.julio@XXXXXXX.XXX", output);
 
     }
 
@@ -61,7 +61,7 @@ public class MaskFullEmailDomainByXTest {
     public void testSpecialEmail() {
         maskEmailDomainByX.parse("", true);
         output = maskEmailDomainByX.generateMaskedRow(spemail);
-        Assert.assertEquals("hehe@XXXXXXXXXXXXXXXX.XX", output);
+        assertEquals("hehe@XXXXXXXXXXXXXXXX.XX", output);
 
     }
 
@@ -69,7 +69,7 @@ public class MaskFullEmailDomainByXTest {
     public void testSpecialEmails() {
         maskEmailDomainByX.parse("", true);
         output = maskEmailDomainByX.generateMaskedRow(spemails);
-        Assert.assertEquals("hehe@XXXXXXXXXXXXXXXXX.XXXXXXX.XX", output);
+        assertEquals("hehe@XXXXXXXXXXXXXXXXX.XXXXXXX.XX", output);
 
     }
 
@@ -77,21 +77,21 @@ public class MaskFullEmailDomainByXTest {
     public void test2WithInput() {
         maskEmailDomainByX.parse("hehe", false);
         output = maskEmailDomainByX.generateMaskedRow(mail);
-        Assert.assertEquals("hehe.hehe@XXXXX.XXX.XX", output);
+        assertEquals("hehe.hehe@XXXXX.XXX.XX", output);
     }
 
     @Test
     public void test2WithOneCharacter() {
         maskEmailDomainByX.parse("A", false);
         output = maskEmailDomainByX.generateMaskedRow(mail);
-        Assert.assertEquals("hehe.hehe@AAAAA.AAA.AA", output);
+        assertEquals("hehe.hehe@AAAAA.AAA.AA", output);
     }
 
     @Test
     public void test2WithOneDigit() {
         maskEmailDomainByX.parse("1", false);
         output = maskEmailDomainByX.generateMaskedRow(mail);
-        Assert.assertEquals("hehe.hehe@XXXXX.XXX.XX", output);
+        assertEquals("hehe.hehe@XXXXX.XXX.XX", output);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class MaskFullEmailDomainByXTest {
     public void test5WrongFormat() {
         maskEmailDomainByX.parse("", false);
         output = maskEmailDomainByX.generateMaskedRow("hehe");
-        Assert.assertEquals("XXXX", output);
+        assertEquals("XXXX", output);
     }
 
 }

@@ -43,56 +43,56 @@ public class MaskTopEmailDomainByXTest {
     public void testGoodStandard() {
         maskTopEmailDomainByX.parse("", false);
         output = maskTopEmailDomainByX.generateMaskedRow(mailStandard);
-        Assert.assertEquals("hehe@XXXXX.com", output);
+        assertEquals("hehe@XXXXX.com", output);
     }
 
     @Test
     public void testGoodWithPointsInLocal() {
         maskTopEmailDomainByX.parse("", false);
         output = maskTopEmailDomainByX.generateMaskedRow(mailWithPointsInLocal);
-        Assert.assertEquals("hehe.haha@XXXXX.com", output);
+        assertEquals("hehe.haha@XXXXX.com", output);
     }
 
     @Test
     public void testMultipalDomaim() {
         maskTopEmailDomainByX.parse("", false);
         output = maskTopEmailDomainByX.generateMaskedRow(mailMultipalDomaim);
-        Assert.assertEquals("hehe.haha@XXXXX.XX.XXX.cn", output);
+        assertEquals("hehe.haha@XXXXX.XX.XXX.cn", output);
     }
 
     @Test
     public void testOneCharacter() {
         maskTopEmailDomainByX.parse("Z", false);
         output = maskTopEmailDomainByX.generateMaskedRow(mailMultipalDomaim);
-        Assert.assertEquals("hehe.haha@ZZZZZ.ZZ.ZZZ.cn", output);
+        assertEquals("hehe.haha@ZZZZZ.ZZ.ZZZ.cn", output);
     }
 
     @Test
     public void testString() {
         maskTopEmailDomainByX.parse("Zed", false);
         output = maskTopEmailDomainByX.generateMaskedRow(mailMultipalDomaim);
-        Assert.assertEquals("hehe.haha@XXXXX.XX.XXX.cn", output);
+        assertEquals("hehe.haha@XXXXX.XX.XXX.cn", output);
     }
 
     @Test
     public void testOneDigit() {
         maskTopEmailDomainByX.parse("Zed", false);
         output = maskTopEmailDomainByX.generateMaskedRow(mailMultipalDomaim);
-        Assert.assertEquals("hehe.haha@XXXXX.XX.XXX.cn", output);
+        assertEquals("hehe.haha@XXXXX.XX.XXX.cn", output);
     }
 
     @Test
     public void testNullEmail() {
         maskTopEmailDomainByX.parse("", false);
         output = maskTopEmailDomainByX.generateMaskedRow(null);
-        Assert.assertEquals("", output);
+        assertEquals("", output);
     }
 
     @Test
     public void testKeepNullEmail() {
         maskTopEmailDomainByX.parse("", true);
         output = maskTopEmailDomainByX.generateMaskedRow(null);
-        Assert.assertEquals(output, output);
+        assertEquals(output, output);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class MaskTopEmailDomainByXTest {
     public void testWrongFormat() {
         maskTopEmailDomainByX.parse("", false);
         output = maskTopEmailDomainByX.generateMaskedRow("hehe");
-        Assert.assertEquals("XXXX", output);
+        assertEquals("XXXX", output);
     }
 
 }

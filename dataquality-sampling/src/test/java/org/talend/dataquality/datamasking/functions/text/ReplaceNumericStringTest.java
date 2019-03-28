@@ -45,7 +45,7 @@ public class ReplaceNumericStringTest {
     public void testParseParameter() {
         ReplaceNumericString replaceNumericString = new ReplaceNumericString();
         replaceNumericString.parse("2", false); //$NON-NLS-1$
-        Assert.assertEquals("Parameters length should be 1", 1, replaceNumericString.getParsedParameters().length); //$NON-NLS-1$
+        assertEquals("Parameters length should be 1", 1, replaceNumericString.getParsedParameters().length); //$NON-NLS-1$
         Assert.assertTrue("Parameters should be valid", replaceNumericString.isValidParameters); //$NON-NLS-1$
     }
 
